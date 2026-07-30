@@ -1,6 +1,7 @@
 package com.runicsoft.bencolapp.productos.dtos.request;
 
 import com.runicsoft.bencolapp.productos.utils.ProductoCategoria;
+import com.runicsoft.bencolapp.utils.EstadoGeneral;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -11,4 +12,5 @@ public class ProductoRequest {
     private String descripcion;
     private ProductoCategoria  categoria;
     private BigDecimal precioBase;
+    private EstadoGeneral estado;
 }

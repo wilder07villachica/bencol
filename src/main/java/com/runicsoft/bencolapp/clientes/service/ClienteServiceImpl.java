@@ -7,6 +7,7 @@ import com.runicsoft.bencolapp.clientes.models.Cliente;
 import com.runicsoft.bencolapp.clientes.repository.ClienteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -18,12 +19,14 @@ public class ClienteServiceImpl implements ClienteService {
     private final ClienteMapper clienteMapper;
 
     @Override
+    @Transactional(readOnly = true)
     public List<ClienteResponse> listarClientes() {
         List<Cliente> clientes = clienteRepository.findAll();
         return clienteMapper.convertirListaClienteDto(clientes);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ClienteResponse buscarClientePorId(Long id) {
         if (id == null || id <= 0) {
             throw new IllegalArgumentException("Valor inválido");
@@ -35,6 +38,7 @@ public class ClienteServiceImpl implements ClienteService {
     }
 
     @Override
+    @Transactional
     public ClienteResponse registrarCliente(ClienteRequest request) {
         Cliente cliente = clienteMapper.convertirClienteEntidad(request);
         clienteRepository.save(cliente);
@@ -42,6 +46,7 @@ public class ClienteServiceImpl implements ClienteService {
     }
 
     @Override
+    @Transactional
     public ClienteResponse actualizarCliente(Long id, ClienteRequest request) {
         if (id == null || id <= 0) {
             throw new IllegalArgumentException("Valor inválido");
