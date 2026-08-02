@@ -18,6 +18,10 @@ import java.time.LocalDateTime;
 @Data
 public class ClientePrecio {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     @ManyToOne
     @JoinColumn(name = "cliente_id")
     private Cliente cliente;

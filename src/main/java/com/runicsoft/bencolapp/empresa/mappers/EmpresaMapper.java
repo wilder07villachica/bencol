@@ -14,8 +14,6 @@ public interface EmpresaMapper {
     /*
     * Instancia para convertir una entidad a Dto.
      */
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "estado", ignore = true)
     EmpresaResponse convertirEmpresaDto(Empresa empresa);
 
     /*

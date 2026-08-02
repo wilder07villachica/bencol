@@ -18,8 +18,8 @@ public interface ClientePrecioMapper {
     @Mapping(target = "producto", ignore = true)
     ClientePrecio convertirClientePrecioDto(ClientePrecioRequest request);
 
-    @Mapping(source = "cliente.nombre", target = "cliente")
-    @Mapping(source = "product.descripcion", target = "descripcion")
+    @Mapping(source = "cliente.nombre", target = "nombreCliente")
+    @Mapping(source = "producto.descripcion", target = "descripcionProducto")
     ClientePrecioResponse convertirDtoEntidad(ClientePrecio clientePrecio);
 
     List<ClientePrecioResponse> convertirListaPrecioDto(List<ClientePrecio> clientePrecios);

@@ -1,3 +1,27 @@
 spring:
   application:
     name: bencol-app
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/bencol_system?useSSL=false&serverTimezone=America/Lima&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format-sql: true
+
+  jackson:
+    serialization:
+      indent_output: true
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
+    org.springframework.web: INFO

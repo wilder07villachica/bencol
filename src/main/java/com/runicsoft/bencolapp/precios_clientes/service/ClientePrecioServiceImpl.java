@@ -53,7 +53,7 @@ public class ClientePrecioServiceImpl implements ClientePrecioService{
         Producto producto = productoRepository.findById(request.getProductoId()).orElseThrow(
                 () -> new IllegalArgumentException("Producto no encontrado")
         );
-        ClientePrecio precio = clientePrecioRepository.findByClientIdAndProductId(
+        ClientePrecio precio = clientePrecioRepository.findByClienteIdAndProductoId(
                 request.getClienteId(),
                 request.getProductoId()
         ).orElse(new ClientePrecio());
