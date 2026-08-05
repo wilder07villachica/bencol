@@ -21,19 +21,22 @@ public class Producto {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
+    @Column(nullable = false, unique = true, length = 20)
     private String codigo;
 
+    @Column(nullable = false, length = 255)
     private String descripcion;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private ProductoCategoria categoria;
 
-    @Column(name = "precio_base")
+    @Column(name = "precio_base", nullable = false, precision = 10, scale = 2)
     private BigDecimal precioBase;
 
     @Enumerated(EnumType.STRING)
-    private EstadoGeneral  estado;
+    @Column(nullable = false)
+    private EstadoGeneral estado;
 
     @PrePersist
     public void prePersist() {

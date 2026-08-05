@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.runicsoft.bencolapp.utils.constants.MessageConstants.*;
+
 @Service
 @RequiredArgsConstructor
 public class ProductoServiceImpl implements ProductoService{
@@ -20,40 +22,38 @@ public class ProductoServiceImpl implements ProductoService{
 
     @Override
     @Transactional(readOnly = true)
-    public List<ProductoResponse> listarProductos() {
+    public List<ProductoResponse> findAll() {
         List<Producto>  productos = productoRepository.findAll();
         return productoMapper.convertirListaProductoDto(productos);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ProductoResponse buscarProductoPorId(Long id) {
+    public ProductoResponse findById(Long id) {
         if (id == null || id <= 0) {
-            throw new IllegalArgumentException("Id invalido");
+            throw new IllegalArgumentException(ID_INVALIDO);
         }
-        Producto producto = productoRepository.findById(id).orElseThrow(
-                () -> new IllegalArgumentException("Registro no encontrado")
-        );
+        Producto producto = getProducto(id);
         return productoMapper.convertirProductoDto(producto);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ProductoResponse buscarProductoPorCodigo(String codigo) {
+    public ProductoResponse findByCodigo(String codigo) {
         if (codigo == null || codigo.isBlank()) {
-            throw new IllegalArgumentException("Código inválido");
+            throw new IllegalArgumentException(CODIGO_INVALIDO);
         }
         Producto producto = productoRepository.findByCodigo(codigo).orElseThrow(
-                () -> new IllegalArgumentException("Registro no encontrado")
+                () -> new IllegalArgumentException(PRODUCTO_NO_ENCONTRADO)
         );
         return productoMapper.convertirProductoDto(producto);
     }
 
     @Override
     @Transactional
-    public ProductoResponse registrarProducto(ProductoRequest request) {
-        if (productoRepository.findByCodigo(request.getCodigo()).isPresent()) {
-            throw new IllegalArgumentException("Registro existente");
+    public ProductoResponse create(ProductoRequest request) {
+        if (productoRepository.existsByCodigo(request.getCodigo())) {
+            throw new IllegalArgumentException(CODIGO_EXISTENTE);
         }
         Producto producto = productoRepository.save(productoMapper.convertirProductoEntidad(request));
         return productoMapper.convertirProductoDto(producto);
@@ -61,19 +61,25 @@ public class ProductoServiceImpl implements ProductoService{
 
     @Override
     @Transactional
-    public ProductoResponse actualizarProducto(Long id, ProductoRequest request) {
+    public ProductoResponse update(Long id, ProductoRequest request) {
         if (id == null || id <= 0) {
-            throw new IllegalArgumentException("Valor inválido");
+            throw new IllegalArgumentException(ID_INVALIDO);
         }
-        Producto producto = productoRepository.findById(id).orElseThrow(
-                () -> new IllegalArgumentException("Producto no encontrado")
-        );
-        producto.setCodigo(request.getCodigo());
-        producto.setDescripcion(request.getDescripcion());
-        producto.setCategoria(request.getCategoria());
-        producto.setPrecioBase(request.getPrecioBase());
-        producto.setEstado(request.getEstado());
+        Producto producto = getProducto(id);
+
+        if (productoRepository.existsByCodigoAndIdNot(request.getCodigo(), id)) {
+            throw new IllegalArgumentException(CODIGO_EXISTENTE);
+        }
+
+        productoMapper.updateProducto(request, producto);
         productoRepository.save(producto);
         return productoMapper.convertirProductoDto(producto);
+    }
+    
+    // Métodos auxiliares
+    private Producto getProducto(Long id) {
+        return productoRepository.findById(id).orElseThrow(
+                () -> new IllegalArgumentException(PRODUCTO_NO_ENCONTRADO)
+        );
     }
 }

@@ -6,9 +6,9 @@ import com.runicsoft.bencolapp.productos.dtos.response.ProductoResponse;
 import java.util.List;
 
 public interface ProductoService {
-    List<ProductoResponse> listarProductos();
-    ProductoResponse buscarProductoPorId(Long id);
-    ProductoResponse buscarProductoPorCodigo(String codigo);
-    ProductoResponse registrarProducto(ProductoRequest request);
-    ProductoResponse actualizarProducto(Long id, ProductoRequest request);
+    List<ProductoResponse> findAll();
+    ProductoResponse findById(Long id);
+    ProductoResponse findByCodigo(String codigo);
+    ProductoResponse create(ProductoRequest request);
+    ProductoResponse update(Long id, ProductoRequest request);
 }

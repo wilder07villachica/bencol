@@ -6,9 +6,9 @@ import com.runicsoft.bencolapp.precios_clientes.dtos.response.ClientePrecioRespo
 import java.util.List;
 
 public interface ClientePrecioService {
-    List<ClientePrecioResponse> listarPreciosClientes();
-    ClientePrecioResponse buscarPrecioPorId(Long id);
-    ClientePrecioResponse registrarNuevoPrecio(ClientePrecioRequest request);
-    ClientePrecioResponse actualizarInformacion(Long id, ClientePrecioRequest request);
-    void deleteClientePrecio(Long id);
+    List<ClientePrecioResponse> findAll();
+    ClientePrecioResponse findById(Long id);
+    ClientePrecioResponse create(ClientePrecioRequest request);
+    ClientePrecioResponse update(Long id, ClientePrecioRequest request);
+    void deleteById(Long id);
 }

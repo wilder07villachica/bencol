@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.runicsoft.bencolapp.utils.constants.MessageConstants.*;
+
 @Service
 @RequiredArgsConstructor
 public class EmpresaServiceImpl implements EmpresaService{
@@ -20,28 +22,28 @@ public class EmpresaServiceImpl implements EmpresaService{
 
     @Override
     @Transactional(readOnly = true)
-    public List<EmpresaResponse> listarEmpresas() {
+    public List<EmpresaResponse> findAll() {
         List<Empresa> listaEmpresas = empresaRepository.findAll();
         return empresaMapper.convertirListaEmpresaDto(listaEmpresas);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public EmpresaResponse buscarEmpresa(Long idEmpresa) {
+    public EmpresaResponse findById(Long idEmpresa) {
         if (idEmpresa == null || idEmpresa <= 0) {
-            throw new IllegalArgumentException("Identificador inválido");
+            throw new IllegalArgumentException(ID_INVALIDO);
         }
         Empresa empresa = empresaRepository.findById(idEmpresa).orElseThrow(
-                () -> new IllegalArgumentException("Empresa no encontrada")
+                () -> new IllegalArgumentException(EMPRESA_NO_ENCONTRADA)
         );
         return empresaMapper.convertirEmpresaDto(empresa);
     }
 
     @Override
     @Transactional
-    public EmpresaResponse registrarEmpresa(EmpresaRequest request) {
+    public EmpresaResponse create(EmpresaRequest request) {
         if (empresaRepository.existsByRuc(request.getRuc())) {
-            throw new IllegalArgumentException("Empresa con RUC: "  + request.getRuc() + "Ya existe.");
+            throw new IllegalArgumentException(EMPRESA_EXISTENTE);
         }
         Empresa empresa = empresaMapper.convertirEmpresaEntidad(request);
         empresaRepository.save(empresa);

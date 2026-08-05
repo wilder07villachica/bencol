@@ -9,11 +9,11 @@ import com.runicsoft.bencolapp.precios_clientes.models.ClientePrecio;
 import com.runicsoft.bencolapp.precios_clientes.repository.ClientePrecioRepository;
 import com.runicsoft.bencolapp.productos.models.Producto;
 import com.runicsoft.bencolapp.productos.repository.ProductoRepository;
+import static com.runicsoft.bencolapp.utils.constants.MessageConstants.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -27,40 +27,39 @@ public class ClientePrecioServiceImpl implements ClientePrecioService{
 
     @Override
     @Transactional(readOnly = true)
-    public List<ClientePrecioResponse> listarPreciosClientes() {
+    public List<ClientePrecioResponse> findAll() {
         List<ClientePrecio> precios = clientePrecioRepository.findAll();
         return clientePrecioMapper.convertirListaPrecioDto(precios);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ClientePrecioResponse buscarPrecioPorId(Long id) {
+    public ClientePrecioResponse findById(Long id) {
         if (id == null || id <= 0) {
-            throw new IllegalArgumentException("Valor inválido");
+            throw new IllegalArgumentException(ID_INVALIDO);
         }
-        ClientePrecio clientePrecio = clientePrecioRepository.findById(id).orElseThrow(
-                () -> new IllegalArgumentException("Precio no encontrado.")
-        );
+        ClientePrecio clientePrecio = getClientePrecio(id);
         return clientePrecioMapper.convertirDtoEntidad(clientePrecio);
     }
 
     @Override
     @Transactional
-    public ClientePrecioResponse registrarNuevoPrecio(ClientePrecioRequest request) {
-        Cliente cliente = clienteRepository.findById(request.getClienteId()).orElseThrow(
-                () -> new IllegalArgumentException("Cliente no encontrado")
-        );
-        Producto producto = productoRepository.findById(request.getProductoId()).orElseThrow(
-                () -> new IllegalArgumentException("Producto no encontrado")
-        );
-        ClientePrecio precio = clientePrecioRepository.findByClienteIdAndProductoId(
+    public ClientePrecioResponse create(ClientePrecioRequest request) {
+        Cliente cliente = getCliente(request.getClienteId());
+        Producto producto = getProducto(request.getProductoId());
+
+        if (clientePrecioRepository.existsByClienteIdAndProductoId(
                 request.getClienteId(),
                 request.getProductoId()
-        ).orElse(new ClientePrecio());
+        )) {
+            throw new IllegalArgumentException(PRECIO_CLIENTE_EXISTENTE);
+        }
+
+        ClientePrecio precio = new ClientePrecio();
+
         precio.setCliente(cliente);
         precio.setProducto(producto);
         precio.setPrecio(request.getPrecio());
-        precio.setFechaActualizacion(LocalDateTime.now());
 
         ClientePrecio precioNuevo = clientePrecioRepository.save(precio);
         return clientePrecioMapper.convertirDtoEntidad(precioNuevo);
@@ -68,30 +67,56 @@ public class ClientePrecioServiceImpl implements ClientePrecioService{
 
     @Override
     @Transactional
-    public ClientePrecioResponse actualizarInformacion(Long id, ClientePrecioRequest request) {
-        ClientePrecio precio = clientePrecioRepository.findById(id).orElseThrow(
-                () -> new IllegalArgumentException("Precio no encontrado")
-        );
-        Cliente cliente = clienteRepository.findById(request.getClienteId()).orElseThrow(
-                () -> new IllegalArgumentException("Cliente no encontrado")
-        );
-        Producto producto = productoRepository.findById(request.getProductoId()).orElseThrow(
-                () -> new IllegalArgumentException("Producto no encontrado")
-        );
+    public ClientePrecioResponse update(Long id, ClientePrecioRequest request) {
+        if (id == null || id <= 0) {
+            throw new IllegalArgumentException(ID_INVALIDO);
+        }
+
+        ClientePrecio precio = getClientePrecio(id);
+        Cliente cliente = getCliente(request.getClienteId());
+        Producto producto = getProducto(request.getProductoId());
+
+        if (clientePrecioRepository.existsByClienteIdAndProductoIdAndIdNot(
+                request.getClienteId(), request.getProductoId(), id)
+        ) {
+            throw new IllegalArgumentException(PRECIO_CLIENTE_EXISTENTE);
+        }
+
         precio.setCliente(cliente);
         precio.setProducto(producto);
         precio.setPrecio(request.getPrecio());
-        precio.setFechaActualizacion(LocalDateTime.now());
+
         ClientePrecio actualizado = clientePrecioRepository.save(precio);
         return clientePrecioMapper.convertirDtoEntidad(actualizado);
     }
 
     @Override
     @Transactional
-    public void deleteClientePrecio(Long id) {
-        ClientePrecio precio = clientePrecioRepository.findById(id).orElseThrow(
-                () -> new RuntimeException("Precio no encontrado")
-        );
+    public void deleteById(Long id) {
+        if (id == null || id <= 0) {
+            throw new IllegalArgumentException(ID_INVALIDO);
+        }
+
+        ClientePrecio precio = getClientePrecio(id);
         clientePrecioRepository.delete(precio);
+    }
+
+    //Métodos auxiliares
+    private Cliente getCliente(Long id) {
+        return clienteRepository.findById(id).orElseThrow(
+                () -> new IllegalArgumentException(CLIENTE_NO_ENCONTRADO)
+        );
+    }
+
+    private Producto getProducto(Long id) {
+        return productoRepository.findById(id).orElseThrow(
+                () -> new IllegalArgumentException(PRODUCTO_NO_ENCONTRADO)
+        );
+    }
+
+    private ClientePrecio getClientePrecio(Long id) {
+        return clientePrecioRepository.findById(id).orElseThrow(
+                () -> new IllegalArgumentException(PRECIO_CLIENTE_NO_ENCONTRADO)
+        );
     }
 }

@@ -11,9 +11,6 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface ClientePrecioMapper {
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "fechaCreacion", ignore = true)
-    @Mapping(target = "fechaActualizacion", ignore = true)
     @Mapping(target = "cliente", ignore = true)
     @Mapping(target = "producto", ignore = true)
     ClientePrecio convertirClientePrecioDto(ClientePrecioRequest request);

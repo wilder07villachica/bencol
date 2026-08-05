@@ -6,7 +6,7 @@ import com.runicsoft.bencolapp.empresa.dtos.response.EmpresaResponse;
 import java.util.List;
 
 public interface EmpresaService {
-    List<EmpresaResponse> listarEmpresas();
-    EmpresaResponse buscarEmpresa(Long idEmpresa);
-    EmpresaResponse registrarEmpresa(EmpresaRequest request);
+    List<EmpresaResponse> findAll();
+    EmpresaResponse findById(Long idEmpresa);
+    EmpresaResponse create(EmpresaRequest request);
 }

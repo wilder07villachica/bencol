@@ -3,6 +3,7 @@ package com.runicsoft.bencolapp.precios_clientes.controller;
 import com.runicsoft.bencolapp.precios_clientes.dtos.request.ClientePrecioRequest;
 import com.runicsoft.bencolapp.precios_clientes.dtos.response.ClientePrecioResponse;
 import com.runicsoft.bencolapp.precios_clientes.service.ClientePrecioService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,29 +19,29 @@ public class ClientePrecioController {
     private final ClientePrecioService clientePrecioService;
 
     @GetMapping
-    public ResponseEntity<List<ClientePrecioResponse>> listarPreciosClientes() {
-        return ResponseEntity.ok(clientePrecioService.listarPreciosClientes());
+    public ResponseEntity<List<ClientePrecioResponse>> findAll() {
+        return ResponseEntity.ok(clientePrecioService.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ClientePrecioResponse> buscarPrecioPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(clientePrecioService.buscarPrecioPorId(id));
+    public ResponseEntity<ClientePrecioResponse> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(clientePrecioService.findById(id));
     }
 
     @PostMapping
-    public ResponseEntity<ClientePrecioResponse> registrarNuevoPrecio(@RequestBody ClientePrecioRequest request) {
-        ClientePrecioResponse response = clientePrecioService.registrarNuevoPrecio(request);
+    public ResponseEntity<ClientePrecioResponse> create(@Valid @RequestBody ClientePrecioRequest request) {
+        ClientePrecioResponse response = clientePrecioService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ClientePrecioResponse> actualizarPrecio(@PathVariable Long id, @RequestBody ClientePrecioRequest request) {
-        return ResponseEntity.ok(clientePrecioService.actualizarInformacion(id, request));
+    public ResponseEntity<ClientePrecioResponse> update(@PathVariable Long id, @Valid @RequestBody ClientePrecioRequest request) {
+        return ResponseEntity.ok(clientePrecioService.update(id, request));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarPrecio(@PathVariable Long id) {
-        clientePrecioService.deleteClientePrecio(id);
+    public ResponseEntity<Void> deleteById(@PathVariable Long id) {
+        clientePrecioService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 }

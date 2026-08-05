@@ -3,6 +3,7 @@ package com.runicsoft.bencolapp.empresa.controller;
 import com.runicsoft.bencolapp.empresa.dtos.request.EmpresaRequest;
 import com.runicsoft.bencolapp.empresa.dtos.response.EmpresaResponse;
 import com.runicsoft.bencolapp.empresa.service.EmpresaService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,18 +19,18 @@ public class EmpresaController {
     private final EmpresaService empresaService;
 
     @GetMapping
-    public ResponseEntity<List<EmpresaResponse>> listarEmpresas() {
-        return ResponseEntity.ok(empresaService.listarEmpresas());
+    public ResponseEntity<List<EmpresaResponse>> findAll() {
+        return ResponseEntity.ok(empresaService.findAll());
     }
 
     @GetMapping("/{idEmpresa}")
-    public ResponseEntity<EmpresaResponse> buscarEmpresa(@PathVariable Long idEmpresa) {
-        return ResponseEntity.ok(empresaService.buscarEmpresa(idEmpresa));
+    public ResponseEntity<EmpresaResponse> findById(@PathVariable Long idEmpresa) {
+        return ResponseEntity.ok(empresaService.findById(idEmpresa));
     }
 
     @PostMapping
-    public ResponseEntity<EmpresaResponse> registrarEmpresa(@RequestBody EmpresaRequest request) {
-        EmpresaResponse response = empresaService.registrarEmpresa(request);
+    public ResponseEntity<EmpresaResponse> create(@Valid @RequestBody EmpresaRequest request) {
+        EmpresaResponse response = empresaService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }
