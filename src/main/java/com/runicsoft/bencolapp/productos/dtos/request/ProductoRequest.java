@@ -1,8 +1,10 @@
 package com.runicsoft.bencolapp.productos.dtos.request;
 
 import com.runicsoft.bencolapp.productos.utils.ProductoCategoria;
+import com.runicsoft.bencolapp.productos.utils.UnidadMedida;
 import com.runicsoft.bencolapp.utils.EstadoGeneral;
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -23,6 +25,17 @@ public class ProductoRequest {
 
     @NotNull(message = "La categoría es obligatoria.")
     private ProductoCategoria categoria;
+
+    @NotNull(message = "El contenido del producto es obligatorio.")
+    @DecimalMin(value = "0.01", message = "El contenido del producto debe ser mayor que cero.")
+    private BigDecimal contenido;
+
+    @NotNull(message = "La unidad de medida es obligatoria.")
+    private UnidadMedida unidadMedida;
+
+    @NotNull(message = "Las unidades por paquete son obligatorias.")
+    @Min(value = 1, message = "Las unidades por paquete deben ser como mínimo 1.")
+    private Integer unidadesPorPaquete;
 
     @NotNull(message = "El precio base es obligatorio.")
     @DecimalMin(value = "0.01", message = "El precio base debe ser mayor que cero.")

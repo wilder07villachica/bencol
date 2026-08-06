@@ -200,32 +200,35 @@ public class VentaServiceImpl implements VentaService {
 
     private void validarStockVenta(VentaRequest request) {
         for (DetalleVentaRequest detalle : request.getDetalles()) {
+            Producto producto = getProducto(detalle.getProductoId());
             Inventario inventario = inventarioRepository
-                    .findByProductoId(detalle.getProductoId())
-                            .orElseThrow(
-                                    () -> new IllegalArgumentException(INVENTARIO_NO_ENCONTRADO)
-                            );
+                    .findByProductoId(producto.getId())
+                    .orElseThrow(() -> new IllegalArgumentException(INVENTARIO_NO_ENCONTRADO));
 
-            if (detalle.getCantidad() > inventario.getStockActual()) {
+            Integer cantidadUnidades = calcularUnidadesFisicas(detalle.getCantidad(), producto);
+            if (cantidadUnidades > inventario.getStockActual()) {
                 throw new IllegalArgumentException(STOCK_INSUFICIENTE);
             }
         }
     }
 
+    private Integer calcularUnidadesFisicas(Integer cantidadPaquetes, Producto producto) {
+        return cantidadPaquetes * producto.getUnidadesPorPaquete();
+    }
+
     private void descontarInventarioVenta(Venta venta, List<DetalleVentaRequest> detalles) {
         for (DetalleVentaRequest detalleRequest : detalles) {
-            Inventario inventario = inventarioRepository
-                    .findByProductoId(detalleRequest.getProductoId())
-                            .orElseThrow(
-                                    () -> new IllegalArgumentException(INVENTARIO_NO_ENCONTRADO)
-                            );
+            Producto producto = getProducto(detalleRequest.getProductoId());
+            Inventario inventario = inventarioRepository.findByProductoId(producto.getId())
+                    .orElseThrow(() -> new IllegalArgumentException(INVENTARIO_NO_ENCONTRADO));
 
+            Integer cantidadUnidades = calcularUnidadesFisicas(detalleRequest.getCantidad(), producto);
             Integer stockAnterior = inventario.getStockActual();
-            Integer stockNuevo = stockAnterior - detalleRequest.getCantidad();
+            Integer stockNuevo = stockAnterior - cantidadUnidades;
 
             inventario.setStockActual(stockNuevo);
             inventarioRepository.save(inventario);
-            registrarMovimientoVenta(venta, inventario, detalleRequest.getCantidad(), stockAnterior, stockNuevo);
+            registrarMovimientoVenta(venta, inventario, cantidadUnidades, stockAnterior, stockNuevo);
         }
     }
 
@@ -242,21 +245,18 @@ public class VentaServiceImpl implements VentaService {
 
     private void devolverInventarioVenta(Venta venta) {
         for (DetalleVenta detalle : venta.getDetalles()) {
-            Inventario inventario = inventarioRepository
-                    .findByProductoId(
-                            detalle.getProducto().getId()
-                    )
-                    .orElseThrow(
-                            () -> new IllegalArgumentException(INVENTARIO_NO_ENCONTRADO)
-                    );
+            Producto producto = detalle.getProducto();
+            Inventario inventario = inventarioRepository.findByProductoId(producto.getId())
+                    .orElseThrow(() -> new IllegalArgumentException(INVENTARIO_NO_ENCONTRADO));
 
+            Integer cantidadUnidades = calcularUnidadesFisicas(detalle.getCantidad(), producto);
             Integer stockAnterior = inventario.getStockActual();
-            Integer stockNuevo = stockAnterior + detalle.getCantidad();
-            validarStockMaximo(inventario, stockNuevo);
+            Integer stockNuevo = stockAnterior + cantidadUnidades;
 
+            validarStockMaximo(inventario, stockNuevo);
             inventario.setStockActual(stockNuevo);
             inventarioRepository.save(inventario);
-            registrarMovimientoAnulacion(venta, inventario, detalle.getCantidad(), stockAnterior, stockNuevo);
+            registrarMovimientoAnulacion(venta, inventario, cantidadUnidades, stockAnterior, stockNuevo);
         }
     }
 

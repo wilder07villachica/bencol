@@ -12,10 +12,21 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface ProductoMapper {
 
+    @Mapping(source = "contenido", target = "contenido")
+    @Mapping(source = "unidadMedida", target = "unidadMedida")
+    @Mapping(source = "unidadesPorPaquete", target = "unidadesPorPaquete")
     ProductoResponse convertirProductoDto(Producto producto);
+
+    @Mapping(source = "contenido", target = "contenido")
+    @Mapping(source = "unidadMedida", target = "unidadMedida")
+    @Mapping(source = "unidadesPorPaquete", target = "unidadesPorPaquete")
     Producto convertirProductoEntidad(ProductoRequest request);
+
     List<ProductoResponse> convertirListaProductoDto(List<Producto> productos);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(source = "contenido", target = "contenido")
+    @Mapping(source = "unidadMedida", target = "unidadMedida")
+    @Mapping(source = "unidadesPorPaquete", target = "unidadesPorPaquete")
     void updateProducto(ProductoRequest request, @MappingTarget Producto producto);
 }
