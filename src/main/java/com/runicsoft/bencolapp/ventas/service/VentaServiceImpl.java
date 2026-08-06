@@ -2,6 +2,11 @@ package com.runicsoft.bencolapp.ventas.service;
 
 import com.runicsoft.bencolapp.clientes.models.Cliente;
 import com.runicsoft.bencolapp.clientes.repository.ClienteRepository;
+import com.runicsoft.bencolapp.inventario.models.Inventario;
+import com.runicsoft.bencolapp.inventario.models.MovimientoInventario;
+import com.runicsoft.bencolapp.inventario.repository.InventarioRepository;
+import com.runicsoft.bencolapp.inventario.repository.MovimientoInventarioRepository;
+import com.runicsoft.bencolapp.inventario.utils.TipoMovimientoInventario;
 import com.runicsoft.bencolapp.precios_clientes.models.ClientePrecio;
 import com.runicsoft.bencolapp.precios_clientes.repository.ClientePrecioRepository;
 import com.runicsoft.bencolapp.productos.models.Producto;
@@ -33,6 +38,9 @@ public class VentaServiceImpl implements VentaService {
     private final ProductoRepository productoRepository;
     private final ClientePrecioRepository clientePrecioRepository;
     private final VentaMapper ventaMapper;
+
+    private final InventarioRepository inventarioRepository;
+    private final MovimientoInventarioRepository movimientoInventarioRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -73,6 +81,7 @@ public class VentaServiceImpl implements VentaService {
         Cliente cliente = getCliente(request.getClienteId());
         validarClienteActivo(cliente);
         validarProductosDuplicados(request.getDetalles());
+        validarStockVenta(request);
 
         Venta venta = new Venta();
 
@@ -83,7 +92,10 @@ public class VentaServiceImpl implements VentaService {
         BigDecimal subtotalVenta = BigDecimal.ZERO;
 
         for (DetalleVentaRequest detalleRequest : request.getDetalles()) {
-            Producto producto = getProducto(detalleRequest.getProductoId());
+            Producto producto = getProducto(
+                    detalleRequest.getProductoId()
+            );
+
             validarProductoActivo(producto);
 
             BigDecimal precioUnitario = obtenerPrecioProducto(
@@ -91,9 +103,8 @@ public class VentaServiceImpl implements VentaService {
                     producto
             );
 
-            BigDecimal subtotalDetalle = precioUnitario.multiply(
-                    BigDecimal.valueOf(detalleRequest.getCantidad())
-            );
+            BigDecimal subtotalDetalle = precioUnitario
+                    .multiply(BigDecimal.valueOf(detalleRequest.getCantidad()));
 
             DetalleVenta detalle = new DetalleVenta();
 
@@ -112,21 +123,23 @@ public class VentaServiceImpl implements VentaService {
         venta.setTotal(subtotalVenta);
 
         Venta ventaGuardada = ventaRepository.save(venta);
+        descontarInventarioVenta(ventaGuardada, request.getDetalles());
         return ventaMapper.convertirVentaDto(ventaGuardada);
     }
 
     @Override
+    @Transactional
     public VentaResponse anularVenta(Long id) {
         if (id == null || id <= 0) {
             throw new IllegalArgumentException(ID_INVALIDO);
         }
-
         Venta venta = getVenta(id);
 
         if (venta.getEstado() == EstadoVenta.ANULADA) {
             throw new IllegalArgumentException(VENTA_YA_ANULADA);
         }
 
+        devolverInventarioVenta(venta);
         venta.setEstado(EstadoVenta.ANULADA);
         Venta ventaActualizada = ventaRepository.save(venta);
         return ventaMapper.convertirVentaDto(ventaActualizada);
@@ -182,6 +195,85 @@ public class VentaServiceImpl implements VentaService {
             if (!productosIds.add(detalle.getProductoId())) {
                 throw new IllegalArgumentException(PRODUCTO_DUPLICADO_VENTA);
             }
+        }
+    }
+
+    private void validarStockVenta(VentaRequest request) {
+        for (DetalleVentaRequest detalle : request.getDetalles()) {
+            Inventario inventario = inventarioRepository
+                    .findByProductoId(detalle.getProductoId())
+                            .orElseThrow(
+                                    () -> new IllegalArgumentException(INVENTARIO_NO_ENCONTRADO)
+                            );
+
+            if (detalle.getCantidad() > inventario.getStockActual()) {
+                throw new IllegalArgumentException(STOCK_INSUFICIENTE);
+            }
+        }
+    }
+
+    private void descontarInventarioVenta(Venta venta, List<DetalleVentaRequest> detalles) {
+        for (DetalleVentaRequest detalleRequest : detalles) {
+            Inventario inventario = inventarioRepository
+                    .findByProductoId(detalleRequest.getProductoId())
+                            .orElseThrow(
+                                    () -> new IllegalArgumentException(INVENTARIO_NO_ENCONTRADO)
+                            );
+
+            Integer stockAnterior = inventario.getStockActual();
+            Integer stockNuevo = stockAnterior - detalleRequest.getCantidad();
+
+            inventario.setStockActual(stockNuevo);
+            inventarioRepository.save(inventario);
+            registrarMovimientoVenta(venta, inventario, detalleRequest.getCantidad(), stockAnterior, stockNuevo);
+        }
+    }
+
+    private void registrarMovimientoVenta(Venta venta, Inventario inventario, Integer cantidad, Integer stockAnterior, Integer stockNuevo) {
+        MovimientoInventario movimiento = new MovimientoInventario();
+        movimiento.setProducto(inventario.getProducto());
+        movimiento.setTipoMovimiento(TipoMovimientoInventario.SALIDA);
+        movimiento.setCantidad(cantidad);
+        movimiento.setStockAnterior(stockAnterior);
+        movimiento.setStockNuevo(stockNuevo);
+        movimiento.setReferencia("Venta " + venta.getCodigo());
+        movimientoInventarioRepository.save(movimiento);
+    }
+
+    private void devolverInventarioVenta(Venta venta) {
+        for (DetalleVenta detalle : venta.getDetalles()) {
+            Inventario inventario = inventarioRepository
+                    .findByProductoId(
+                            detalle.getProducto().getId()
+                    )
+                    .orElseThrow(
+                            () -> new IllegalArgumentException(INVENTARIO_NO_ENCONTRADO)
+                    );
+
+            Integer stockAnterior = inventario.getStockActual();
+            Integer stockNuevo = stockAnterior + detalle.getCantidad();
+            validarStockMaximo(inventario, stockNuevo);
+
+            inventario.setStockActual(stockNuevo);
+            inventarioRepository.save(inventario);
+            registrarMovimientoAnulacion(venta, inventario, detalle.getCantidad(), stockAnterior, stockNuevo);
+        }
+    }
+
+    private void registrarMovimientoAnulacion(Venta venta, Inventario inventario, Integer cantidad, Integer stockAnterior, Integer stockNuevo) {
+        MovimientoInventario movimiento = new MovimientoInventario();
+        movimiento.setProducto(inventario.getProducto());
+        movimiento.setTipoMovimiento(TipoMovimientoInventario.ENTRADA);
+        movimiento.setCantidad(cantidad);
+        movimiento.setStockAnterior(stockAnterior);
+        movimiento.setStockNuevo(stockNuevo);
+        movimiento.setReferencia("Anulación venta " + venta.getCodigo());
+        movimientoInventarioRepository.save(movimiento);
+    }
+
+    private void validarStockMaximo(Inventario inventario, Integer stockNuevo) {
+        if (inventario.getStockMaximo() != null && stockNuevo > inventario.getStockMaximo()) {
+            throw new IllegalArgumentException(STOCK_SUPERA_MAXIMO);
         }
     }
 

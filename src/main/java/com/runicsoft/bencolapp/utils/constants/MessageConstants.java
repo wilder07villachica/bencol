@@ -32,4 +32,12 @@ public final class MessageConstants {
     public static final String VENTA_NO_ENCONTRADA =  "La venta solicitada no fue encontrada.";
     public static final String PRODUCTO_DUPLICADO_VENTA = "No se puede registrar el mismo producto más de una vez en la venta.";
     public static final String VENTA_YA_ANULADA = "La venta ya se encuentra anulada.";
+
+    // INVENTARIO
+    public static final String INVENTARIO_NO_ENCONTRADO = "El inventario solicitado no fue encontrado.";
+    public static final String INVENTARIO_PRODUCTO_EXISTENTE = "El producto ya tiene un inventario registrado.";
+    public static final String STOCK_INSUFICIENTE = "No existe stock suficiente para realizar la salida.";
+    public static final String STOCK_MAXIMO_INVALIDO = "El stock máximo no puede ser menor que el stock mínimo.";
+    public static final String STOCK_SUPERA_MAXIMO = "La operación supera el stock máximo permitido.";
+    public static final String TIPO_MOVIMIENTO_INVALIDO = "El tipo de movimiento de inventario no es válido.";
 }
