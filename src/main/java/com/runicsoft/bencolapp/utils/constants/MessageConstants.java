@@ -61,4 +61,14 @@ public final class MessageConstants {
 
     // EGRESOS
     public static final String EGRESO_NO_ENCONTRADO = "El egreso solicitado no fue encontrado.";
+
+    // PROVEEDORES
+    public static final String PROVEEDOR_NO_ENCONTRADO = "El proveedor solicitado no fue encontrado.";
+    public static final String RUC_EXISTENTE = "Ya existe un proveedor registrado con ese RUC.";
+    public static final String RUC_INVALIDO = "El RUC proporcionado no es válido.";
+
+    // COMPRAS
+    public static final String COMPRA_NO_ENCONTRADA = "La compra solicitada no fue encontrada.";
+    public static final String PROVEEDOR_INACTIVO = "El proveedor se encuentra inactivo.";
+    public static final String PRODUCTO_DUPLICADO_COMPRA = "No se puede registrar el mismo producto más de una vez en la compra.";
 }
