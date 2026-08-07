@@ -58,4 +58,7 @@ public final class MessageConstants {
     public static final String CAJA_CERRADA = "La caja se encuentra cerrada.";
     public static final String SALDO_CAJA_INSUFICIENTE = "No existe saldo suficiente en caja para realizar el egreso.";
     public static final String TIPO_MOVIMIENTO_CAJA_INVALIDO = "El tipo de movimiento de caja no es válido.";
+
+    // EGRESOS
+    public static final String EGRESO_NO_ENCONTRADO = "El egreso solicitado no fue encontrado.";
 }
