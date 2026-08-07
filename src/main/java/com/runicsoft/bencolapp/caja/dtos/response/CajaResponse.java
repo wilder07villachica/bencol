@@ -14,6 +14,9 @@ public class CajaResponse {
     private BigDecimal totalIngresos;
     private BigDecimal totalEgresos;
     private BigDecimal saldoActual;
+    private BigDecimal saldoEsperado;
+    private BigDecimal saldoReal;
+    private BigDecimal diferencia;
     private EstadoCaja estado;
     private List<MovimientoCajaResponse> movimientos;
     private LocalDateTime fechaApertura;

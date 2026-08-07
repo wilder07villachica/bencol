@@ -1,6 +1,7 @@
 package com.runicsoft.bencolapp.caja.controller;
 
 import com.runicsoft.bencolapp.caja.dtos.request.CajaRequest;
+import com.runicsoft.bencolapp.caja.dtos.request.CierreCajaRequest;
 import com.runicsoft.bencolapp.caja.dtos.request.MovimientoCajaRequest;
 import com.runicsoft.bencolapp.caja.dtos.response.CajaResponse;
 import com.runicsoft.bencolapp.caja.dtos.response.MovimientoCajaResponse;
@@ -48,8 +49,8 @@ public class CajaController {
     }
 
     @PatchMapping("/{idCaja}/cerrar")
-    public ResponseEntity<CajaResponse> cerrarCaja(@PathVariable Long idCaja) {
-        CajaResponse response = cajaService.cerrarCaja(idCaja);
+    public ResponseEntity<CajaResponse> cerrarCaja(@PathVariable Long idCaja, @Valid @RequestBody CierreCajaRequest request) {
+        CajaResponse response = cajaService.cerrarCaja(idCaja, request);
         return ResponseEntity.ok(response);
     }
 }

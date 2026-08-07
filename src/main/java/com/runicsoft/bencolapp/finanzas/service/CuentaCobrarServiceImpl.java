@@ -1,11 +1,6 @@
 package com.runicsoft.bencolapp.finanzas.service;
 
-import com.runicsoft.bencolapp.caja.models.Caja;
-import com.runicsoft.bencolapp.caja.models.MovimientoCaja;
-import com.runicsoft.bencolapp.caja.repository.CajaRepository;
-import com.runicsoft.bencolapp.caja.repository.MovimientoCajaRepository;
-import com.runicsoft.bencolapp.caja.utils.EstadoCaja;
-import com.runicsoft.bencolapp.caja.utils.TipoMovimientoCaja;
+import com.runicsoft.bencolapp.caja.service.CajaService;
 import com.runicsoft.bencolapp.clientes.models.Cliente;
 import com.runicsoft.bencolapp.clientes.repository.ClienteRepository;
 import com.runicsoft.bencolapp.finanzas.dtos.request.CuentaCobrarRequest;
@@ -14,7 +9,6 @@ import com.runicsoft.bencolapp.finanzas.dtos.response.CuentaCobrarResponse;
 import com.runicsoft.bencolapp.finanzas.dtos.response.DeudaClienteResponse;
 import com.runicsoft.bencolapp.finanzas.dtos.response.ResumenFinancieroResponse;
 import com.runicsoft.bencolapp.finanzas.mapper.CuentaCobrarMapper;
-import com.runicsoft.bencolapp.finanzas.mapper.PagoMapper;
 import com.runicsoft.bencolapp.finanzas.models.CuentaCobrar;
 import com.runicsoft.bencolapp.finanzas.models.Pago;
 import com.runicsoft.bencolapp.finanzas.repository.CuentaCobrarRepository;
@@ -40,11 +34,9 @@ public class CuentaCobrarServiceImpl implements CuentaCobrarService {
     private final PagoRepository pagoRepository;
     private final VentaRepository ventaRepository;
     private final CuentaCobrarMapper cuentaCobrarMapper;
-    private final PagoMapper pagoMapper;
     private final ClienteRepository clienteRepository;
 
-    private final CajaRepository cajaRepository;
-    private final MovimientoCajaRepository movimientoCajaRepository;
+    private final CajaService cajaService;
 
     @Override
     @Transactional(readOnly = true)
@@ -128,7 +120,6 @@ public class CuentaCobrarServiceImpl implements CuentaCobrarService {
         validarCuentaParaPago(cuenta);
         validarMontoPago(cuenta, request.getMonto());
 
-        Caja caja = getCajaAbierta();
         Pago pago = new Pago();
 
         pago.setCuentaCobrar(cuenta);
@@ -140,7 +131,12 @@ public class CuentaCobrarServiceImpl implements CuentaCobrarService {
         cuenta.getPagos().add(pagoGuardado);
 
         CuentaCobrar cuentaActualizada = actualizarCuentaDespuesPago(cuenta, request.getMonto());
-        registrarIngresoCaja(caja, cuenta, pagoGuardado);
+
+        cajaService.registrarIngreso(
+                pagoGuardado.getMonto(),
+                "Pago de venta " + cuenta.getVenta().getCodigo(),
+                pagoGuardado.getReferencia()
+        );
         return cuentaCobrarMapper.convertirCuentaDto(cuentaActualizada);
     }
 
@@ -274,30 +270,6 @@ public class CuentaCobrarServiceImpl implements CuentaCobrarService {
             cuenta.setEstado(EstadoCuenta.PARCIAL);
             return;
         }
-
         cuenta.setEstado(EstadoCuenta.PENDIENTE);
-    }
-
-    private Caja getCajaAbierta() {
-        return cajaRepository.findFirstByEstadoOrderByFechaAperturaDesc(EstadoCaja.ABIERTA)
-                .orElseThrow(
-                        () -> new IllegalArgumentException(CAJA_NO_ABIERTA)
-                );
-    }
-
-    private void registrarIngresoCaja(Caja caja, CuentaCobrar cuenta, Pago pago) {
-        BigDecimal nuevosIngresos = caja.getTotalIngresos().add(pago.getMonto());
-        BigDecimal nuevoSaldo = caja.getSaldoActual().add(pago.getMonto());
-        caja.setTotalIngresos(nuevosIngresos);
-        caja.setSaldoActual(nuevoSaldo);
-        MovimientoCaja movimiento = new MovimientoCaja();
-        movimiento.setCaja(caja);
-        movimiento.setTipoMovimiento(TipoMovimientoCaja.INGRESO);
-        movimiento.setMonto(pago.getMonto());
-        movimiento.setConcepto("Pago de venta " + cuenta.getVenta().getCodigo());
-        movimiento.setReferencia(pago.getReferencia());
-        MovimientoCaja movimientoGuardado = movimientoCajaRepository.save(movimiento);
-        caja.getMovimientos().add(movimientoGuardado);
-        cajaRepository.save(caja);
     }
 }

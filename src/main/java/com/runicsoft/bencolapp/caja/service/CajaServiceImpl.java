@@ -1,6 +1,7 @@
 package com.runicsoft.bencolapp.caja.service;
 
 import com.runicsoft.bencolapp.caja.dtos.request.CajaRequest;
+import com.runicsoft.bencolapp.caja.dtos.request.CierreCajaRequest;
 import com.runicsoft.bencolapp.caja.dtos.request.MovimientoCajaRequest;
 import com.runicsoft.bencolapp.caja.dtos.response.CajaResponse;
 import com.runicsoft.bencolapp.caja.dtos.response.MovimientoCajaResponse;
@@ -79,42 +80,67 @@ public class CajaServiceImpl implements CajaService {
         validarCajaAbierta(caja);
 
         if (request.getTipoMovimiento() == TipoMovimientoCaja.INGRESO) {
-            registrarIngreso(caja, request.getMonto());
+            actualizarIngresoCaja(caja, request.getMonto());
         } else if (request.getTipoMovimiento() == TipoMovimientoCaja.EGRESO) {
-            registrarEgreso(caja, request.getMonto());
+            validarSaldoCaja(caja, request.getMonto());
+            actualizarEgresoCaja(caja, request.getMonto());
         } else {
             throw new IllegalArgumentException(TIPO_MOVIMIENTO_CAJA_INVALIDO);
         }
 
-        MovimientoCaja movimiento = new MovimientoCaja();
-        movimiento.setCaja(caja);
-        movimiento.setTipoMovimiento(request.getTipoMovimiento());
-        movimiento.setMonto(request.getMonto());
-        movimiento.setConcepto(request.getConcepto());
-        movimiento.setReferencia(request.getReferencia());
+        MovimientoCaja movimiento = crearMovimientoCaja(
+                caja,
+                request.getTipoMovimiento(),
+                request.getMonto(),
+                request.getConcepto(),
+                request.getReferencia()
+        );
 
-        MovimientoCaja movimientoGuardado = movimientoCajaRepository.save(movimiento);
-        caja.getMovimientos().add(movimientoGuardado);
         cajaRepository.save(caja);
-        return movimientoCajaMapper.convertirMovimientoDto(movimientoGuardado);
+        return movimientoCajaMapper.convertirMovimientoDto(movimiento);
     }
 
     @Override
     @Transactional
-    public CajaResponse cerrarCaja(Long id) {
+    public CajaResponse cerrarCaja(Long id, CierreCajaRequest request) {
         if (id == null || id <= 0) {
             throw new IllegalArgumentException(ID_INVALIDO);
         }
         Caja caja = getCaja(id);
         validarCajaAbierta(caja);
+        BigDecimal saldoEsperado = caja.getSaldoInicial().add(caja.getTotalIngresos()).subtract(caja.getTotalEgresos());
+        BigDecimal saldoReal = request.getSaldoReal();
+        BigDecimal diferencia = saldoReal.subtract(saldoEsperado);
+        caja.setSaldoEsperado(saldoEsperado);
+        caja.setSaldoReal(saldoReal);
+        caja.setDiferencia(diferencia);
         caja.setEstado(EstadoCaja.CERRADA);
         caja.setFechaCierre(LocalDateTime.now());
         Caja cajaCerrada = cajaRepository.save(caja);
         return cajaMapper.convertirCajaDto(cajaCerrada);
     }
 
-    // Métodos auxiliares
 
+    @Override
+    @Transactional
+    public void registrarIngreso(BigDecimal monto, String concepto, String referencia) {
+        Caja caja = getCajaAbierta();
+        actualizarIngresoCaja(caja, monto);
+        crearMovimientoCaja(caja, TipoMovimientoCaja.INGRESO, monto, concepto, referencia);
+        cajaRepository.save(caja);
+    }
+
+    @Override
+    @Transactional
+    public void registrarEgreso(BigDecimal monto, String concepto, String referencia) {
+        Caja caja = getCajaAbierta();
+        validarSaldoCaja(caja, monto);
+        actualizarEgresoCaja(caja, monto);
+        crearMovimientoCaja(caja, TipoMovimientoCaja.EGRESO, monto, concepto, referencia);
+        cajaRepository.save(caja);
+    }
+
+    // Métodos auxiliares
     private Caja getCaja(Long id) {
         return cajaRepository.findById(id).orElseThrow(
                 () -> new IllegalArgumentException(CAJA_NO_ENCONTRADA)
@@ -134,20 +160,33 @@ public class CajaServiceImpl implements CajaService {
         }
     }
 
-    private void registrarIngreso(Caja caja, BigDecimal monto) {
-        BigDecimal nuevosIngresos = caja.getTotalIngresos().add(monto);
-        BigDecimal nuevoSaldo = caja.getSaldoActual().add(monto);
-        caja.setTotalIngresos(nuevosIngresos);
-        caja.setSaldoActual(nuevoSaldo);
+    private void actualizarIngresoCaja(Caja caja, BigDecimal monto) {
+        caja.setTotalIngresos(caja.getTotalIngresos().add(monto));
+        caja.setSaldoActual(caja.getSaldoActual().add(monto));
     }
 
-    private void registrarEgreso(Caja caja, BigDecimal monto) {
+    private void actualizarEgresoCaja(Caja caja, BigDecimal monto) {
+        caja.setTotalEgresos(caja.getTotalEgresos().add(monto));
+        caja.setSaldoActual(caja.getSaldoActual().subtract(monto));
+    }
+
+    private MovimientoCaja crearMovimientoCaja(Caja caja, TipoMovimientoCaja tipoMovimiento, BigDecimal monto, String concepto, String referencia) {
+        MovimientoCaja movimiento = new MovimientoCaja();
+
+        movimiento.setCaja(caja);
+        movimiento.setTipoMovimiento(tipoMovimiento);
+        movimiento.setMonto(monto);
+        movimiento.setConcepto(concepto);
+        movimiento.setReferencia(referencia);
+
+        MovimientoCaja movimientoGuardado = movimientoCajaRepository.save(movimiento);
+        caja.getMovimientos().add(movimientoGuardado);
+        return movimientoGuardado;
+    }
+
+    private void validarSaldoCaja(Caja caja, BigDecimal monto) {
         if (monto.compareTo(caja.getSaldoActual()) > 0) {
             throw new IllegalArgumentException(SALDO_CAJA_INSUFICIENTE);
         }
-        BigDecimal nuevosEgresos = caja.getTotalEgresos().add(monto);
-        BigDecimal nuevoSaldo = caja.getSaldoActual().subtract(monto);
-        caja.setTotalEgresos(nuevosEgresos);
-        caja.setSaldoActual(nuevoSaldo);
     }
 }

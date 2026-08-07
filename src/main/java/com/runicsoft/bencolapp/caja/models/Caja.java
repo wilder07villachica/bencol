@@ -30,6 +30,15 @@ public class Caja {
     @Column(name = "saldo_actual", nullable = false, precision = 12, scale = 2)
     private BigDecimal saldoActual;
 
+    @Column(name = "saldo_esperado", precision = 12, scale = 2)
+    private BigDecimal saldoEsperado;
+
+    @Column(name = "saldo_real", precision = 12, scale = 2)
+    private BigDecimal saldoReal;
+
+    @Column(precision = 12, scale = 2)
+    private BigDecimal diferencia;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private EstadoCaja estado;
