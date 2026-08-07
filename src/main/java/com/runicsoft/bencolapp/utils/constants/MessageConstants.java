@@ -50,4 +50,12 @@ public final class MessageConstants {
     public static final String CUENTA_COBRAR_PAGADA = "La cuenta por cobrar ya se encuentra pagada.";
     public static final String PAGO_SUPERA_SALDO = "El monto del pago no puede superar el saldo pendiente.";
     public static final String VENTA_CON_PAGOS = "No se puede anular una venta que ya tiene pagos registrados.";
+
+    // CAJA
+    public static final String CAJA_YA_ABIERTA = "Ya existe una caja abierta.";
+    public static final String CAJA_NO_ENCONTRADA = "La caja solicitada no fue encontrada.";
+    public static final String CAJA_NO_ABIERTA = "No existe una caja abierta.";
+    public static final String CAJA_CERRADA = "La caja se encuentra cerrada.";
+    public static final String SALDO_CAJA_INSUFICIENTE = "No existe saldo suficiente en caja para realizar el egreso.";
+    public static final String TIPO_MOVIMIENTO_CAJA_INVALIDO = "El tipo de movimiento de caja no es válido.";
 }
