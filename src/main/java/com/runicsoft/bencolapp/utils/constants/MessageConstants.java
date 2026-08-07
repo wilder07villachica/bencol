@@ -40,4 +40,13 @@ public final class MessageConstants {
     public static final String STOCK_MAXIMO_INVALIDO = "El stock máximo no puede ser menor que el stock mínimo.";
     public static final String STOCK_SUPERA_MAXIMO = "La operación supera el stock máximo permitido.";
     public static final String TIPO_MOVIMIENTO_INVALIDO = "El tipo de movimiento de inventario no es válido.";
+
+    // FINANZAS
+    public static final String CUENTA_COBRAR_NO_ENCONTRADA = "La cuenta por cobrar solicitada no fue encontrada.";
+    public static final String CUENTA_COBRAR_EXISTENTE = "La venta ya tiene una cuenta por cobrar registrada.";
+    public static final String ESTADO_CUENTA_INVALIDO = "El estado de la cuenta no es válido.";
+    public static final String VENTA_ANULADA_CUENTA = "No se puede generar una cuenta por cobrar para una venta anulada.";
+    public static final String CUENTA_COBRAR_ANULADA = "No se pueden registrar pagos en una cuenta anulada.";
+    public static final String CUENTA_COBRAR_PAGADA = "La cuenta por cobrar ya se encuentra pagada.";
+    public static final String PAGO_SUPERA_SALDO = "El monto del pago no puede superar el saldo pendiente.";
 }
