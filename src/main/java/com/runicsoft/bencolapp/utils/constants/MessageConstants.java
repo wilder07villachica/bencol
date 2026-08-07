@@ -50,6 +50,10 @@ public final class MessageConstants {
     public static final String CUENTA_COBRAR_PAGADA = "La cuenta por cobrar ya se encuentra pagada.";
     public static final String PAGO_SUPERA_SALDO = "El monto del pago no puede superar el saldo pendiente.";
     public static final String VENTA_CON_PAGOS = "No se puede anular una venta que ya tiene pagos registrados.";
+    public static final String CUENTA_PAGAR_NO_ENCONTRADA = "La cuenta por pagar solicitada no fue encontrada.";
+    public static final String CUENTA_PAGAR_EXISTENTE = "La compra ya tiene una cuenta por pagar registrada.";
+    public static final String CUENTA_PAGAR_ANULADA = "No se pueden registrar pagos en una cuenta por pagar anulada.";
+    public static final String CUENTA_PAGAR_PAGADA = "La cuenta por pagar ya se encuentra pagada.";
 
     // CAJA
     public static final String CAJA_YA_ABIERTA = "Ya existe una caja abierta.";

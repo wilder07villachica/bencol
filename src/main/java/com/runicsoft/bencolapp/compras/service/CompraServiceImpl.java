@@ -7,6 +7,9 @@ import com.runicsoft.bencolapp.compras.mapper.CompraMapper;
 import com.runicsoft.bencolapp.compras.models.Compra;
 import com.runicsoft.bencolapp.compras.models.DetalleCompra;
 import com.runicsoft.bencolapp.compras.repository.CompraRepository;
+import com.runicsoft.bencolapp.finanzas.models.CuentaPagar;
+import com.runicsoft.bencolapp.finanzas.repository.CuentaPagarRepository;
+import com.runicsoft.bencolapp.finanzas.utils.EstadoCuentaPagar;
 import com.runicsoft.bencolapp.inventario.models.Inventario;
 import com.runicsoft.bencolapp.inventario.models.MovimientoInventario;
 import com.runicsoft.bencolapp.inventario.repository.InventarioRepository;
@@ -42,6 +45,7 @@ public class CompraServiceImpl implements CompraService {
     private final MovimientoInventarioRepository movimientoInventarioRepository;
 
     private final CompraMapper compraMapper;
+    private final CuentaPagarRepository cuentaPagarRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -122,6 +126,7 @@ public class CompraServiceImpl implements CompraService {
 
         Compra compraGuardada = compraRepository.save(compra);
         ingresarInventarioCompra(compraGuardada);
+        crearCuentaPagar(compraGuardada);
         return compraMapper.convertirCompraDto(compraGuardada);
     }
 
@@ -207,6 +212,16 @@ public class CompraServiceImpl implements CompraService {
         movimiento.setStockNuevo(stockNuevo);
         movimiento.setReferencia("Compra " + compra.getCodigo());
         movimientoInventarioRepository.save(movimiento);
+    }
+
+    private void crearCuentaPagar(Compra compra) {
+        CuentaPagar cuenta = new CuentaPagar();
+        cuenta.setCompra(compra);
+        cuenta.setMontoTotal(compra.getTotal());
+        cuenta.setMontoPagado(BigDecimal.ZERO);
+        cuenta.setSaldoPendiente(compra.getTotal());
+        cuenta.setEstado(EstadoCuentaPagar.PENDIENTE);
+        cuentaPagarRepository.save(cuenta);
     }
 
     private void validarStockMaximo(Inventario inventario, Integer stockNuevo) {
