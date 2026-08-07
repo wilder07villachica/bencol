@@ -1,8 +1,12 @@
 package com.runicsoft.bencolapp.finanzas.service;
 
+import com.runicsoft.bencolapp.clientes.models.Cliente;
+import com.runicsoft.bencolapp.clientes.repository.ClienteRepository;
 import com.runicsoft.bencolapp.finanzas.dtos.request.CuentaCobrarRequest;
 import com.runicsoft.bencolapp.finanzas.dtos.request.PagoRequest;
 import com.runicsoft.bencolapp.finanzas.dtos.response.CuentaCobrarResponse;
+import com.runicsoft.bencolapp.finanzas.dtos.response.DeudaClienteResponse;
+import com.runicsoft.bencolapp.finanzas.dtos.response.ResumenFinancieroResponse;
 import com.runicsoft.bencolapp.finanzas.mapper.CuentaCobrarMapper;
 import com.runicsoft.bencolapp.finanzas.mapper.PagoMapper;
 import com.runicsoft.bencolapp.finanzas.models.CuentaCobrar;
@@ -31,6 +35,7 @@ public class CuentaCobrarServiceImpl implements CuentaCobrarService {
     private final VentaRepository ventaRepository;
     private final CuentaCobrarMapper cuentaCobrarMapper;
     private final PagoMapper pagoMapper;
+    private final ClienteRepository clienteRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -126,6 +131,84 @@ public class CuentaCobrarServiceImpl implements CuentaCobrarService {
 
         CuentaCobrar cuentaActualizada = actualizarCuentaDespuesPago(cuenta, request.getMonto());
         return cuentaCobrarMapper.convertirCuentaDto(cuentaActualizada);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public DeudaClienteResponse obtenerDeudaCliente(Long clienteId) {
+        if (clienteId == null || clienteId <= 0) {
+            throw new IllegalArgumentException(ID_INVALIDO);
+        }
+
+        Cliente cliente = clienteRepository.findById(clienteId)
+                .orElseThrow(
+                        () -> new IllegalArgumentException(CLIENTE_NO_ENCONTRADO)
+                );
+
+        List<CuentaCobrar> cuentas = cuentaCobrarRepository.findByVentaClienteId(clienteId);
+        List<CuentaCobrar> cuentasConDeuda = cuentas.stream()
+                .filter(
+                        cuenta ->
+                                cuenta.getEstado() == EstadoCuenta.PENDIENTE || cuenta.getEstado() == EstadoCuenta.PARCIAL
+                        ).toList();
+
+        BigDecimal deudaTotal = cuentasConDeuda.stream()
+                .map(CuentaCobrar::getSaldoPendiente)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        DeudaClienteResponse response = new DeudaClienteResponse();
+        response.setClienteId(cliente.getId());
+        response.setNombreCliente(cliente.getNombre());
+        response.setDeudaTotal(deudaTotal);
+        response.setCantidadCuentasPendientes(cuentasConDeuda.size());
+        response.setCuentas(cuentaCobrarMapper.convertirListaCuentaDto(cuentasConDeuda));
+        return response;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ResumenFinancieroResponse obtenerResumenFinanciero() {
+        List<CuentaCobrar> cuentas = cuentaCobrarRepository.findAll();
+        BigDecimal totalVendido = cuentas.stream()
+                .filter(cuenta -> cuenta.getEstado() != EstadoCuenta.ANULADA)
+                .map(CuentaCobrar::getMontoTotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal totalCobrado = cuentas.stream()
+                .filter(cuenta -> cuenta.getEstado() != EstadoCuenta.ANULADA)
+                .map(CuentaCobrar::getMontoPagado)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal totalPorCobrar = cuentas.stream()
+                .filter(
+                        cuenta ->
+                                cuenta.getEstado() == EstadoCuenta.PENDIENTE || cuenta.getEstado() == EstadoCuenta.PARCIAL)
+                .map(CuentaCobrar::getSaldoPendiente)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        int pendientes = 0;
+        int parciales = 0;
+        int pagadas = 0;
+        int anuladas = 0;
+
+        for (CuentaCobrar cuenta : cuentas) {
+            switch (cuenta.getEstado()) {
+                case PENDIENTE -> pendientes++;
+                case PARCIAL -> parciales++;
+                case PAGADA -> pagadas++;
+                case ANULADA -> anuladas++;
+            }
+        }
+
+        ResumenFinancieroResponse response = new ResumenFinancieroResponse();
+        response.setTotalVendido(totalVendido);
+        response.setTotalCobrado(totalCobrado);
+        response.setTotalPorCobrar(totalPorCobrar);
+        response.setCantidadCuentas(cuentas.size());
+        response.setCantidadPendientes(pendientes);
+        response.setCantidadParciales(parciales);
+        response.setCantidadPagadas(pagadas);
+        response.setCantidadAnuladas(anuladas);
+        return response;
     }
 
     // Métodos auxiliares

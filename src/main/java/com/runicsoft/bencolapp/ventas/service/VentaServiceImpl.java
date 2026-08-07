@@ -2,6 +2,9 @@ package com.runicsoft.bencolapp.ventas.service;
 
 import com.runicsoft.bencolapp.clientes.models.Cliente;
 import com.runicsoft.bencolapp.clientes.repository.ClienteRepository;
+import com.runicsoft.bencolapp.finanzas.models.CuentaCobrar;
+import com.runicsoft.bencolapp.finanzas.repository.CuentaCobrarRepository;
+import com.runicsoft.bencolapp.finanzas.utils.EstadoCuenta;
 import com.runicsoft.bencolapp.inventario.models.Inventario;
 import com.runicsoft.bencolapp.inventario.models.MovimientoInventario;
 import com.runicsoft.bencolapp.inventario.repository.InventarioRepository;
@@ -41,6 +44,7 @@ public class VentaServiceImpl implements VentaService {
 
     private final InventarioRepository inventarioRepository;
     private final MovimientoInventarioRepository movimientoInventarioRepository;
+    private final CuentaCobrarRepository cuentaCobrarRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -92,19 +96,10 @@ public class VentaServiceImpl implements VentaService {
         BigDecimal subtotalVenta = BigDecimal.ZERO;
 
         for (DetalleVentaRequest detalleRequest : request.getDetalles()) {
-            Producto producto = getProducto(
-                    detalleRequest.getProductoId()
-            );
-
+            Producto producto = getProducto(detalleRequest.getProductoId());
             validarProductoActivo(producto);
-
-            BigDecimal precioUnitario = obtenerPrecioProducto(
-                    cliente.getId(),
-                    producto
-            );
-
-            BigDecimal subtotalDetalle = precioUnitario
-                    .multiply(BigDecimal.valueOf(detalleRequest.getCantidad()));
+            BigDecimal precioUnitario = obtenerPrecioProducto(cliente.getId(), producto);
+            BigDecimal subtotalDetalle = precioUnitario.multiply(BigDecimal.valueOf(detalleRequest.getCantidad()));
 
             DetalleVenta detalle = new DetalleVenta();
 
@@ -124,6 +119,7 @@ public class VentaServiceImpl implements VentaService {
 
         Venta ventaGuardada = ventaRepository.save(venta);
         descontarInventarioVenta(ventaGuardada, request.getDetalles());
+        crearCuentaCobrar(ventaGuardada);
         return ventaMapper.convertirVentaDto(ventaGuardada);
     }
 
@@ -133,14 +129,17 @@ public class VentaServiceImpl implements VentaService {
         if (id == null || id <= 0) {
             throw new IllegalArgumentException(ID_INVALIDO);
         }
+
         Venta venta = getVenta(id);
 
         if (venta.getEstado() == EstadoVenta.ANULADA) {
             throw new IllegalArgumentException(VENTA_YA_ANULADA);
         }
-
+        validarCuentaParaAnulacion(venta);
         devolverInventarioVenta(venta);
+        anularCuentaCobrar(venta);
         venta.setEstado(EstadoVenta.ANULADA);
+
         Venta ventaActualizada = ventaRepository.save(venta);
         return ventaMapper.convertirVentaDto(ventaActualizada);
     }
@@ -212,6 +211,26 @@ public class VentaServiceImpl implements VentaService {
         }
     }
 
+    private void validarCuentaParaAnulacion(Venta venta) {
+        CuentaCobrar cuenta = cuentaCobrarRepository
+                .findByVentaId(venta.getId()).orElseThrow(
+                        () -> new IllegalArgumentException(CUENTA_COBRAR_NO_ENCONTRADA)
+                );
+        if (cuenta.getMontoPagado().compareTo(BigDecimal.ZERO) > 0) {
+            throw new IllegalArgumentException(VENTA_CON_PAGOS);
+        }
+    }
+
+    private void anularCuentaCobrar(Venta venta) {
+        CuentaCobrar cuenta = cuentaCobrarRepository
+                .findByVentaId(venta.getId()).orElseThrow(
+                        () -> new IllegalArgumentException(CUENTA_COBRAR_NO_ENCONTRADA)
+                );
+
+        cuenta.setEstado(EstadoCuenta.ANULADA);
+        cuentaCobrarRepository.save(cuenta);
+    }
+
     private Integer calcularUnidadesFisicas(Integer cantidadPaquetes, Producto producto) {
         return cantidadPaquetes * producto.getUnidadesPorPaquete();
     }
@@ -275,6 +294,16 @@ public class VentaServiceImpl implements VentaService {
         if (inventario.getStockMaximo() != null && stockNuevo > inventario.getStockMaximo()) {
             throw new IllegalArgumentException(STOCK_SUPERA_MAXIMO);
         }
+    }
+
+    private void crearCuentaCobrar(Venta venta) {
+        CuentaCobrar cuenta = new CuentaCobrar();
+        cuenta.setVenta(venta);
+        cuenta.setMontoTotal(venta.getTotal());
+        cuenta.setMontoPagado(BigDecimal.ZERO);
+        cuenta.setSaldoPendiente(venta.getTotal());
+        cuenta.setEstado(EstadoCuenta.PENDIENTE);
+        cuentaCobrarRepository.save(cuenta);
     }
 
     private String generarCodigoVenta() {

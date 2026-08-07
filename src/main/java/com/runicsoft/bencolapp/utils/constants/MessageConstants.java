@@ -49,4 +49,5 @@ public final class MessageConstants {
     public static final String CUENTA_COBRAR_ANULADA = "No se pueden registrar pagos en una cuenta anulada.";
     public static final String CUENTA_COBRAR_PAGADA = "La cuenta por cobrar ya se encuentra pagada.";
     public static final String PAGO_SUPERA_SALDO = "El monto del pago no puede superar el saldo pendiente.";
+    public static final String VENTA_CON_PAGOS = "No se puede anular una venta que ya tiene pagos registrados.";
 }
