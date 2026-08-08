@@ -75,4 +75,7 @@ public final class MessageConstants {
     public static final String COMPRA_NO_ENCONTRADA = "La compra solicitada no fue encontrada.";
     public static final String PROVEEDOR_INACTIVO = "El proveedor se encuentra inactivo.";
     public static final String PRODUCTO_DUPLICADO_COMPRA = "No se puede registrar el mismo producto más de una vez en la compra.";
+    public static final String COMPRA_YA_ANULADA = "La compra ya se encuentra anulada.";
+    public static final String COMPRA_CON_PAGOS = "No se puede anular una compra que ya tiene pagos registrados.";
+    public static final String STOCK_INSUFICIENTE_ANULACION_COMPRA = "No existe stock suficiente para revertir la compra.";
 }

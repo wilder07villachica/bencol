@@ -1,7 +1,7 @@
 package com.runicsoft.bencolapp.compras.models;
 
+import com.runicsoft.bencolapp.compras.utils.EstadoCompra;
 import com.runicsoft.bencolapp.proveedores.models.Proveedor;
-import com.runicsoft.bencolapp.utils.EstadoGeneral;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -39,7 +39,7 @@ public class Compra {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private EstadoGeneral estado;
+    private EstadoCompra estado;
 
     @OneToMany(mappedBy = "compra", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DetalleCompra> detalles = new ArrayList<>();
@@ -55,7 +55,7 @@ public class Compra {
         fechaCreacion = LocalDateTime.now();
 
         if (estado == null) {
-            estado = EstadoGeneral.ACTIVO;
+            estado = EstadoCompra.REGISTRADA;
         }
     }
 

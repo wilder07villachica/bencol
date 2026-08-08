@@ -3,6 +3,8 @@ package com.runicsoft.bencolapp.finanzas.controller;
 import com.runicsoft.bencolapp.finanzas.dtos.request.CuentaPagarRequest;
 import com.runicsoft.bencolapp.finanzas.dtos.request.PagoProveedorRequest;
 import com.runicsoft.bencolapp.finanzas.dtos.response.CuentaPagarResponse;
+import com.runicsoft.bencolapp.finanzas.dtos.response.DeudaProveedorResponse;
+import com.runicsoft.bencolapp.finanzas.dtos.response.ResumenCuentasPagarResponse;
 import com.runicsoft.bencolapp.finanzas.service.CuentaPagarService;
 import com.runicsoft.bencolapp.finanzas.utils.EstadoCuentaPagar;
 import jakarta.validation.Valid;
@@ -55,5 +57,15 @@ public class CuentaPagarController {
     public ResponseEntity<CuentaPagarResponse> registrarPago(@Valid @RequestBody PagoProveedorRequest request) {
         CuentaPagarResponse response = cuentaPagarService.registrarPago(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping("/proveedor/{proveedorId}/deuda")
+    public ResponseEntity<DeudaProveedorResponse> obtenerDeudaProveedor(@PathVariable Long proveedorId) {
+        return ResponseEntity.ok(cuentaPagarService.obtenerDeudaProveedor(proveedorId));
+    }
+
+    @GetMapping("/resumen")
+    public ResponseEntity<ResumenCuentasPagarResponse> obtenerResumenCuentasPagar() {
+        return ResponseEntity.ok(cuentaPagarService.obtenerResumenCuentasPagar());
     }
 }

@@ -6,12 +6,16 @@ import com.runicsoft.bencolapp.compras.repository.CompraRepository;
 import com.runicsoft.bencolapp.finanzas.dtos.request.CuentaPagarRequest;
 import com.runicsoft.bencolapp.finanzas.dtos.request.PagoProveedorRequest;
 import com.runicsoft.bencolapp.finanzas.dtos.response.CuentaPagarResponse;
+import com.runicsoft.bencolapp.finanzas.dtos.response.DeudaProveedorResponse;
+import com.runicsoft.bencolapp.finanzas.dtos.response.ResumenCuentasPagarResponse;
 import com.runicsoft.bencolapp.finanzas.mapper.CuentaPagarMapper;
 import com.runicsoft.bencolapp.finanzas.models.CuentaPagar;
 import com.runicsoft.bencolapp.finanzas.models.PagoProveedor;
 import com.runicsoft.bencolapp.finanzas.repository.CuentaPagarRepository;
 import com.runicsoft.bencolapp.finanzas.repository.PagoProveedorRepository;
 import com.runicsoft.bencolapp.finanzas.utils.EstadoCuentaPagar;
+import com.runicsoft.bencolapp.proveedores.models.Proveedor;
+import com.runicsoft.bencolapp.proveedores.repository.ProveedorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +34,8 @@ public class CuentaPagarServiceImpl implements CuentaPagarService {
     private final CompraRepository compraRepository;
     private final CuentaPagarMapper cuentaPagarMapper;
     private final CajaService cajaService;
+
+    private final ProveedorRepository proveedorRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -127,6 +133,88 @@ public class CuentaPagarServiceImpl implements CuentaPagarService {
                 pagoGuardado.getReferencia()
         );
         return cuentaPagarMapper.convertirCuentaPagarDto(cuentaActualizada);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public DeudaProveedorResponse obtenerDeudaProveedor(Long proveedorId) {
+        if (proveedorId == null || proveedorId <= 0) {
+            throw new IllegalArgumentException(ID_INVALIDO);
+        }
+
+        Proveedor proveedor = proveedorRepository.findById(proveedorId)
+                .orElseThrow(
+                        () -> new IllegalArgumentException(PROVEEDOR_NO_ENCONTRADO)
+                );
+
+        List<CuentaPagar> cuentas = cuentaPagarRepository.findByCompraProveedorId(proveedorId);
+        List<CuentaPagar> cuentasConDeuda = cuentas.stream()
+                .filter(cuenta ->
+                        cuenta.getEstado() == EstadoCuentaPagar.PENDIENTE || cuenta.getEstado() == EstadoCuentaPagar.PARCIAL)
+                        .toList();
+
+        BigDecimal deudaTotal = cuentasConDeuda.stream()
+                        .map(CuentaPagar::getSaldoPendiente)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        DeudaProveedorResponse response = new DeudaProveedorResponse();
+        response.setProveedorId(proveedor.getId());
+        response.setRazonSocialProveedor(proveedor.getRazonSocial());
+        response.setDeudaTotal(deudaTotal);
+        response.setCantidadCuentasPendientes(cuentasConDeuda.size());
+        response.setCuentas(cuentaPagarMapper.convertirListaCuentaPagarDto(cuentasConDeuda));
+        return response;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ResumenCuentasPagarResponse obtenerResumenCuentasPagar() {
+        List<CuentaPagar> cuentas = cuentaPagarRepository.findAll();
+        BigDecimal totalComprado =
+                cuentas.stream()
+                        .filter(cuenta ->
+                                cuenta.getEstado() != EstadoCuentaPagar.ANULADA)
+                        .map(CuentaPagar::getMontoTotal)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal totalPagado =
+                cuentas.stream()
+                        .filter(cuenta ->
+                                cuenta.getEstado() != EstadoCuentaPagar.ANULADA)
+                        .map(CuentaPagar::getMontoPagado)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal totalPorPagar =
+                cuentas.stream()
+                        .filter(cuenta ->
+                                cuenta.getEstado() == EstadoCuentaPagar.PENDIENTE || cuenta.getEstado() == EstadoCuentaPagar.PARCIAL)
+                        .map(CuentaPagar::getSaldoPendiente)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        int pendientes = 0;
+        int parciales = 0;
+        int pagadas = 0;
+        int anuladas = 0;
+
+        for (CuentaPagar cuenta : cuentas) {
+            switch (cuenta.getEstado()) {
+                case PENDIENTE -> pendientes++;
+                case PARCIAL -> parciales++;
+                case PAGADA -> pagadas++;
+                case ANULADA -> anuladas++;
+            }
+        }
+
+        ResumenCuentasPagarResponse response = new ResumenCuentasPagarResponse();
+        response.setTotalComprado(totalComprado);
+        response.setTotalPagado(totalPagado);
+        response.setTotalPorPagar(totalPorPagar);
+        response.setCantidadCuentas(cuentas.size());
+        response.setCantidadPendientes(pendientes);
+        response.setCantidadParciales(parciales);
+        response.setCantidadPagadas(pagadas);
+        response.setCantidadAnuladas(anuladas);
+        return response;
     }
 
     // Métodos auxiliares

@@ -7,6 +7,7 @@ import com.runicsoft.bencolapp.compras.mapper.CompraMapper;
 import com.runicsoft.bencolapp.compras.models.Compra;
 import com.runicsoft.bencolapp.compras.models.DetalleCompra;
 import com.runicsoft.bencolapp.compras.repository.CompraRepository;
+import com.runicsoft.bencolapp.compras.utils.EstadoCompra;
 import com.runicsoft.bencolapp.finanzas.models.CuentaPagar;
 import com.runicsoft.bencolapp.finanzas.repository.CuentaPagarRepository;
 import com.runicsoft.bencolapp.finanzas.utils.EstadoCuentaPagar;
@@ -130,6 +131,26 @@ public class CompraServiceImpl implements CompraService {
         return compraMapper.convertirCompraDto(compraGuardada);
     }
 
+    @Override
+    @Transactional
+    public CompraResponse anularCompra(Long id) {
+        if (id == null || id <= 0) {
+            throw new IllegalArgumentException(ID_INVALIDO);
+        }
+
+        Compra compra = getCompra(id);
+
+        if (compra.getEstado() == EstadoCompra.ANULADA) {
+            throw new IllegalArgumentException(COMPRA_YA_ANULADA);
+        }
+        validarCuentaParaAnulacion(compra);
+        revertirInventarioCompra(compra);
+        anularCuentaPagar(compra);
+        compra.setEstado(EstadoCompra.ANULADA);
+        Compra compraActualizada = compraRepository.save(compra);
+        return compraMapper.convertirCompraDto(compraActualizada);
+    }
+
     // Métodos auxiliares
     private Compra getCompra(Long id) {
         return compraRepository.findById(id)
@@ -228,5 +249,62 @@ public class CompraServiceImpl implements CompraService {
         if (inventario.getStockMaximo() != null && stockNuevo > inventario.getStockMaximo()) {
             throw new IllegalArgumentException(STOCK_SUPERA_MAXIMO);
         }
+    }
+
+    private void validarCuentaParaAnulacion(Compra compra) {
+        CuentaPagar cuenta = cuentaPagarRepository.findByCompraId(compra.getId())
+                .orElseThrow(
+                        () -> new IllegalArgumentException(CUENTA_PAGAR_NO_ENCONTRADA)
+                );
+
+        if (cuenta.getMontoPagado().compareTo(BigDecimal.ZERO) > 0) {
+            throw new IllegalArgumentException(COMPRA_CON_PAGOS);
+        }
+    }
+
+    private void revertirInventarioCompra(Compra compra) {
+        for (DetalleCompra detalle : compra.getDetalles()) {
+            Inventario inventario = inventarioRepository.findByProductoId(detalle.getProducto().getId())
+                    .orElseThrow(
+                            () -> new IllegalArgumentException(INVENTARIO_NO_ENCONTRADO)
+                    );
+
+            Integer stockAnterior = inventario.getStockActual();
+
+            if (detalle.getCantidad() > stockAnterior) {
+                throw new IllegalArgumentException(STOCK_INSUFICIENTE_ANULACION_COMPRA);
+            }
+            Integer stockNuevo = stockAnterior - detalle.getCantidad();
+            inventario.setStockActual(stockNuevo);
+            inventarioRepository.save(inventario);
+            registrarMovimientoAnulacionCompra(
+                    compra,
+                    inventario,
+                    detalle.getCantidad(),
+                    stockAnterior,
+                    stockNuevo
+            );
+        }
+    }
+
+    private void registrarMovimientoAnulacionCompra(Compra compra, Inventario inventario, Integer cantidad, Integer stockAnterior, Integer stockNuevo) {
+        MovimientoInventario movimiento = new MovimientoInventario();
+        movimiento.setProducto(inventario.getProducto());
+        movimiento.setTipoMovimiento(TipoMovimientoInventario.SALIDA);
+        movimiento.setCantidad(cantidad);
+        movimiento.setStockAnterior(stockAnterior);
+        movimiento.setStockNuevo(stockNuevo);
+        movimiento.setReferencia("Anulación compra " + compra.getCodigo());
+        movimientoInventarioRepository.save(movimiento);
+    }
+
+    private void anularCuentaPagar(Compra compra) {
+        CuentaPagar cuenta = cuentaPagarRepository.findByCompraId(compra.getId())
+                .orElseThrow(
+                        () -> new IllegalArgumentException(CUENTA_PAGAR_NO_ENCONTRADA)
+                );
+
+        cuenta.setEstado(EstadoCuentaPagar.ANULADA);
+        cuentaPagarRepository.save(cuenta);
     }
 }

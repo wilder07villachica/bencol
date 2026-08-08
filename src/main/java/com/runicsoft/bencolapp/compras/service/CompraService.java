@@ -11,4 +11,6 @@ public interface CompraService {
     CompraResponse findByCodigo(String codigo);
     List<CompraResponse> findByProveedorId(Long proveedorId);
     CompraResponse create(CompraRequest request);
+
+    CompraResponse anularCompra(Long id);
 }

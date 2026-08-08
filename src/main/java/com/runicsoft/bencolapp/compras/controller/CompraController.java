@@ -43,4 +43,10 @@ public class CompraController {
         CompraResponse response = compraService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
+    @PatchMapping("/{idCompra}/anular")
+    public ResponseEntity<CompraResponse> anularCompra(@PathVariable Long idCompra) {
+        CompraResponse response = compraService.anularCompra(idCompra);
+        return ResponseEntity.ok(response);
+    }
 }

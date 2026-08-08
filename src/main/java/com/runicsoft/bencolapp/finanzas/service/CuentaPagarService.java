@@ -3,6 +3,8 @@ package com.runicsoft.bencolapp.finanzas.service;
 import com.runicsoft.bencolapp.finanzas.dtos.request.CuentaPagarRequest;
 import com.runicsoft.bencolapp.finanzas.dtos.request.PagoProveedorRequest;
 import com.runicsoft.bencolapp.finanzas.dtos.response.CuentaPagarResponse;
+import com.runicsoft.bencolapp.finanzas.dtos.response.DeudaProveedorResponse;
+import com.runicsoft.bencolapp.finanzas.dtos.response.ResumenCuentasPagarResponse;
 import com.runicsoft.bencolapp.finanzas.utils.EstadoCuentaPagar;
 
 import java.util.List;
@@ -15,4 +17,7 @@ public interface CuentaPagarService {
     List<CuentaPagarResponse> findByEstado(EstadoCuentaPagar estado);
     CuentaPagarResponse create(CuentaPagarRequest request);
     CuentaPagarResponse registrarPago(PagoProveedorRequest request);
+
+    DeudaProveedorResponse obtenerDeudaProveedor(Long proveedorId);
+    ResumenCuentasPagarResponse obtenerResumenCuentasPagar();
 }

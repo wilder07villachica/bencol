@@ -1,6 +1,6 @@
 package com.runicsoft.bencolapp.compras.dtos.response;
 
-import com.runicsoft.bencolapp.utils.EstadoGeneral;
+import com.runicsoft.bencolapp.compras.utils.EstadoCompra;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -15,7 +15,7 @@ public class CompraResponse {
     private String razonSocialProveedor;
     private BigDecimal subtotal;
     private BigDecimal total;
-    private EstadoGeneral estado;
+    private EstadoCompra estado;
     private List<DetalleCompraResponse> detalles;
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaActualizacion;
