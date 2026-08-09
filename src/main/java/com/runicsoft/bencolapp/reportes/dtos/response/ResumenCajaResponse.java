@@ -13,4 +13,6 @@ public class ResumenCajaResponse {
     private BigDecimal totalIngresos;
     private BigDecimal totalEgresos;
     private BigDecimal saldoActual;
+    private BigDecimal ingresosPeriodo;
+    private BigDecimal egresosPeriodo;
 }
