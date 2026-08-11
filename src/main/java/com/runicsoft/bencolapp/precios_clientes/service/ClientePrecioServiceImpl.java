@@ -9,16 +9,19 @@ import com.runicsoft.bencolapp.precios_clientes.models.ClientePrecio;
 import com.runicsoft.bencolapp.precios_clientes.repository.ClientePrecioRepository;
 import com.runicsoft.bencolapp.productos.models.Producto;
 import com.runicsoft.bencolapp.productos.repository.ProductoRepository;
-import static com.runicsoft.bencolapp.utils.constants.MessageConstants.*;
+import com.runicsoft.bencolapp.utils.exceptions.ConflictException;
+import com.runicsoft.bencolapp.utils.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.runicsoft.bencolapp.utils.constants.MessageConstants.*;
+
 @Service
 @RequiredArgsConstructor
-public class ClientePrecioServiceImpl implements ClientePrecioService{
+public class ClientePrecioServiceImpl implements ClientePrecioService {
 
     private final ClientePrecioRepository clientePrecioRepository;
     private final ClienteRepository clienteRepository;
@@ -48,21 +51,17 @@ public class ClientePrecioServiceImpl implements ClientePrecioService{
         Cliente cliente = getCliente(request.getClienteId());
         Producto producto = getProducto(request.getProductoId());
 
-        if (clientePrecioRepository.existsByClienteIdAndProductoId(
-                request.getClienteId(),
-                request.getProductoId()
-        )) {
-            throw new IllegalArgumentException(PRECIO_CLIENTE_EXISTENTE);
+        if (clientePrecioRepository.existsByClienteIdAndProductoId(request.getClienteId(), request.getProductoId())) {
+            throw new ConflictException(PRECIO_CLIENTE_EXISTENTE);
         }
 
         ClientePrecio precio = new ClientePrecio();
-
         precio.setCliente(cliente);
         precio.setProducto(producto);
         precio.setPrecio(request.getPrecio());
 
-        ClientePrecio precioNuevo = clientePrecioRepository.save(precio);
-        return clientePrecioMapper.convertirDtoEntidad(precioNuevo);
+        ClientePrecio precioGuardado = clientePrecioRepository.save(precio);
+        return clientePrecioMapper.convertirDtoEntidad(precioGuardado);
     }
 
     @Override
@@ -76,18 +75,16 @@ public class ClientePrecioServiceImpl implements ClientePrecioService{
         Cliente cliente = getCliente(request.getClienteId());
         Producto producto = getProducto(request.getProductoId());
 
-        if (clientePrecioRepository.existsByClienteIdAndProductoIdAndIdNot(
-                request.getClienteId(), request.getProductoId(), id)
-        ) {
-            throw new IllegalArgumentException(PRECIO_CLIENTE_EXISTENTE);
+        if (clientePrecioRepository.existsByClienteIdAndProductoIdAndIdNot(request.getClienteId(), request.getProductoId(), id)) {
+            throw new ConflictException(PRECIO_CLIENTE_EXISTENTE);
         }
 
         precio.setCliente(cliente);
         precio.setProducto(producto);
         precio.setPrecio(request.getPrecio());
 
-        ClientePrecio actualizado = clientePrecioRepository.save(precio);
-        return clientePrecioMapper.convertirDtoEntidad(actualizado);
+        ClientePrecio precioActualizado = clientePrecioRepository.save(precio);
+        return clientePrecioMapper.convertirDtoEntidad(precioActualizado);
     }
 
     @Override
@@ -101,22 +98,19 @@ public class ClientePrecioServiceImpl implements ClientePrecioService{
         clientePrecioRepository.delete(precio);
     }
 
-    //Métodos auxiliares
+    // metodos auxiliares
     private Cliente getCliente(Long id) {
-        return clienteRepository.findById(id).orElseThrow(
-                () -> new IllegalArgumentException(CLIENTE_NO_ENCONTRADO)
-        );
+        return clienteRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(CLIENTE_NO_ENCONTRADO));
     }
 
     private Producto getProducto(Long id) {
-        return productoRepository.findById(id).orElseThrow(
-                () -> new IllegalArgumentException(PRODUCTO_NO_ENCONTRADO)
-        );
+        return productoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(PRODUCTO_NO_ENCONTRADO));
     }
 
     private ClientePrecio getClientePrecio(Long id) {
-        return clientePrecioRepository.findById(id).orElseThrow(
-                () -> new IllegalArgumentException(PRECIO_CLIENTE_NO_ENCONTRADO)
-        );
+        return clientePrecioRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(PRECIO_CLIENTE_NO_ENCONTRADO));
     }
 }

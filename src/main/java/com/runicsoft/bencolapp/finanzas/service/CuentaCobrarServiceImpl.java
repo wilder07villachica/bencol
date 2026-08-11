@@ -15,6 +15,9 @@ import com.runicsoft.bencolapp.finanzas.repository.CuentaCobrarRepository;
 import com.runicsoft.bencolapp.finanzas.repository.PagoRepository;
 import com.runicsoft.bencolapp.finanzas.utils.EstadoCuenta;
 import com.runicsoft.bencolapp.seguridad.utils.SecurityUtils;
+import com.runicsoft.bencolapp.utils.exceptions.BusinessException;
+import com.runicsoft.bencolapp.utils.exceptions.ConflictException;
+import com.runicsoft.bencolapp.utils.exceptions.ResourceNotFoundException;
 import com.runicsoft.bencolapp.ventas.models.Venta;
 import com.runicsoft.bencolapp.ventas.repository.VentaRepository;
 import com.runicsoft.bencolapp.ventas.utils.EstadoVenta;
@@ -36,7 +39,6 @@ public class CuentaCobrarServiceImpl implements CuentaCobrarService {
     private final VentaRepository ventaRepository;
     private final CuentaCobrarMapper cuentaCobrarMapper;
     private final ClienteRepository clienteRepository;
-
     private final CajaService cajaService;
 
     @Override
@@ -49,7 +51,6 @@ public class CuentaCobrarServiceImpl implements CuentaCobrarService {
     @Override
     @Transactional(readOnly = true)
     public CuentaCobrarResponse findById(Long id) {
-
         if (id == null || id <= 0) {
             throw new IllegalArgumentException(ID_INVALIDO);
         }
@@ -66,7 +67,8 @@ public class CuentaCobrarServiceImpl implements CuentaCobrarService {
         }
 
         CuentaCobrar cuenta = cuentaCobrarRepository.findByVentaId(ventaId)
-                .orElseThrow(() -> new IllegalArgumentException(CUENTA_COBRAR_NO_ENCONTRADA));
+                .orElseThrow(() -> new ResourceNotFoundException(CUENTA_COBRAR_NO_ENCONTRADA));
+
         return cuentaCobrarMapper.convertirCuentaDto(cuenta);
     }
 
@@ -88,7 +90,10 @@ public class CuentaCobrarServiceImpl implements CuentaCobrarService {
             throw new IllegalArgumentException(ID_INVALIDO);
         }
 
-        List<CuentaCobrar> cuentas = cuentaCobrarRepository.findByVentaClienteId(clienteId);
+        Cliente cliente = clienteRepository.findById(clienteId)
+                .orElseThrow(() -> new ResourceNotFoundException(CLIENTE_NO_ENCONTRADO));
+
+        List<CuentaCobrar> cuentas = cuentaCobrarRepository.findByVentaClienteId(cliente.getId());
         return cuentaCobrarMapper.convertirListaCuentaDto(cuentas);
     }
 
@@ -99,11 +104,10 @@ public class CuentaCobrarServiceImpl implements CuentaCobrarService {
         validarVentaParaCuenta(venta);
 
         if (cuentaCobrarRepository.existsByVentaId(venta.getId())) {
-            throw new IllegalArgumentException(CUENTA_COBRAR_EXISTENTE);
+            throw new ConflictException(CUENTA_COBRAR_EXISTENTE);
         }
 
         CuentaCobrar cuenta = new CuentaCobrar();
-
         cuenta.setVenta(venta);
         cuenta.setMontoTotal(venta.getTotal());
         cuenta.setMontoPagado(BigDecimal.ZERO);
@@ -122,7 +126,6 @@ public class CuentaCobrarServiceImpl implements CuentaCobrarService {
         validarMontoPago(cuenta, request.getMonto());
 
         Pago pago = new Pago();
-
         pago.setCuentaCobrar(cuenta);
         pago.setMonto(request.getMonto());
         pago.setMetodoPago(request.getMetodoPago());
@@ -139,6 +142,7 @@ public class CuentaCobrarServiceImpl implements CuentaCobrarService {
                 "Pago de venta " + cuenta.getVenta().getCodigo(),
                 pagoGuardado.getReferencia()
         );
+
         return cuentaCobrarMapper.convertirCuentaDto(cuentaActualizada);
     }
 
@@ -150,26 +154,27 @@ public class CuentaCobrarServiceImpl implements CuentaCobrarService {
         }
 
         Cliente cliente = clienteRepository.findById(clienteId)
-                .orElseThrow(
-                        () -> new IllegalArgumentException(CLIENTE_NO_ENCONTRADO)
-                );
+                .orElseThrow(() -> new ResourceNotFoundException(CLIENTE_NO_ENCONTRADO));
 
         List<CuentaCobrar> cuentas = cuentaCobrarRepository.findByVentaClienteId(clienteId);
+
         List<CuentaCobrar> cuentasConDeuda = cuentas.stream()
-                .filter(
-                        cuenta ->
-                                cuenta.getEstado() == EstadoCuenta.PENDIENTE || cuenta.getEstado() == EstadoCuenta.PARCIAL
-                        ).toList();
+                .filter(cuenta ->
+                        cuenta.getEstado() == EstadoCuenta.PENDIENTE ||
+                                cuenta.getEstado() == EstadoCuenta.PARCIAL)
+                .toList();
 
         BigDecimal deudaTotal = cuentasConDeuda.stream()
                 .map(CuentaCobrar::getSaldoPendiente)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+
         DeudaClienteResponse response = new DeudaClienteResponse();
         response.setClienteId(cliente.getId());
         response.setNombreCliente(cliente.getNombre());
         response.setDeudaTotal(deudaTotal);
         response.setCantidadCuentasPendientes(cuentasConDeuda.size());
         response.setCuentas(cuentaCobrarMapper.convertirListaCuentaDto(cuentasConDeuda));
+
         return response;
     }
 
@@ -177,6 +182,7 @@ public class CuentaCobrarServiceImpl implements CuentaCobrarService {
     @Transactional(readOnly = true)
     public ResumenFinancieroResponse obtenerResumenFinanciero() {
         List<CuentaCobrar> cuentas = cuentaCobrarRepository.findAll();
+
         BigDecimal totalVendido = cuentas.stream()
                 .filter(cuenta -> cuenta.getEstado() != EstadoCuenta.ANULADA)
                 .map(CuentaCobrar::getMontoTotal)
@@ -188,9 +194,9 @@ public class CuentaCobrarServiceImpl implements CuentaCobrarService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         BigDecimal totalPorCobrar = cuentas.stream()
-                .filter(
-                        cuenta ->
-                                cuenta.getEstado() == EstadoCuenta.PENDIENTE || cuenta.getEstado() == EstadoCuenta.PARCIAL)
+                .filter(cuenta ->
+                        cuenta.getEstado() == EstadoCuenta.PENDIENTE ||
+                                cuenta.getEstado() == EstadoCuenta.PARCIAL)
                 .map(CuentaCobrar::getSaldoPendiente)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
@@ -217,48 +223,52 @@ public class CuentaCobrarServiceImpl implements CuentaCobrarService {
         response.setCantidadParciales(parciales);
         response.setCantidadPagadas(pagadas);
         response.setCantidadAnuladas(anuladas);
+
         return response;
     }
 
-    // Métodos auxiliares
+    // Metodos auxiliares
     private CuentaCobrar getCuentaCobrar(Long id) {
-        return cuentaCobrarRepository.findById(id).orElseThrow(
-                () -> new IllegalArgumentException(CUENTA_COBRAR_NO_ENCONTRADA));
+        return cuentaCobrarRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(CUENTA_COBRAR_NO_ENCONTRADA));
     }
 
     private Venta getVenta(Long id) {
-        return ventaRepository.findById(id).orElseThrow(
-                () -> new IllegalArgumentException(VENTA_NO_ENCONTRADA));
+        return ventaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(VENTA_NO_ENCONTRADA));
     }
 
     private void validarVentaParaCuenta(Venta venta) {
         if (venta.getEstado() == EstadoVenta.ANULADA) {
-            throw new IllegalArgumentException(VENTA_ANULADA_CUENTA);
+            throw new BusinessException(VENTA_ANULADA_CUENTA);
         }
     }
 
     private void validarCuentaParaPago(CuentaCobrar cuenta) {
         if (cuenta.getEstado() == EstadoCuenta.ANULADA) {
-            throw new IllegalArgumentException(CUENTA_COBRAR_ANULADA);
+            throw new BusinessException(CUENTA_COBRAR_ANULADA);
         }
 
         if (cuenta.getEstado() == EstadoCuenta.PAGADA) {
-            throw new IllegalArgumentException(CUENTA_COBRAR_PAGADA);
+            throw new BusinessException(CUENTA_COBRAR_PAGADA);
         }
     }
 
     private void validarMontoPago(CuentaCobrar cuenta, BigDecimal monto) {
         if (monto.compareTo(cuenta.getSaldoPendiente()) > 0) {
-            throw new IllegalArgumentException(PAGO_SUPERA_SALDO);
+            throw new BusinessException(PAGO_SUPERA_SALDO);
         }
     }
 
     private CuentaCobrar actualizarCuentaDespuesPago(CuentaCobrar cuenta, BigDecimal montoPago) {
         BigDecimal nuevoMontoPagado = cuenta.getMontoPagado().add(montoPago);
         BigDecimal nuevoSaldo = cuenta.getMontoTotal().subtract(nuevoMontoPagado);
+
         cuenta.setMontoPagado(nuevoMontoPagado);
         cuenta.setSaldoPendiente(nuevoSaldo);
+
         actualizarEstadoCuenta(cuenta);
+
         return cuentaCobrarRepository.save(cuenta);
     }
 
@@ -272,6 +282,7 @@ public class CuentaCobrarServiceImpl implements CuentaCobrarService {
             cuenta.setEstado(EstadoCuenta.PARCIAL);
             return;
         }
+
         cuenta.setEstado(EstadoCuenta.PENDIENTE);
     }
 }

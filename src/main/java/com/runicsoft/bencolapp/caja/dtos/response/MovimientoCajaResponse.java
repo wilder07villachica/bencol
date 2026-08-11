@@ -14,5 +14,6 @@ public class MovimientoCajaResponse {
     private BigDecimal monto;
     private String concepto;
     private String referencia;
+    private String registradoPor;
     private LocalDateTime fechaMovimiento;
 }

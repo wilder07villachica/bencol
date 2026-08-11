@@ -5,6 +5,8 @@ import com.runicsoft.bencolapp.productos.dtos.response.ProductoResponse;
 import com.runicsoft.bencolapp.productos.mapper.ProductoMapper;
 import com.runicsoft.bencolapp.productos.models.Producto;
 import com.runicsoft.bencolapp.productos.repository.ProductoRepository;
+import com.runicsoft.bencolapp.utils.exceptions.ConflictException;
+import com.runicsoft.bencolapp.utils.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +17,7 @@ import static com.runicsoft.bencolapp.utils.constants.MessageConstants.*;
 
 @Service
 @RequiredArgsConstructor
-public class ProductoServiceImpl implements ProductoService{
+public class ProductoServiceImpl implements ProductoService {
 
     private final ProductoRepository productoRepository;
     private final ProductoMapper productoMapper;
@@ -23,7 +25,7 @@ public class ProductoServiceImpl implements ProductoService{
     @Override
     @Transactional(readOnly = true)
     public List<ProductoResponse> findAll() {
-        List<Producto>  productos = productoRepository.findAll();
+        List<Producto> productos = productoRepository.findAll();
         return productoMapper.convertirListaProductoDto(productos);
     }
 
@@ -43,9 +45,10 @@ public class ProductoServiceImpl implements ProductoService{
         if (codigo == null || codigo.isBlank()) {
             throw new IllegalArgumentException(CODIGO_INVALIDO);
         }
-        Producto producto = productoRepository.findByCodigo(codigo).orElseThrow(
-                () -> new IllegalArgumentException(PRODUCTO_NO_ENCONTRADO)
-        );
+
+        Producto producto = productoRepository.findByCodigo(codigo)
+                .orElseThrow(() -> new ResourceNotFoundException(PRODUCTO_NO_ENCONTRADO));
+
         return productoMapper.convertirProductoDto(producto);
     }
 
@@ -53,10 +56,12 @@ public class ProductoServiceImpl implements ProductoService{
     @Transactional
     public ProductoResponse create(ProductoRequest request) {
         if (productoRepository.existsByCodigo(request.getCodigo())) {
-            throw new IllegalArgumentException(CODIGO_EXISTENTE);
+            throw new ConflictException(CODIGO_EXISTENTE);
         }
-        Producto producto = productoRepository.save(productoMapper.convertirProductoEntidad(request));
-        return productoMapper.convertirProductoDto(producto);
+
+        Producto producto = productoMapper.convertirProductoEntidad(request);
+        Producto productoGuardado = productoRepository.save(producto);
+        return productoMapper.convertirProductoDto(productoGuardado);
     }
 
     @Override
@@ -65,21 +70,21 @@ public class ProductoServiceImpl implements ProductoService{
         if (id == null || id <= 0) {
             throw new IllegalArgumentException(ID_INVALIDO);
         }
+
         Producto producto = getProducto(id);
 
         if (productoRepository.existsByCodigoAndIdNot(request.getCodigo(), id)) {
-            throw new IllegalArgumentException(CODIGO_EXISTENTE);
+            throw new ConflictException(CODIGO_EXISTENTE);
         }
 
         productoMapper.updateProducto(request, producto);
-        productoRepository.save(producto);
-        return productoMapper.convertirProductoDto(producto);
+        Producto productoActualizado = productoRepository.save(producto);
+        return productoMapper.convertirProductoDto(productoActualizado);
     }
-    
-    // Métodos auxiliares
+
+    // Metodos auxiliares
     private Producto getProducto(Long id) {
-        return productoRepository.findById(id).orElseThrow(
-                () -> new IllegalArgumentException(PRODUCTO_NO_ENCONTRADO)
-        );
+        return productoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(PRODUCTO_NO_ENCONTRADO));
     }
 }

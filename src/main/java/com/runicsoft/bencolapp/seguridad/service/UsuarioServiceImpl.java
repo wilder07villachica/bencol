@@ -8,6 +8,8 @@ import com.runicsoft.bencolapp.seguridad.models.Usuario;
 import com.runicsoft.bencolapp.seguridad.repository.UsuarioRepository;
 import com.runicsoft.bencolapp.seguridad.utils.RolUsuario;
 import com.runicsoft.bencolapp.utils.EstadoGeneral;
+import com.runicsoft.bencolapp.utils.exceptions.ConflictException;
+import com.runicsoft.bencolapp.utils.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -38,6 +40,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         if (id == null || id <= 0) {
             throw new IllegalArgumentException(ID_INVALIDO);
         }
+
         Usuario usuario = getUsuario(id);
         return usuarioMapper.convertirUsuarioDto(usuario);
     }
@@ -48,11 +51,10 @@ public class UsuarioServiceImpl implements UsuarioService {
         if (username == null || username.isBlank()) {
             throw new IllegalArgumentException(USERNAME_INVALIDO);
         }
-        Usuario usuario = usuarioRepository
-                .findByUsername(username)
-                .orElseThrow(
-                        () -> new IllegalArgumentException(USUARIO_NO_ENCONTRADO)
-                );
+
+        Usuario usuario = usuarioRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException(USUARIO_NO_ENCONTRADO));
+
         return usuarioMapper.convertirUsuarioDto(usuario);
     }
 
@@ -60,10 +62,11 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Transactional
     public UsuarioResponse create(UsuarioRequest request) {
         validarUsuarioDuplicado(request);
-        Usuario usuario = usuarioMapper.convertirUsuarioEntidad(request);
 
+        Usuario usuario = usuarioMapper.convertirUsuarioEntidad(request);
         usuario.setPassword(passwordEncoder.encode(request.getPassword()));
         usuario.setEstado(EstadoGeneral.ACTIVO);
+
         Usuario usuarioGuardado = usuarioRepository.save(usuario);
         return usuarioMapper.convertirUsuarioDto(usuarioGuardado);
     }
@@ -81,6 +84,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         Usuario usuario = getUsuario(id);
         usuario.setRol(rol);
+
         Usuario usuarioActualizado = usuarioRepository.save(usuario);
         return usuarioMapper.convertirUsuarioDto(usuarioActualizado);
     }
@@ -98,6 +102,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         Usuario usuario = getUsuario(id);
         usuario.setEstado(estado);
+
         Usuario usuarioActualizado = usuarioRepository.save(usuario);
         return usuarioMapper.convertirUsuarioDto(usuarioActualizado);
     }
@@ -110,26 +115,22 @@ public class UsuarioServiceImpl implements UsuarioService {
         }
 
         Usuario usuario = getUsuario(id);
-        usuario.setPassword(passwordEncoder.encode(request.getNuevaPassword())
-        );
+        usuario.setPassword(passwordEncoder.encode(request.getNuevaPassword()));
         usuarioRepository.save(usuario);
     }
 
-    // Métodos auxiliares
     private Usuario getUsuario(Long id) {
         return usuarioRepository.findById(id)
-                .orElseThrow(
-                        () -> new IllegalArgumentException(USUARIO_NO_ENCONTRADO)
-                );
+                .orElseThrow(() -> new ResourceNotFoundException(USUARIO_NO_ENCONTRADO));
     }
 
     private void validarUsuarioDuplicado(UsuarioRequest request) {
         if (usuarioRepository.existsByUsername(request.getUsername())) {
-            throw new IllegalArgumentException(USERNAME_EXISTENTE);
+            throw new ConflictException(USERNAME_EXISTENTE);
         }
 
         if (usuarioRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalArgumentException(EMAIL_USUARIO_EXISTENTE);
+            throw new ConflictException(EMAIL_USUARIO_EXISTENTE);
         }
     }
 }

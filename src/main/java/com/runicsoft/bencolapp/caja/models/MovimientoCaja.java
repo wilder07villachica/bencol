@@ -33,6 +33,9 @@ public class MovimientoCaja {
     @Column(length = 100)
     private String referencia;
 
+    @Column(name = "registrado_por", length = 50)
+    private String registradoPor;
+
     @Column(name = "fecha_movimiento", nullable = false)
     private LocalDateTime fechaMovimiento;
 

@@ -6,6 +6,10 @@ import com.runicsoft.bencolapp.seguridad.dtos.response.UsuarioAutenticadoRespons
 import com.runicsoft.bencolapp.seguridad.models.Usuario;
 import com.runicsoft.bencolapp.seguridad.repository.UsuarioRepository;
 import com.runicsoft.bencolapp.utils.EstadoGeneral;
+import com.runicsoft.bencolapp.utils.constants.MessageConstants;
+import com.runicsoft.bencolapp.utils.exceptions.AuthenticationException;
+import com.runicsoft.bencolapp.utils.exceptions.BusinessException;
+import com.runicsoft.bencolapp.utils.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,20 +26,19 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional(readOnly = true)
     public LoginResponse login(LoginRequest request) {
-        Usuario usuario = usuarioRepository
-                .findByUsername(request.getUsername())
-                .orElseThrow(
-                        () -> new IllegalArgumentException("Credenciales incorrectas.")
-                );
+        Usuario usuario = usuarioRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new AuthenticationException(MessageConstants.CREDENCIALES_INCORRECTAS));
 
         if (usuario.getEstado() != EstadoGeneral.ACTIVO) {
-            throw new IllegalArgumentException("El usuario se encuentra inactivo.");
+            throw new BusinessException(MessageConstants.USUARIO_INACTIVO);
         }
+
         if (!passwordEncoder.matches(request.getPassword(), usuario.getPassword())) {
-            throw new IllegalArgumentException("Credenciales incorrectas.");
+            throw new AuthenticationException(MessageConstants.CREDENCIALES_INCORRECTAS);
         }
 
         String token = jwtService.generarToken(usuario);
+
         LoginResponse response = new LoginResponse();
         response.setUsuarioId(usuario.getId());
         response.setUsername(usuario.getUsername());
@@ -50,11 +53,8 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional(readOnly = true)
     public UsuarioAutenticadoResponse obtenerUsuarioAutenticado(String username) {
-        Usuario usuario = usuarioRepository
-                .findByUsername(username)
-                .orElseThrow(
-                        () -> new IllegalArgumentException("Usuario autenticado no encontrado.")
-                );
+        Usuario usuario = usuarioRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException(MessageConstants.USUARIO_AUTENTICADO_NO_ENCONTRADO));
 
         UsuarioAutenticadoResponse response = new UsuarioAutenticadoResponse();
         response.setUsuarioId(usuario.getId());

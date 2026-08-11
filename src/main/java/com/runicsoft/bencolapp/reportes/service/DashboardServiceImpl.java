@@ -19,6 +19,7 @@ import com.runicsoft.bencolapp.finanzas.utils.EstadoCuentaPagar;
 import com.runicsoft.bencolapp.inventario.models.Inventario;
 import com.runicsoft.bencolapp.inventario.repository.InventarioRepository;
 import com.runicsoft.bencolapp.reportes.dtos.response.*;
+import com.runicsoft.bencolapp.utils.constants.MessageConstants;
 import com.runicsoft.bencolapp.ventas.models.DetalleVenta;
 import com.runicsoft.bencolapp.ventas.models.Venta;
 import com.runicsoft.bencolapp.ventas.repository.DetalleVentaRepository;
@@ -510,11 +511,11 @@ public class DashboardServiceImpl implements DashboardService {
 
     private void validarFechas(LocalDate desde, LocalDate hasta) {
         if (desde == null || hasta == null) {
-            throw new IllegalArgumentException("Las fechas desde y hasta son obligatorias.");
+            throw new IllegalArgumentException(MessageConstants.FECHAS_OBLIGATORIAS);
         }
 
         if (desde.isAfter(hasta)) {
-            throw new IllegalArgumentException("La fecha inicial no puede ser posterior a la fecha final.");
+            throw new IllegalArgumentException(MessageConstants.RANGO_FECHAS_INVALIDO);
         }
     }
 

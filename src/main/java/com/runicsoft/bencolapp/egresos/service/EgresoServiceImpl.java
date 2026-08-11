@@ -8,6 +8,7 @@ import com.runicsoft.bencolapp.egresos.models.Egreso;
 import com.runicsoft.bencolapp.egresos.repository.EgresoRepository;
 import com.runicsoft.bencolapp.egresos.utils.CategoriaEgreso;
 import com.runicsoft.bencolapp.seguridad.utils.SecurityUtils;
+import com.runicsoft.bencolapp.utils.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +23,6 @@ public class EgresoServiceImpl implements EgresoService {
 
     private final EgresoRepository egresoRepository;
     private final EgresoMapper egresoMapper;
-
     private final CajaService cajaService;
 
     @Override
@@ -46,6 +46,10 @@ public class EgresoServiceImpl implements EgresoService {
     @Override
     @Transactional(readOnly = true)
     public List<EgresoResponse> findByCategoria(CategoriaEgreso categoria) {
+        if (categoria == null) {
+            throw new IllegalArgumentException(CATEGORIA_EGRESO_INVALIDA);
+        }
+
         List<Egreso> egresos = egresoRepository.findByCategoria(categoria);
         return egresoMapper.convertirListaEgresoDto(egresos);
     }
@@ -54,25 +58,21 @@ public class EgresoServiceImpl implements EgresoService {
     @Transactional
     public EgresoResponse create(EgresoRequest request) {
         Egreso egreso = egresoMapper.convertirEgresoEntidad(request);
-
-        egreso.setRegistradoPor(
-                SecurityUtils.getUsuarioActual()
-        );
+        egreso.setRegistradoPor(SecurityUtils.getUsuarioActual());
 
         Egreso egresoGuardado = egresoRepository.save(egreso);
+
         cajaService.registrarEgreso(
                 egresoGuardado.getMonto(),
                 egresoGuardado.getConcepto(),
                 egresoGuardado.getReferencia()
         );
+
         return egresoMapper.convertirEgresoDto(egresoGuardado);
     }
 
-    // Métodos auxiliares
     private Egreso getEgreso(Long id) {
         return egresoRepository.findById(id)
-                .orElseThrow(
-                        () -> new IllegalArgumentException(EGRESO_NO_ENCONTRADO)
-                );
+                .orElseThrow(() -> new ResourceNotFoundException(EGRESO_NO_ENCONTRADO));
     }
 }

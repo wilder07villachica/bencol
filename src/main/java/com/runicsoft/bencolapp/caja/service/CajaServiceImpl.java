@@ -14,6 +14,9 @@ import com.runicsoft.bencolapp.caja.repository.MovimientoCajaRepository;
 import com.runicsoft.bencolapp.caja.utils.EstadoCaja;
 import com.runicsoft.bencolapp.caja.utils.TipoMovimientoCaja;
 import com.runicsoft.bencolapp.seguridad.utils.SecurityUtils;
+import com.runicsoft.bencolapp.utils.exceptions.BusinessException;
+import com.runicsoft.bencolapp.utils.exceptions.ConflictException;
+import com.runicsoft.bencolapp.utils.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,6 +49,7 @@ public class CajaServiceImpl implements CajaService {
         if (id == null || id <= 0) {
             throw new IllegalArgumentException(ID_INVALIDO);
         }
+
         Caja caja = getCaja(id);
         return cajaMapper.convertirCajaDto(caja);
     }
@@ -61,7 +65,7 @@ public class CajaServiceImpl implements CajaService {
     @Transactional
     public CajaResponse abrirCaja(CajaRequest request) {
         if (cajaRepository.existsByEstado(EstadoCaja.ABIERTA)) {
-            throw new IllegalArgumentException(CAJA_YA_ABIERTA);
+            throw new ConflictException(CAJA_YA_ABIERTA);
         }
 
         Caja caja = new Caja();
@@ -109,11 +113,17 @@ public class CajaServiceImpl implements CajaService {
         if (id == null || id <= 0) {
             throw new IllegalArgumentException(ID_INVALIDO);
         }
+
         Caja caja = getCaja(id);
         validarCajaAbierta(caja);
-        BigDecimal saldoEsperado = caja.getSaldoInicial().add(caja.getTotalIngresos()).subtract(caja.getTotalEgresos());
+
+        BigDecimal saldoEsperado = caja.getSaldoInicial()
+                .add(caja.getTotalIngresos())
+                .subtract(caja.getTotalEgresos());
+
         BigDecimal saldoReal = request.getSaldoReal();
         BigDecimal diferencia = saldoReal.subtract(saldoEsperado);
+
         caja.setSaldoEsperado(saldoEsperado);
         caja.setSaldoReal(saldoReal);
         caja.setDiferencia(diferencia);
@@ -124,7 +134,6 @@ public class CajaServiceImpl implements CajaService {
         Caja cajaCerrada = cajaRepository.save(caja);
         return cajaMapper.convertirCajaDto(cajaCerrada);
     }
-
 
     @Override
     @Transactional
@@ -145,23 +154,19 @@ public class CajaServiceImpl implements CajaService {
         cajaRepository.save(caja);
     }
 
-    // Métodos auxiliares
     private Caja getCaja(Long id) {
-        return cajaRepository.findById(id).orElseThrow(
-                () -> new IllegalArgumentException(CAJA_NO_ENCONTRADA)
-        );
+        return cajaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(CAJA_NO_ENCONTRADA));
     }
 
     private Caja getCajaAbierta() {
         return cajaRepository.findFirstByEstadoOrderByFechaAperturaDesc(EstadoCaja.ABIERTA)
-                .orElseThrow(
-                        () -> new IllegalArgumentException(CAJA_NO_ABIERTA)
-                );
+                .orElseThrow(() -> new BusinessException(CAJA_NO_ABIERTA));
     }
 
     private void validarCajaAbierta(Caja caja) {
         if (caja.getEstado() != EstadoCaja.ABIERTA) {
-            throw new IllegalArgumentException(CAJA_CERRADA);
+            throw new BusinessException(CAJA_CERRADA);
         }
     }
 
@@ -177,12 +182,12 @@ public class CajaServiceImpl implements CajaService {
 
     private MovimientoCaja crearMovimientoCaja(Caja caja, TipoMovimientoCaja tipoMovimiento, BigDecimal monto, String concepto, String referencia) {
         MovimientoCaja movimiento = new MovimientoCaja();
-
         movimiento.setCaja(caja);
         movimiento.setTipoMovimiento(tipoMovimiento);
         movimiento.setMonto(monto);
         movimiento.setConcepto(concepto);
         movimiento.setReferencia(referencia);
+        movimiento.setRegistradoPor(SecurityUtils.getUsuarioActual());
 
         MovimientoCaja movimientoGuardado = movimientoCajaRepository.save(movimiento);
         caja.getMovimientos().add(movimientoGuardado);
@@ -191,7 +196,7 @@ public class CajaServiceImpl implements CajaService {
 
     private void validarSaldoCaja(Caja caja, BigDecimal monto) {
         if (monto.compareTo(caja.getSaldoActual()) > 0) {
-            throw new IllegalArgumentException(SALDO_CAJA_INSUFICIENTE);
+            throw new BusinessException(SALDO_CAJA_INSUFICIENTE);
         }
     }
 }

@@ -65,6 +65,7 @@ public final class MessageConstants {
 
     // EGRESOS
     public static final String EGRESO_NO_ENCONTRADO = "El egreso solicitado no fue encontrado.";
+    public static final String CATEGORIA_EGRESO_INVALIDA = "La categoría de egreso no es válida.";
 
     // PROVEEDORES
     public static final String PROVEEDOR_NO_ENCONTRADO = "El proveedor solicitado no fue encontrado.";
@@ -86,4 +87,13 @@ public final class MessageConstants {
     public static final String USERNAME_INVALIDO = "El nombre de usuario proporcionado no es válido.";
     public static final String ROL_INVALIDO = "El rol proporcionado no es válido.";
     public static final String ESTADO_USUARIO_INVALIDO = "El estado del usuario no es válido.";
+
+    // USUARIOS
+    public static final String CREDENCIALES_INCORRECTAS = "Credenciales incorrectas.";
+    public static final String USUARIO_INACTIVO = "El usuario se encuentra inactivo.";
+    public static final String USUARIO_AUTENTICADO_NO_ENCONTRADO = "Usuario autenticado no encontrado.";
+
+    // DASHBOARD
+    public static final String FECHAS_OBLIGATORIAS = "Las fechas desde y hasta son obligatorias.";
+    public static final String RANGO_FECHAS_INVALIDO = "La fecha inicial no puede ser posterior a la fecha final.";
 }

@@ -5,6 +5,8 @@ import com.runicsoft.bencolapp.clientes.dtos.response.ClienteResponse;
 import com.runicsoft.bencolapp.clientes.mappers.ClienteMapper;
 import com.runicsoft.bencolapp.clientes.models.Cliente;
 import com.runicsoft.bencolapp.clientes.repository.ClienteRepository;
+import com.runicsoft.bencolapp.utils.exceptions.ConflictException;
+import com.runicsoft.bencolapp.utils.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,11 +43,12 @@ public class ClienteServiceImpl implements ClienteService {
     @Transactional
     public ClienteResponse create(ClienteRequest request) {
         if (clienteRepository.existsByTelefono(request.getTelefono())) {
-            throw new IllegalArgumentException(TELEFONO_EXISTENTE);
+            throw new ConflictException(TELEFONO_EXISTENTE);
         }
         if (clienteRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalArgumentException(CORREO_EXISTENTE);
+            throw new ConflictException(CORREO_EXISTENTE);
         }
+
         Cliente cliente = clienteMapper.convertirClienteEntidad(request);
         Cliente clienteGuardado = clienteRepository.save(cliente);
         return clienteMapper.convertirClienteDto(clienteGuardado);
@@ -61,10 +64,10 @@ public class ClienteServiceImpl implements ClienteService {
         Cliente cliente = getCliente(id);
 
         if (clienteRepository.existsByTelefonoAndIdNot(request.getTelefono(), id)) {
-            throw new IllegalArgumentException(TELEFONO_EXISTENTE);
+            throw new ConflictException(TELEFONO_EXISTENTE);
         }
         if (clienteRepository.existsByEmailAndIdNot(request.getEmail(), id)) {
-            throw new IllegalArgumentException(CORREO_EXISTENTE);
+            throw new ConflictException(CORREO_EXISTENTE);
         }
 
         clienteMapper.updateCliente(request, cliente);
@@ -72,10 +75,9 @@ public class ClienteServiceImpl implements ClienteService {
         return clienteMapper.convertirClienteDto(clienteActualizado);
     }
 
-    // Métodos auxiliares
+    // Metodos auxiliares
     private Cliente getCliente(Long id) {
-        return clienteRepository.findById(id).orElseThrow(
-                () -> new IllegalArgumentException(CLIENTE_NO_ENCONTRADO)
-        );
+        return clienteRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(CLIENTE_NO_ENCONTRADO));
     }
 }

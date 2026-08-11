@@ -11,6 +11,7 @@ import java.util.List;
 public interface MovimientoCajaMapper {
 
     @Mapping(source = "caja.id", target = "cajaId")
+    @Mapping(source = "registradoPor", target = "registradoPor")
     MovimientoCajaResponse convertirMovimientoDto(MovimientoCaja movimiento);
 
     List<MovimientoCajaResponse> convertirListaMovimientoDto(List<MovimientoCaja> movimientos);

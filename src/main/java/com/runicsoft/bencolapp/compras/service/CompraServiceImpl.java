@@ -22,6 +22,8 @@ import com.runicsoft.bencolapp.proveedores.models.Proveedor;
 import com.runicsoft.bencolapp.proveedores.repository.ProveedorRepository;
 import com.runicsoft.bencolapp.seguridad.utils.SecurityUtils;
 import com.runicsoft.bencolapp.utils.EstadoGeneral;
+import com.runicsoft.bencolapp.utils.exceptions.BusinessException;
+import com.runicsoft.bencolapp.utils.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,10 +44,8 @@ public class CompraServiceImpl implements CompraService {
     private final CompraRepository compraRepository;
     private final ProveedorRepository proveedorRepository;
     private final ProductoRepository productoRepository;
-
     private final InventarioRepository inventarioRepository;
     private final MovimientoInventarioRepository movimientoInventarioRepository;
-
     private final CompraMapper compraMapper;
     private final CuentaPagarRepository cuentaPagarRepository;
 
@@ -62,6 +62,7 @@ public class CompraServiceImpl implements CompraService {
         if (id == null || id <= 0) {
             throw new IllegalArgumentException(ID_INVALIDO);
         }
+
         Compra compra = getCompra(id);
         return compraMapper.convertirCompraDto(compra);
     }
@@ -74,9 +75,8 @@ public class CompraServiceImpl implements CompraService {
         }
 
         Compra compra = compraRepository.findByCodigo(codigo)
-                .orElseThrow(
-                        () -> new IllegalArgumentException(COMPRA_NO_ENCONTRADA)
-                );
+                .orElseThrow(() -> new ResourceNotFoundException(COMPRA_NO_ENCONTRADA));
+
         return compraMapper.convertirCompraDto(compra);
     }
 
@@ -86,8 +86,9 @@ public class CompraServiceImpl implements CompraService {
         if (proveedorId == null || proveedorId <= 0) {
             throw new IllegalArgumentException(ID_INVALIDO);
         }
-        getProveedor(proveedorId);
-        List<Compra> compras = compraRepository.findByProveedorId(proveedorId);
+
+        Proveedor proveedor = getProveedor(proveedorId);
+        List<Compra> compras = compraRepository.findByProveedorId(proveedor.getId());
         return compraMapper.convertirListaCompraDto(compras);
     }
 
@@ -97,20 +98,20 @@ public class CompraServiceImpl implements CompraService {
         Proveedor proveedor = getProveedor(request.getProveedorId());
         validarProveedorActivo(proveedor);
         validarProductosDuplicados(request.getDetalles());
+
         Compra compra = new Compra();
         compra.setCodigo(generarCodigoCompra());
         compra.setProveedor(proveedor);
-        List<DetalleCompra> detalles = new ArrayList<>();
 
+        List<DetalleCompra> detalles = new ArrayList<>();
         BigDecimal subtotalCompra = BigDecimal.ZERO;
 
         for (DetalleCompraRequest detalleRequest : request.getDetalles()) {
             Producto producto = getProducto(detalleRequest.getProductoId());
             validarProductoActivo(producto);
+
             BigDecimal subtotalDetalle = detalleRequest.getCostoUnitario()
-                    .multiply(
-                            BigDecimal.valueOf(detalleRequest.getCantidad())
-                    );
+                    .multiply(BigDecimal.valueOf(detalleRequest.getCantidad()));
 
             DetalleCompra detalle = new DetalleCompra();
             detalle.setCompra(compra);
@@ -118,6 +119,7 @@ public class CompraServiceImpl implements CompraService {
             detalle.setCantidad(detalleRequest.getCantidad());
             detalle.setCostoUnitario(detalleRequest.getCostoUnitario());
             detalle.setSubtotal(subtotalDetalle);
+
             detalles.add(detalle);
             subtotalCompra = subtotalCompra.add(subtotalDetalle);
         }
@@ -130,6 +132,7 @@ public class CompraServiceImpl implements CompraService {
         Compra compraGuardada = compraRepository.save(compra);
         ingresarInventarioCompra(compraGuardada);
         crearCuentaPagar(compraGuardada);
+
         return compraMapper.convertirCompraDto(compraGuardada);
     }
 
@@ -143,81 +146,79 @@ public class CompraServiceImpl implements CompraService {
         Compra compra = getCompra(id);
 
         if (compra.getEstado() == EstadoCompra.ANULADA) {
-            throw new IllegalArgumentException(COMPRA_YA_ANULADA);
+            throw new BusinessException(COMPRA_YA_ANULADA);
         }
+
         validarCuentaParaAnulacion(compra);
         revertirInventarioCompra(compra);
         anularCuentaPagar(compra);
+
         compra.setEstado(EstadoCompra.ANULADA);
-        compra.setCreadoPor(SecurityUtils.getUsuarioActual());
+        compra.setActualizadoPor(SecurityUtils.getUsuarioActual());
 
         Compra compraActualizada = compraRepository.save(compra);
         return compraMapper.convertirCompraDto(compraActualizada);
     }
 
-    // Métodos auxiliares
     private Compra getCompra(Long id) {
         return compraRepository.findById(id)
-                .orElseThrow(
-                        () -> new IllegalArgumentException(COMPRA_NO_ENCONTRADA)
-                );
+                .orElseThrow(() -> new ResourceNotFoundException(COMPRA_NO_ENCONTRADA));
     }
 
     private Proveedor getProveedor(Long id) {
         return proveedorRepository.findById(id)
-                .orElseThrow(
-                        () -> new IllegalArgumentException(PROVEEDOR_NO_ENCONTRADO)
-                );
+                .orElseThrow(() -> new ResourceNotFoundException(PROVEEDOR_NO_ENCONTRADO));
     }
 
     private Producto getProducto(Long id) {
         return productoRepository.findById(id)
-                .orElseThrow(
-                        () -> new IllegalArgumentException(PRODUCTO_NO_ENCONTRADO)
-                );
+                .orElseThrow(() -> new ResourceNotFoundException(PRODUCTO_NO_ENCONTRADO));
     }
 
     private void validarProveedorActivo(Proveedor proveedor) {
         if (proveedor.getEstado() != EstadoGeneral.ACTIVO) {
-            throw new IllegalArgumentException(PROVEEDOR_INACTIVO);
+            throw new BusinessException(PROVEEDOR_INACTIVO);
         }
     }
 
     private void validarProductoActivo(Producto producto) {
         if (producto.getEstado() != EstadoGeneral.ACTIVO) {
-            throw new IllegalArgumentException(PRODUCTO_INACTIVO);
+            throw new BusinessException(PRODUCTO_INACTIVO);
         }
     }
 
     private void validarProductosDuplicados(List<DetalleCompraRequest> detalles) {
         Set<Long> productosIds = new HashSet<>();
+
         for (DetalleCompraRequest detalle : detalles) {
             if (!productosIds.add(detalle.getProductoId())) {
-                throw new IllegalArgumentException(PRODUCTO_DUPLICADO_COMPRA);
+                throw new BusinessException(PRODUCTO_DUPLICADO_COMPRA);
             }
         }
     }
 
     private String generarCodigoCompra() {
-        return "COM-" +
-                UUID.randomUUID()
-                        .toString()
-                        .substring(0, 8)
-                        .toUpperCase();
+        return "COM-" + UUID.randomUUID()
+                .toString()
+                .substring(0, 8)
+                .toUpperCase();
     }
 
     private void ingresarInventarioCompra(Compra compra) {
         for (DetalleCompra detalle : compra.getDetalles()) {
             Producto producto = detalle.getProducto();
-            Inventario inventario = inventarioRepository
-                    .findByProductoId(producto.getId()).orElseThrow(
-                            () -> new IllegalArgumentException(INVENTARIO_NO_ENCONTRADO)
-                    );
+
+            Inventario inventario = inventarioRepository.findByProductoId(producto.getId())
+                    .orElseThrow(() -> new ResourceNotFoundException(INVENTARIO_NO_ENCONTRADO));
+
             Integer stockAnterior = inventario.getStockActual();
             Integer stockNuevo = stockAnterior + detalle.getCantidad();
+
             validarStockMaximo(inventario, stockNuevo);
+
             inventario.setStockActual(stockNuevo);
             inventarioRepository.save(inventario);
+
             registrarMovimientoCompra(
                     compra,
                     inventario,
@@ -236,6 +237,8 @@ public class CompraServiceImpl implements CompraService {
         movimiento.setStockAnterior(stockAnterior);
         movimiento.setStockNuevo(stockNuevo);
         movimiento.setReferencia("Compra " + compra.getCodigo());
+        movimiento.setRegistradoPor(SecurityUtils.getUsuarioActual());
+
         movimientoInventarioRepository.save(movimiento);
     }
 
@@ -246,41 +249,41 @@ public class CompraServiceImpl implements CompraService {
         cuenta.setMontoPagado(BigDecimal.ZERO);
         cuenta.setSaldoPendiente(compra.getTotal());
         cuenta.setEstado(EstadoCuentaPagar.PENDIENTE);
+
         cuentaPagarRepository.save(cuenta);
     }
 
     private void validarStockMaximo(Inventario inventario, Integer stockNuevo) {
         if (inventario.getStockMaximo() != null && stockNuevo > inventario.getStockMaximo()) {
-            throw new IllegalArgumentException(STOCK_SUPERA_MAXIMO);
+            throw new BusinessException(STOCK_SUPERA_MAXIMO);
         }
     }
 
     private void validarCuentaParaAnulacion(Compra compra) {
         CuentaPagar cuenta = cuentaPagarRepository.findByCompraId(compra.getId())
-                .orElseThrow(
-                        () -> new IllegalArgumentException(CUENTA_PAGAR_NO_ENCONTRADA)
-                );
+                .orElseThrow(() -> new ResourceNotFoundException(CUENTA_PAGAR_NO_ENCONTRADA));
 
         if (cuenta.getMontoPagado().compareTo(BigDecimal.ZERO) > 0) {
-            throw new IllegalArgumentException(COMPRA_CON_PAGOS);
+            throw new BusinessException(COMPRA_CON_PAGOS);
         }
     }
 
     private void revertirInventarioCompra(Compra compra) {
         for (DetalleCompra detalle : compra.getDetalles()) {
             Inventario inventario = inventarioRepository.findByProductoId(detalle.getProducto().getId())
-                    .orElseThrow(
-                            () -> new IllegalArgumentException(INVENTARIO_NO_ENCONTRADO)
-                    );
+                    .orElseThrow(() -> new ResourceNotFoundException(INVENTARIO_NO_ENCONTRADO));
 
             Integer stockAnterior = inventario.getStockActual();
 
             if (detalle.getCantidad() > stockAnterior) {
-                throw new IllegalArgumentException(STOCK_INSUFICIENTE_ANULACION_COMPRA);
+                throw new BusinessException(STOCK_INSUFICIENTE_ANULACION_COMPRA);
             }
+
             Integer stockNuevo = stockAnterior - detalle.getCantidad();
+
             inventario.setStockActual(stockNuevo);
             inventarioRepository.save(inventario);
+
             registrarMovimientoAnulacionCompra(
                     compra,
                     inventario,
@@ -299,14 +302,14 @@ public class CompraServiceImpl implements CompraService {
         movimiento.setStockAnterior(stockAnterior);
         movimiento.setStockNuevo(stockNuevo);
         movimiento.setReferencia("Anulación compra " + compra.getCodigo());
+        movimiento.setRegistradoPor(SecurityUtils.getUsuarioActual());
+
         movimientoInventarioRepository.save(movimiento);
     }
 
     private void anularCuentaPagar(Compra compra) {
         CuentaPagar cuenta = cuentaPagarRepository.findByCompraId(compra.getId())
-                .orElseThrow(
-                        () -> new IllegalArgumentException(CUENTA_PAGAR_NO_ENCONTRADA)
-                );
+                .orElseThrow(() -> new ResourceNotFoundException(CUENTA_PAGAR_NO_ENCONTRADA));
 
         cuenta.setEstado(EstadoCuentaPagar.ANULADA);
         cuentaPagarRepository.save(cuenta);

@@ -14,6 +14,9 @@ import com.runicsoft.bencolapp.inventario.utils.TipoMovimientoInventario;
 import com.runicsoft.bencolapp.productos.models.Producto;
 import com.runicsoft.bencolapp.productos.repository.ProductoRepository;
 import com.runicsoft.bencolapp.seguridad.utils.SecurityUtils;
+import com.runicsoft.bencolapp.utils.exceptions.BusinessException;
+import com.runicsoft.bencolapp.utils.exceptions.ConflictException;
+import com.runicsoft.bencolapp.utils.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -74,7 +77,6 @@ public class InventarioServiceImpl implements InventarioService {
         );
 
         Inventario inventario = new Inventario();
-
         inventario.setProducto(producto);
         inventario.setStockActual(request.getStockActual());
         inventario.setStockMinimo(request.getStockMinimo());
@@ -101,7 +103,6 @@ public class InventarioServiceImpl implements InventarioService {
         inventarioRepository.save(inventario);
 
         MovimientoInventario movimiento = new MovimientoInventario();
-
         movimiento.setProducto(producto);
         movimiento.setTipoMovimiento(request.getTipoMovimiento());
         movimiento.setCantidad(request.getCantidad());
@@ -116,8 +117,7 @@ public class InventarioServiceImpl implements InventarioService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<MovimientoInventarioResponse>
-    findMovimientosByProductoId(Long productoId) {
+    public List<MovimientoInventarioResponse> findMovimientosByProductoId(Long productoId) {
         if (productoId == null || productoId <= 0) {
             throw new IllegalArgumentException(ID_INVALIDO);
         }
@@ -128,62 +128,59 @@ public class InventarioServiceImpl implements InventarioService {
         return movimientoInventarioMapper.convertirListaMovimientoDto(movimientos);
     }
 
-
-    // Métodos auxiliares
+    // Metodos auxiliares
     private Inventario getInventario(Long id) {
         return inventarioRepository.findById(id)
-                .orElseThrow(
-                        () -> new IllegalArgumentException(INVENTARIO_NO_ENCONTRADO)
-                );
+                .orElseThrow(() -> new ResourceNotFoundException(INVENTARIO_NO_ENCONTRADO));
     }
 
     private Inventario getInventarioByProducto(Long productoId) {
-        return inventarioRepository
-                .findByProductoId(productoId)
-                .orElseThrow(
-                        () -> new IllegalArgumentException(INVENTARIO_NO_ENCONTRADO)
-                );
+        return inventarioRepository.findByProductoId(productoId)
+                .orElseThrow(() -> new ResourceNotFoundException(INVENTARIO_NO_ENCONTRADO));
     }
 
     private Producto getProducto(Long id) {
         return productoRepository.findById(id)
-                .orElseThrow(
-                        () -> new IllegalArgumentException(PRODUCTO_NO_ENCONTRADO)
-                );
+                .orElseThrow(() -> new ResourceNotFoundException(PRODUCTO_NO_ENCONTRADO));
     }
 
     private void validarInventarioExistente(Long productoId) {
         if (inventarioRepository.existsByProductoId(productoId)) {
-            throw new IllegalArgumentException(INVENTARIO_PRODUCTO_EXISTENTE);
+            throw new ConflictException(INVENTARIO_PRODUCTO_EXISTENTE);
         }
     }
 
     private void validarLimitesStock(Integer stockActual, Integer stockMinimo, Integer stockMaximo) {
-        if (stockMaximo != null && stockMaximo < stockMinimo) {
-            throw new IllegalArgumentException(STOCK_MAXIMO_INVALIDO);
+        if (stockMaximo != null && stockMinimo != null && stockMaximo < stockMinimo) {
+            throw new BusinessException(STOCK_MAXIMO_INVALIDO);
         }
 
         if (stockMaximo != null && stockActual > stockMaximo) {
-            throw new IllegalArgumentException(STOCK_SUPERA_MAXIMO);
+            throw new BusinessException(STOCK_SUPERA_MAXIMO);
         }
     }
 
     private Integer calcularStockNuevo(Inventario inventario, TipoMovimientoInventario tipoMovimiento, Integer cantidad) {
         Integer stockActual = inventario.getStockActual();
+
         if (tipoMovimiento == TipoMovimientoInventario.ENTRADA) {
             Integer stockNuevo = stockActual + cantidad;
+
             if (inventario.getStockMaximo() != null && stockNuevo > inventario.getStockMaximo()) {
-                throw new IllegalArgumentException(STOCK_SUPERA_MAXIMO);
+                throw new BusinessException(STOCK_SUPERA_MAXIMO);
             }
+
             return stockNuevo;
         }
 
         if (tipoMovimiento == TipoMovimientoInventario.SALIDA) {
             if (cantidad > stockActual) {
-                throw new IllegalArgumentException(STOCK_INSUFICIENTE);
+                throw new BusinessException(STOCK_INSUFICIENTE);
             }
+
             return stockActual - cantidad;
         }
+
         throw new IllegalArgumentException(TIPO_MOVIMIENTO_INVALIDO);
     }
 }

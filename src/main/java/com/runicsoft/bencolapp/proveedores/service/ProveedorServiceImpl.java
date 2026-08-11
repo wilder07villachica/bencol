@@ -5,6 +5,8 @@ import com.runicsoft.bencolapp.proveedores.dtos.response.ProveedorResponse;
 import com.runicsoft.bencolapp.proveedores.mapper.ProveedorMapper;
 import com.runicsoft.bencolapp.proveedores.models.Proveedor;
 import com.runicsoft.bencolapp.proveedores.repository.ProveedorRepository;
+import com.runicsoft.bencolapp.utils.exceptions.ConflictException;
+import com.runicsoft.bencolapp.utils.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +35,7 @@ public class ProveedorServiceImpl implements ProveedorService {
         if (id == null || id <= 0) {
             throw new IllegalArgumentException(ID_INVALIDO);
         }
+
         Proveedor proveedor = getProveedor(id);
         return proveedorMapper.convertirProveedorDto(proveedor);
     }
@@ -45,9 +48,8 @@ public class ProveedorServiceImpl implements ProveedorService {
         }
 
         Proveedor proveedor = proveedorRepository.findByRuc(ruc)
-                .orElseThrow(
-                        () -> new IllegalArgumentException(PROVEEDOR_NO_ENCONTRADO)
-                );
+                .orElseThrow(() -> new ResourceNotFoundException(PROVEEDOR_NO_ENCONTRADO));
+
         return proveedorMapper.convertirProveedorDto(proveedor);
     }
 
@@ -55,8 +57,9 @@ public class ProveedorServiceImpl implements ProveedorService {
     @Transactional
     public ProveedorResponse create(ProveedorRequest request) {
         if (proveedorRepository.existsByRuc(request.getRuc())) {
-            throw new IllegalArgumentException(RUC_EXISTENTE);
+            throw new ConflictException(RUC_EXISTENTE);
         }
+
         Proveedor proveedor = proveedorMapper.convertirProveedorEntidad(request);
         Proveedor proveedorGuardado = proveedorRepository.save(proveedor);
         return proveedorMapper.convertirProveedorDto(proveedorGuardado);
@@ -72,18 +75,16 @@ public class ProveedorServiceImpl implements ProveedorService {
         Proveedor proveedor = getProveedor(id);
 
         if (proveedorRepository.existsByRucAndIdNot(request.getRuc(), id)) {
-            throw new IllegalArgumentException(RUC_EXISTENTE);
+            throw new ConflictException(RUC_EXISTENTE);
         }
+
         proveedorMapper.updateProveedor(request, proveedor);
         Proveedor proveedorActualizado = proveedorRepository.save(proveedor);
         return proveedorMapper.convertirProveedorDto(proveedorActualizado);
     }
 
-    // Métodos auxiliares
     private Proveedor getProveedor(Long id) {
         return proveedorRepository.findById(id)
-                .orElseThrow(
-                        () -> new IllegalArgumentException(PROVEEDOR_NO_ENCONTRADO)
-                );
+                .orElseThrow(() -> new ResourceNotFoundException(PROVEEDOR_NO_ENCONTRADO));
     }
 }
