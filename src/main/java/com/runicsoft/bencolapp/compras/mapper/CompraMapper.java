@@ -14,6 +14,8 @@ public interface CompraMapper {
 
     @Mapping(source = "proveedor.id", target = "proveedorId")
     @Mapping(source = "proveedor.razonSocial", target = "razonSocialProveedor")
+    @Mapping(source = "creadoPor", target = "creadoPor")
+    @Mapping(source = "actualizadoPor", target = "actualizadoPor")
     CompraResponse convertirCompraDto(Compra compra);
 
     List<CompraResponse> convertirListaCompraDto(List<Compra> compras);

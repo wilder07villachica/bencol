@@ -50,6 +50,12 @@ public class Compra {
     @Column(name = "fecha_actualizacion")
     private LocalDateTime fechaActualizacion;
 
+    @Column(name = "creado_por", length = 50)
+    private String creadoPor;
+
+    @Column(name = "actualizado_por", length = 50)
+    private String actualizadoPor;
+
     @PrePersist
     public void prePersist() {
         fechaCreacion = LocalDateTime.now();

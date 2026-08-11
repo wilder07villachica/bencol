@@ -7,6 +7,7 @@ import com.runicsoft.bencolapp.egresos.mapper.EgresoMapper;
 import com.runicsoft.bencolapp.egresos.models.Egreso;
 import com.runicsoft.bencolapp.egresos.repository.EgresoRepository;
 import com.runicsoft.bencolapp.egresos.utils.CategoriaEgreso;
+import com.runicsoft.bencolapp.seguridad.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,6 +54,11 @@ public class EgresoServiceImpl implements EgresoService {
     @Transactional
     public EgresoResponse create(EgresoRequest request) {
         Egreso egreso = egresoMapper.convertirEgresoEntidad(request);
+
+        egreso.setRegistradoPor(
+                SecurityUtils.getUsuarioActual()
+        );
+
         Egreso egresoGuardado = egresoRepository.save(egreso);
         cajaService.registrarEgreso(
                 egresoGuardado.getMonto(),

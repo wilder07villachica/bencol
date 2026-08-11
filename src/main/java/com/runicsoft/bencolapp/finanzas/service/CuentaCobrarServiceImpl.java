@@ -14,6 +14,7 @@ import com.runicsoft.bencolapp.finanzas.models.Pago;
 import com.runicsoft.bencolapp.finanzas.repository.CuentaCobrarRepository;
 import com.runicsoft.bencolapp.finanzas.repository.PagoRepository;
 import com.runicsoft.bencolapp.finanzas.utils.EstadoCuenta;
+import com.runicsoft.bencolapp.seguridad.utils.SecurityUtils;
 import com.runicsoft.bencolapp.ventas.models.Venta;
 import com.runicsoft.bencolapp.ventas.repository.VentaRepository;
 import com.runicsoft.bencolapp.ventas.utils.EstadoVenta;
@@ -126,6 +127,7 @@ public class CuentaCobrarServiceImpl implements CuentaCobrarService {
         pago.setMonto(request.getMonto());
         pago.setMetodoPago(request.getMetodoPago());
         pago.setReferencia(request.getReferencia());
+        pago.setRegistradoPor(SecurityUtils.getUsuarioActual());
 
         Pago pagoGuardado = pagoRepository.save(pago);
         cuenta.getPagos().add(pagoGuardado);

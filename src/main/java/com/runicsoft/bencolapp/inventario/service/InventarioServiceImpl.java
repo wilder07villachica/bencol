@@ -13,6 +13,7 @@ import com.runicsoft.bencolapp.inventario.repository.MovimientoInventarioReposit
 import com.runicsoft.bencolapp.inventario.utils.TipoMovimientoInventario;
 import com.runicsoft.bencolapp.productos.models.Producto;
 import com.runicsoft.bencolapp.productos.repository.ProductoRepository;
+import com.runicsoft.bencolapp.seguridad.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -107,6 +108,7 @@ public class InventarioServiceImpl implements InventarioService {
         movimiento.setStockAnterior(stockAnterior);
         movimiento.setStockNuevo(stockNuevo);
         movimiento.setReferencia(request.getReferencia());
+        movimiento.setRegistradoPor(SecurityUtils.getUsuarioActual());
 
         MovimientoInventario movimientoGuardado = movimientoInventarioRepository.save(movimiento);
         return movimientoInventarioMapper.convertirMovimientoDto(movimientoGuardado);

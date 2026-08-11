@@ -39,6 +39,9 @@ public class MovimientoInventario {
     @Column(name = "fecha_creacion", nullable = false)
     private LocalDateTime fechaCreacion;
 
+    @Column(name = "registrado_por", length = 50)
+    private String registradoPor;
+
     @PrePersist
     public void prePersist() {
         fechaCreacion = LocalDateTime.now();

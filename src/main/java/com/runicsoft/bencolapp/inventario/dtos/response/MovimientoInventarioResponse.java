@@ -16,5 +16,6 @@ public class MovimientoInventarioResponse {
     private Integer stockAnterior;
     private Integer stockNuevo;
     private String referencia;
+    private String registradoPor;
     private LocalDateTime fechaCreacion;
 }

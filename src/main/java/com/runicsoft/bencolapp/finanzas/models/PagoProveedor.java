@@ -33,6 +33,9 @@ public class PagoProveedor {
     @Column(name = "fecha_pago", nullable = false)
     private LocalDateTime fechaPago;
 
+    @Column(name = "registrado_por", length = 50)
+    private String registradoPor;
+
     @PrePersist
     public void prePersist() {
         fechaPago = LocalDateTime.now();

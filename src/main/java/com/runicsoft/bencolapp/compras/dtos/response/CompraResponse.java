@@ -17,6 +17,8 @@ public class CompraResponse {
     private BigDecimal total;
     private EstadoCompra estado;
     private List<DetalleCompraResponse> detalles;
+    private String creadoPor;
+    private String actualizadoPor;
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaActualizacion;
 }

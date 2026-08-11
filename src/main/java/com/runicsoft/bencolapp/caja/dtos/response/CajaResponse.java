@@ -19,6 +19,8 @@ public class CajaResponse {
     private BigDecimal diferencia;
     private EstadoCaja estado;
     private List<MovimientoCajaResponse> movimientos;
+    private String abiertaPor;
+    private String cerradaPor;
     private LocalDateTime fechaApertura;
     private LocalDateTime fechaCierre;
 }

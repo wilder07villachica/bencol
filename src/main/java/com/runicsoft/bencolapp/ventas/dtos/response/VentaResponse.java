@@ -17,6 +17,8 @@ public class VentaResponse {
     private BigDecimal total;
     private List<DetalleVentaResponse> detalles;
     private EstadoVenta estado;
+    private String creadoPor;
+    private String actualizadoPor;
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaActualizacion;
 }

@@ -13,6 +13,7 @@ import com.runicsoft.bencolapp.caja.repository.CajaRepository;
 import com.runicsoft.bencolapp.caja.repository.MovimientoCajaRepository;
 import com.runicsoft.bencolapp.caja.utils.EstadoCaja;
 import com.runicsoft.bencolapp.caja.utils.TipoMovimientoCaja;
+import com.runicsoft.bencolapp.seguridad.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,6 +70,8 @@ public class CajaServiceImpl implements CajaService {
         caja.setTotalEgresos(BigDecimal.ZERO);
         caja.setSaldoActual(request.getSaldoInicial());
         caja.setEstado(EstadoCaja.ABIERTA);
+        caja.setAbiertaPor(SecurityUtils.getUsuarioActual());
+
         Caja cajaGuardada = cajaRepository.save(caja);
         return cajaMapper.convertirCajaDto(cajaGuardada);
     }
@@ -116,6 +119,8 @@ public class CajaServiceImpl implements CajaService {
         caja.setDiferencia(diferencia);
         caja.setEstado(EstadoCaja.CERRADA);
         caja.setFechaCierre(LocalDateTime.now());
+        caja.setCerradaPor(SecurityUtils.getUsuarioActual());
+
         Caja cajaCerrada = cajaRepository.save(caja);
         return cajaMapper.convertirCajaDto(cajaCerrada);
     }

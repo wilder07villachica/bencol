@@ -14,6 +14,7 @@ import com.runicsoft.bencolapp.precios_clientes.models.ClientePrecio;
 import com.runicsoft.bencolapp.precios_clientes.repository.ClientePrecioRepository;
 import com.runicsoft.bencolapp.productos.models.Producto;
 import com.runicsoft.bencolapp.productos.repository.ProductoRepository;
+import com.runicsoft.bencolapp.seguridad.utils.SecurityUtils;
 import com.runicsoft.bencolapp.utils.EstadoGeneral;
 import com.runicsoft.bencolapp.ventas.dtos.request.DetalleVentaRequest;
 import com.runicsoft.bencolapp.ventas.dtos.request.VentaRequest;
@@ -116,6 +117,7 @@ public class VentaServiceImpl implements VentaService {
         venta.setDetalles(detalles);
         venta.setSubtotal(subtotalVenta);
         venta.setTotal(subtotalVenta);
+        venta.setCreadoPor(SecurityUtils.getUsuarioActual());
 
         Venta ventaGuardada = ventaRepository.save(venta);
         descontarInventarioVenta(ventaGuardada, request.getDetalles());
@@ -139,6 +141,7 @@ public class VentaServiceImpl implements VentaService {
         devolverInventarioVenta(venta);
         anularCuentaCobrar(venta);
         venta.setEstado(EstadoVenta.ANULADA);
+        venta.setActualizadoPor(SecurityUtils.getUsuarioActual());
 
         Venta ventaActualizada = ventaRepository.save(venta);
         return ventaMapper.convertirVentaDto(ventaActualizada);
@@ -253,12 +256,15 @@ public class VentaServiceImpl implements VentaService {
 
     private void registrarMovimientoVenta(Venta venta, Inventario inventario, Integer cantidad, Integer stockAnterior, Integer stockNuevo) {
         MovimientoInventario movimiento = new MovimientoInventario();
+
         movimiento.setProducto(inventario.getProducto());
         movimiento.setTipoMovimiento(TipoMovimientoInventario.SALIDA);
         movimiento.setCantidad(cantidad);
         movimiento.setStockAnterior(stockAnterior);
         movimiento.setStockNuevo(stockNuevo);
         movimiento.setReferencia("Venta " + venta.getCodigo());
+        movimiento.setRegistradoPor(SecurityUtils.getUsuarioActual());
+
         movimientoInventarioRepository.save(movimiento);
     }
 
@@ -281,12 +287,15 @@ public class VentaServiceImpl implements VentaService {
 
     private void registrarMovimientoAnulacion(Venta venta, Inventario inventario, Integer cantidad, Integer stockAnterior, Integer stockNuevo) {
         MovimientoInventario movimiento = new MovimientoInventario();
+
         movimiento.setProducto(inventario.getProducto());
         movimiento.setTipoMovimiento(TipoMovimientoInventario.ENTRADA);
         movimiento.setCantidad(cantidad);
         movimiento.setStockAnterior(stockAnterior);
         movimiento.setStockNuevo(stockNuevo);
         movimiento.setReferencia("Anulación venta " + venta.getCodigo());
+        movimiento.setRegistradoPor(SecurityUtils.getUsuarioActual());
+
         movimientoInventarioRepository.save(movimiento);
     }
 

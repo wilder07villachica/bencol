@@ -13,5 +13,6 @@ public class EgresoResponse {
     private String concepto;
     private BigDecimal monto;
     private String referencia;
+    private String registradoPor;
     private LocalDateTime fechaEgreso;
 }

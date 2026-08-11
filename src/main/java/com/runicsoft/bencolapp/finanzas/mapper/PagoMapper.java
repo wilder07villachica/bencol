@@ -11,6 +11,7 @@ import java.util.List;
 public interface PagoMapper {
 
     @Mapping(source = "cuentaCobrar.id", target = "cuentaCobrarId")
+    @Mapping(source = "registradoPor", target = "registradoPor")
     PagoResponse convertirPagoDto(Pago pago);
 
     List<PagoResponse> convertirListaPagoDto(List<Pago> pagos);

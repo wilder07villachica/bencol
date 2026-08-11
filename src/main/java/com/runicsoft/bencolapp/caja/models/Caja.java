@@ -52,6 +52,12 @@ public class Caja {
     @Column(name = "fecha_cierre")
     private LocalDateTime fechaCierre;
 
+    @Column(name = "abierta_por", length = 50)
+    private String abiertaPor;
+
+    @Column(name = "cerrada_por", length = 50)
+    private String cerradaPor;
+
     @PrePersist
     public void prePersist() {
         fechaApertura = LocalDateTime.now();

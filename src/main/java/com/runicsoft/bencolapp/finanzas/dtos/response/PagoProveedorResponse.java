@@ -14,4 +14,5 @@ public class PagoProveedorResponse {
     private MetodoPago metodoPago;
     private String referencia;
     private LocalDateTime fechaPago;
+    private String registradoPor;
 }

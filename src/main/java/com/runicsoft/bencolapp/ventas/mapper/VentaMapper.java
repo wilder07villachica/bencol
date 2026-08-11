@@ -15,6 +15,8 @@ public interface VentaMapper {
     @Mapping(source = "cliente.id", target = "clienteId")
     @Mapping(source = "cliente.nombre", target = "nombreCliente")
     @Mapping(source = "estado", target = "estado")
+    @Mapping(source = "creadoPor", target = "creadoPor")
+    @Mapping(source = "actualizadoPor", target = "actualizadoPor")
     VentaResponse convertirVentaDto(Venta venta);
 
     List<VentaResponse> convertirListaVentaDto(List<Venta> ventas);

@@ -16,6 +16,7 @@ import com.runicsoft.bencolapp.finanzas.repository.PagoProveedorRepository;
 import com.runicsoft.bencolapp.finanzas.utils.EstadoCuentaPagar;
 import com.runicsoft.bencolapp.proveedores.models.Proveedor;
 import com.runicsoft.bencolapp.proveedores.repository.ProveedorRepository;
+import com.runicsoft.bencolapp.seguridad.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -120,6 +121,7 @@ public class CuentaPagarServiceImpl implements CuentaPagarService {
         pago.setMonto(request.getMonto());
         pago.setMetodoPago(request.getMetodoPago());
         pago.setReferencia(request.getReferencia());
+        pago.setRegistradoPor(SecurityUtils.getUsuarioActual());
 
         PagoProveedor pagoGuardado = pagoProveedorRepository.save(pago);
         cuenta.getPagos().add(pagoGuardado);

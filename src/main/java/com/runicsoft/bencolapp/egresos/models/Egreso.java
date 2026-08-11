@@ -32,6 +32,9 @@ public class Egreso {
     @Column(name = "fecha_egreso", nullable = false)
     private LocalDateTime fechaEgreso;
 
+    @Column(name = "registrado_por", length = 50)
+    private String registradoPor;
+
     @PrePersist
     public void prePersist() {
         fechaEgreso = LocalDateTime.now();

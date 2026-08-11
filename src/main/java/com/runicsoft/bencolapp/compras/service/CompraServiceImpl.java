@@ -20,6 +20,7 @@ import com.runicsoft.bencolapp.productos.models.Producto;
 import com.runicsoft.bencolapp.productos.repository.ProductoRepository;
 import com.runicsoft.bencolapp.proveedores.models.Proveedor;
 import com.runicsoft.bencolapp.proveedores.repository.ProveedorRepository;
+import com.runicsoft.bencolapp.seguridad.utils.SecurityUtils;
 import com.runicsoft.bencolapp.utils.EstadoGeneral;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -124,6 +125,7 @@ public class CompraServiceImpl implements CompraService {
         compra.setDetalles(detalles);
         compra.setSubtotal(subtotalCompra);
         compra.setTotal(subtotalCompra);
+        compra.setCreadoPor(SecurityUtils.getUsuarioActual());
 
         Compra compraGuardada = compraRepository.save(compra);
         ingresarInventarioCompra(compraGuardada);
@@ -147,6 +149,8 @@ public class CompraServiceImpl implements CompraService {
         revertirInventarioCompra(compra);
         anularCuentaPagar(compra);
         compra.setEstado(EstadoCompra.ANULADA);
+        compra.setCreadoPor(SecurityUtils.getUsuarioActual());
+
         Compra compraActualizada = compraRepository.save(compra);
         return compraMapper.convertirCompraDto(compraActualizada);
     }
