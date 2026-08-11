@@ -3,12 +3,16 @@ package com.runicsoft.bencolapp.compras.controller;
 import com.runicsoft.bencolapp.compras.dtos.request.CompraRequest;
 import com.runicsoft.bencolapp.compras.dtos.response.CompraResponse;
 import com.runicsoft.bencolapp.compras.service.CompraService;
+import com.runicsoft.bencolapp.compras.utils.EstadoCompra;
+import com.runicsoft.bencolapp.utils.pagination.PaginaResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -19,8 +23,16 @@ public class CompraController {
     private final CompraService compraService;
 
     @GetMapping
-    public ResponseEntity<List<CompraResponse>> findAll() {
-        return ResponseEntity.ok(compraService.findAll());
+    public ResponseEntity<PaginaResponse<CompraResponse>> findAll(
+            @RequestParam(defaultValue = "0") int pagina,
+            @RequestParam(defaultValue = "20") int tamanio,
+            @RequestParam(required = false) String codigo,
+            @RequestParam(required = false) Long proveedorId,
+            @RequestParam(required = false) EstadoCompra estado,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta
+    ) {
+        return ResponseEntity.ok(compraService.findAll(pagina, tamanio, codigo, proveedorId, estado, desde, hasta));
     }
 
     @GetMapping("/{idCompra}")

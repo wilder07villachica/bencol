@@ -20,11 +20,18 @@ import com.runicsoft.bencolapp.seguridad.utils.SecurityUtils;
 import com.runicsoft.bencolapp.utils.exceptions.BusinessException;
 import com.runicsoft.bencolapp.utils.exceptions.ConflictException;
 import com.runicsoft.bencolapp.utils.exceptions.ResourceNotFoundException;
+import com.runicsoft.bencolapp.utils.pagination.PaginaResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.runicsoft.bencolapp.utils.constants.MessageConstants.*;
@@ -42,9 +49,37 @@ public class CuentaPagarServiceImpl implements CuentaPagarService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<CuentaPagarResponse> findAll() {
-        List<CuentaPagar> cuentas = cuentaPagarRepository.findAll();
-        return cuentaPagarMapper.convertirListaCuentaPagarDto(cuentas);
+    public PaginaResponse<CuentaPagarResponse> findAll(int pagina, int tamanio, Long proveedorId, EstadoCuentaPagar estado, LocalDate desde, LocalDate hasta) {
+        validarPaginacion(pagina, tamanio);
+        validarRangoFechas(desde, hasta);
+
+        if (proveedorId != null) {
+            if (proveedorId <= 0) {
+                throw new IllegalArgumentException(ID_INVALIDO);
+            }
+
+            getProveedor(proveedorId);
+        }
+
+        LocalDateTime fechaInicio = desde != null ? desde.atStartOfDay() : null;
+        LocalDateTime fechaFin = hasta != null ? hasta.plusDays(1).atStartOfDay() : null;
+
+        Pageable pageable = PageRequest.of(
+                pagina,
+                tamanio,
+                Sort.by("compra.fechaCreacion").descending()
+        );
+
+        Page<CuentaPagar> cuentas = cuentaPagarRepository.buscar(
+                proveedorId,
+                estado,
+                fechaInicio,
+                fechaFin,
+                pageable
+        );
+
+        Page<CuentaPagarResponse> responses = cuentas.map(cuentaPagarMapper::convertirCuentaPagarDto);
+        return PaginaResponse.from(responses);
     }
 
     @Override
@@ -78,9 +113,7 @@ public class CuentaPagarServiceImpl implements CuentaPagarService {
             throw new IllegalArgumentException(ID_INVALIDO);
         }
 
-        Proveedor proveedor = proveedorRepository.findById(proveedorId)
-                .orElseThrow(() -> new ResourceNotFoundException(PROVEEDOR_NO_ENCONTRADO));
-
+        Proveedor proveedor = getProveedor(proveedorId);
         List<CuentaPagar> cuentas = cuentaPagarRepository.findByCompraProveedorId(proveedor.getId());
         return cuentaPagarMapper.convertirListaCuentaPagarDto(cuentas);
     }
@@ -225,6 +258,11 @@ public class CuentaPagarServiceImpl implements CuentaPagarService {
         return response;
     }
 
+    private Proveedor getProveedor(Long id) {
+        return proveedorRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(PROVEEDOR_NO_ENCONTRADO));
+    }
+
     private CuentaPagar getCuentaPagar(Long id) {
         return cuentaPagarRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(CUENTA_PAGAR_NO_ENCONTRADA));
@@ -275,5 +313,21 @@ public class CuentaPagarServiceImpl implements CuentaPagarService {
         }
 
         cuenta.setEstado(EstadoCuentaPagar.PENDIENTE);
+    }
+
+    private void validarPaginacion(int pagina, int tamanio) {
+        if (pagina < 0) {
+            throw new IllegalArgumentException(PAGINA_INVALIDA);
+        }
+
+        if (tamanio <= 0 || tamanio > 100) {
+            throw new IllegalArgumentException(TAMANIO_PAGINA_INVALIDO);
+        }
+    }
+
+    private void validarRangoFechas(LocalDate desde, LocalDate hasta) {
+        if (desde != null && hasta != null && desde.isAfter(hasta)) {
+            throw new IllegalArgumentException(RANGO_FECHAS_INVALIDO);
+        }
     }
 }

@@ -5,12 +5,16 @@ import com.runicsoft.bencolapp.inventario.dtos.request.MovimientoInventarioReque
 import com.runicsoft.bencolapp.inventario.dtos.response.InventarioResponse;
 import com.runicsoft.bencolapp.inventario.dtos.response.MovimientoInventarioResponse;
 import com.runicsoft.bencolapp.inventario.service.InventarioService;
+import com.runicsoft.bencolapp.inventario.utils.TipoMovimientoInventario;
+import com.runicsoft.bencolapp.utils.pagination.PaginaResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -20,9 +24,20 @@ public class InventarioController {
 
     private final InventarioService inventarioService;
 
-    @GetMapping
-    public ResponseEntity<List<InventarioResponse>> findAll() {
-        return ResponseEntity.ok(inventarioService.findAll());
+    @GetMapping("/movimientos")
+    public ResponseEntity<PaginaResponse<MovimientoInventarioResponse>> findMovimientos(
+            @RequestParam(defaultValue = "0") int pagina,
+            @RequestParam(defaultValue = "20") int tamanio,
+            @RequestParam(required = false) Long productoId,
+            @RequestParam(required = false) TipoMovimientoInventario tipoMovimiento,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate desde,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate hasta
+    ) {
+        return ResponseEntity.ok(inventarioService.findMovimientos(pagina, tamanio, productoId, tipoMovimiento, desde, hasta));
     }
 
     @GetMapping("/{idInventario}")

@@ -7,12 +7,15 @@ import com.runicsoft.bencolapp.finanzas.dtos.response.DeudaProveedorResponse;
 import com.runicsoft.bencolapp.finanzas.dtos.response.ResumenCuentasPagarResponse;
 import com.runicsoft.bencolapp.finanzas.service.CuentaPagarService;
 import com.runicsoft.bencolapp.finanzas.utils.EstadoCuentaPagar;
+import com.runicsoft.bencolapp.utils.pagination.PaginaResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -23,8 +26,19 @@ public class CuentaPagarController {
     private final CuentaPagarService cuentaPagarService;
 
     @GetMapping
-    public ResponseEntity<List<CuentaPagarResponse>> findAll() {
-        return ResponseEntity.ok(cuentaPagarService.findAll());
+    public ResponseEntity<PaginaResponse<CuentaPagarResponse>> findAll(
+            @RequestParam(defaultValue = "0") int pagina,
+            @RequestParam(defaultValue = "20") int tamanio,
+            @RequestParam(required = false) Long proveedorId,
+            @RequestParam(required = false) EstadoCuentaPagar estado,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate desde,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate hasta
+    ) {
+        return ResponseEntity.ok(cuentaPagarService.findAll(pagina, tamanio, proveedorId, estado, desde, hasta));
     }
 
     @GetMapping("/{idCuenta}")

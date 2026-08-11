@@ -18,6 +18,7 @@ import com.runicsoft.bencolapp.seguridad.utils.SecurityUtils;
 import com.runicsoft.bencolapp.utils.EstadoGeneral;
 import com.runicsoft.bencolapp.utils.exceptions.BusinessException;
 import com.runicsoft.bencolapp.utils.exceptions.ResourceNotFoundException;
+import com.runicsoft.bencolapp.utils.pagination.PaginaResponse;
 import com.runicsoft.bencolapp.ventas.dtos.request.DetalleVentaRequest;
 import com.runicsoft.bencolapp.ventas.dtos.request.VentaRequest;
 import com.runicsoft.bencolapp.ventas.dtos.response.VentaResponse;
@@ -27,10 +28,16 @@ import com.runicsoft.bencolapp.ventas.models.Venta;
 import com.runicsoft.bencolapp.ventas.repository.VentaRepository;
 import com.runicsoft.bencolapp.ventas.utils.EstadoVenta;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static com.runicsoft.bencolapp.utils.constants.MessageConstants.*;
@@ -50,9 +57,41 @@ public class VentaServiceImpl implements VentaService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<VentaResponse> findAll() {
-        List<Venta> ventas = ventaRepository.findAll();
-        return ventaMapper.convertirListaVentaDto(ventas);
+    public PaginaResponse<VentaResponse> findAll(int pagina, int tamanio, String codigo, Long clienteId, EstadoVenta estado, LocalDate desde, LocalDate hasta) {
+        validarPaginacion(pagina, tamanio);
+        validarRangoFechas(desde, hasta);
+
+        if (codigo != null && codigo.isBlank()) {
+            codigo = null;
+        }
+
+        if (clienteId != null) {
+            if (clienteId <= 0) {
+                throw new IllegalArgumentException(ID_INVALIDO);
+            }
+            getCliente(clienteId);
+        }
+
+        LocalDateTime fechaInicio = desde != null ? desde.atStartOfDay() : null;
+        LocalDateTime fechaFin = hasta != null ? hasta.plusDays(1).atStartOfDay() : null;
+
+        Pageable pageable = PageRequest.of(
+                pagina,
+                tamanio,
+                Sort.by("fechaCreacion").descending()
+        );
+
+        Page<Venta> ventas = ventaRepository.buscar(
+                codigo,
+                clienteId,
+                estado,
+                fechaInicio,
+                fechaFin,
+                pageable
+        );
+
+        Page<VentaResponse> responses = ventas.map(ventaMapper::convertirVentaDto);
+        return PaginaResponse.from(responses);
     }
 
     @Override
@@ -307,5 +346,21 @@ public class VentaServiceImpl implements VentaService {
                 .toString()
                 .substring(0, 8)
                 .toUpperCase();
+    }
+
+    private void validarPaginacion(int pagina, int tamanio) {
+        if (pagina < 0) {
+            throw new IllegalArgumentException(PAGINA_INVALIDA);
+        }
+
+        if (tamanio <= 0 || tamanio > 100) {
+            throw new IllegalArgumentException(TAMANIO_PAGINA_INVALIDO);
+        }
+    }
+
+    private void validarRangoFechas(LocalDate desde, LocalDate hasta) {
+        if (desde != null && hasta != null && desde.isAfter(hasta)) {
+            throw new IllegalArgumentException(RANGO_FECHAS_INVALIDO);
+        }
     }
 }

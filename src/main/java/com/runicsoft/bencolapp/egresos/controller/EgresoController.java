@@ -4,12 +4,15 @@ import com.runicsoft.bencolapp.egresos.dtos.request.EgresoRequest;
 import com.runicsoft.bencolapp.egresos.dtos.response.EgresoResponse;
 import com.runicsoft.bencolapp.egresos.service.EgresoService;
 import com.runicsoft.bencolapp.egresos.utils.CategoriaEgreso;
+import com.runicsoft.bencolapp.utils.pagination.PaginaResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -20,8 +23,18 @@ public class EgresoController {
     private final EgresoService egresoService;
 
     @GetMapping
-    public ResponseEntity<List<EgresoResponse>> findAll() {
-        return ResponseEntity.ok(egresoService.findAll());
+    public ResponseEntity<PaginaResponse<EgresoResponse>> findAll(
+            @RequestParam(defaultValue = "0") int pagina,
+            @RequestParam(defaultValue = "20") int tamanio,
+            @RequestParam(required = false) CategoriaEgreso categoria,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate desde,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate hasta
+    ) {
+        return ResponseEntity.ok(egresoService.findAll(pagina, tamanio, categoria, desde, hasta));
     }
 
     @GetMapping("/{idEgreso}")

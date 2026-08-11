@@ -6,12 +6,17 @@ import com.runicsoft.bencolapp.caja.dtos.request.MovimientoCajaRequest;
 import com.runicsoft.bencolapp.caja.dtos.response.CajaResponse;
 import com.runicsoft.bencolapp.caja.dtos.response.MovimientoCajaResponse;
 import com.runicsoft.bencolapp.caja.service.CajaService;
+import com.runicsoft.bencolapp.caja.utils.EstadoCaja;
+import com.runicsoft.bencolapp.caja.utils.TipoMovimientoCaja;
+import com.runicsoft.bencolapp.utils.pagination.PaginaResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -22,8 +27,18 @@ public class CajaController {
     private final CajaService cajaService;
 
     @GetMapping
-    public ResponseEntity<List<CajaResponse>> findAll() {
-        return ResponseEntity.ok(cajaService.findAll());
+    public ResponseEntity<PaginaResponse<CajaResponse>> findAll(
+            @RequestParam(defaultValue = "0") int pagina,
+            @RequestParam(defaultValue = "20") int tamanio,
+            @RequestParam(required = false) EstadoCaja estado,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate desde,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate hasta
+    ) {
+        return ResponseEntity.ok(cajaService.findAll(pagina, tamanio, estado, desde, hasta));
     }
 
     @GetMapping("/{idCaja}")
@@ -52,5 +67,21 @@ public class CajaController {
     public ResponseEntity<CajaResponse> cerrarCaja(@PathVariable Long idCaja, @Valid @RequestBody CierreCajaRequest request) {
         CajaResponse response = cajaService.cerrarCaja(idCaja, request);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/movimientos")
+    public ResponseEntity<PaginaResponse<MovimientoCajaResponse>> findMovimientos(
+            @RequestParam(defaultValue = "0") int pagina,
+            @RequestParam(defaultValue = "20") int tamanio,
+            @RequestParam(required = false) Long cajaId,
+            @RequestParam(required = false) TipoMovimientoCaja tipoMovimiento,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate desde,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate hasta
+    ) {
+        return ResponseEntity.ok(cajaService.findMovimientos(pagina, tamanio, cajaId, tipoMovimiento, desde, hasta));
     }
 }

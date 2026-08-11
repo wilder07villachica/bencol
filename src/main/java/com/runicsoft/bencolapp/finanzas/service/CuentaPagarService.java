@@ -6,11 +6,13 @@ import com.runicsoft.bencolapp.finanzas.dtos.response.CuentaPagarResponse;
 import com.runicsoft.bencolapp.finanzas.dtos.response.DeudaProveedorResponse;
 import com.runicsoft.bencolapp.finanzas.dtos.response.ResumenCuentasPagarResponse;
 import com.runicsoft.bencolapp.finanzas.utils.EstadoCuentaPagar;
+import com.runicsoft.bencolapp.utils.pagination.PaginaResponse;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface CuentaPagarService {
-    List<CuentaPagarResponse> findAll();
+    PaginaResponse<CuentaPagarResponse> findAll(int pagina, int tamanio, Long proveedorId, EstadoCuentaPagar estado, LocalDate desde, LocalDate hasta);
     CuentaPagarResponse findById(Long id);
     CuentaPagarResponse findByCompraId(Long compraId);
     List<CuentaPagarResponse> findByProveedorId(Long proveedorId);

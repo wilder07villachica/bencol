@@ -3,6 +3,7 @@ package com.runicsoft.bencolapp.precios_clientes.controller;
 import com.runicsoft.bencolapp.precios_clientes.dtos.request.ClientePrecioRequest;
 import com.runicsoft.bencolapp.precios_clientes.dtos.response.ClientePrecioResponse;
 import com.runicsoft.bencolapp.precios_clientes.service.ClientePrecioService;
+import com.runicsoft.bencolapp.utils.pagination.PaginaResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,8 +20,13 @@ public class ClientePrecioController {
     private final ClientePrecioService clientePrecioService;
 
     @GetMapping
-    public ResponseEntity<List<ClientePrecioResponse>> findAll() {
-        return ResponseEntity.ok(clientePrecioService.findAll());
+    public ResponseEntity<PaginaResponse<ClientePrecioResponse>> findAll(
+            @RequestParam(defaultValue = "0") int pagina,
+            @RequestParam(defaultValue = "20") int tamanio,
+            @RequestParam(required = false) Long clienteId,
+            @RequestParam(required = false) Long productoId
+    ) {
+        return ResponseEntity.ok(clientePrecioService.findAll(pagina, tamanio, clienteId, productoId));
     }
 
     @GetMapping("/{id}")

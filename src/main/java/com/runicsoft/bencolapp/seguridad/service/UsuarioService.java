@@ -5,11 +5,12 @@ import com.runicsoft.bencolapp.seguridad.dtos.request.UsuarioRequest;
 import com.runicsoft.bencolapp.seguridad.dtos.response.UsuarioResponse;
 import com.runicsoft.bencolapp.seguridad.utils.RolUsuario;
 import com.runicsoft.bencolapp.utils.EstadoGeneral;
+import com.runicsoft.bencolapp.utils.pagination.PaginaResponse;
 
 import java.util.List;
 
 public interface UsuarioService {
-    List<UsuarioResponse> findAll();
+    PaginaResponse<UsuarioResponse> findAll(int pagina, int tamanio, String texto, RolUsuario rol, EstadoGeneral estado);
 
     UsuarioResponse findById(Long id);
 

@@ -3,13 +3,13 @@ package com.runicsoft.bencolapp.proveedores.controller;
 import com.runicsoft.bencolapp.proveedores.dtos.request.ProveedorRequest;
 import com.runicsoft.bencolapp.proveedores.dtos.response.ProveedorResponse;
 import com.runicsoft.bencolapp.proveedores.service.ProveedorService;
+import com.runicsoft.bencolapp.utils.EstadoGeneral;
+import com.runicsoft.bencolapp.utils.pagination.PaginaResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/bencol.agua/proveedores")
@@ -19,8 +19,13 @@ public class ProveedorController {
     private final ProveedorService proveedorService;
 
     @GetMapping
-    public ResponseEntity<List<ProveedorResponse>> findAll() {
-        return ResponseEntity.ok(proveedorService.findAll());
+    public ResponseEntity<PaginaResponse<ProveedorResponse>> findAll(
+            @RequestParam(defaultValue = "0") int pagina,
+            @RequestParam(defaultValue = "20") int tamanio,
+            @RequestParam(required = false) String texto,
+            @RequestParam(required = false) EstadoGeneral estado
+    ) {
+        return ResponseEntity.ok(proveedorService.findAll(pagina, tamanio, texto, estado));
     }
 
     @GetMapping("/{idProveedor}")

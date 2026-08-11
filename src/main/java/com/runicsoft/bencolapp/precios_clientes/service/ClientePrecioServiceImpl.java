@@ -11,11 +11,14 @@ import com.runicsoft.bencolapp.productos.models.Producto;
 import com.runicsoft.bencolapp.productos.repository.ProductoRepository;
 import com.runicsoft.bencolapp.utils.exceptions.ConflictException;
 import com.runicsoft.bencolapp.utils.exceptions.ResourceNotFoundException;
+import com.runicsoft.bencolapp.utils.pagination.PaginaResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 import static com.runicsoft.bencolapp.utils.constants.MessageConstants.*;
 
@@ -30,9 +33,37 @@ public class ClientePrecioServiceImpl implements ClientePrecioService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ClientePrecioResponse> findAll() {
-        List<ClientePrecio> precios = clientePrecioRepository.findAll();
-        return clientePrecioMapper.convertirListaPrecioDto(precios);
+    public PaginaResponse<ClientePrecioResponse> findAll(int pagina, int tamanio, Long clienteId, Long productoId) {
+        validarPaginacion(pagina, tamanio);
+
+        if (clienteId != null) {
+            if (clienteId <= 0) {
+                throw new IllegalArgumentException(ID_INVALIDO);
+            }
+            getCliente(clienteId);
+        }
+
+        if (productoId != null) {
+            if (productoId <= 0) {
+                throw new IllegalArgumentException(ID_INVALIDO);
+            }
+            getProducto(productoId);
+        }
+
+        Pageable pageable = PageRequest.of(
+                pagina,
+                tamanio,
+                Sort.by("id").descending()
+        );
+
+        Page<ClientePrecio> precios = clientePrecioRepository.buscar(
+                clienteId,
+                productoId,
+                pageable
+        );
+
+        Page<ClientePrecioResponse> responses = precios.map(clientePrecioMapper::convertirDtoEntidad);
+        return PaginaResponse.from(responses);
     }
 
     @Override
@@ -112,5 +143,15 @@ public class ClientePrecioServiceImpl implements ClientePrecioService {
     private ClientePrecio getClientePrecio(Long id) {
         return clientePrecioRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(PRECIO_CLIENTE_NO_ENCONTRADO));
+    }
+
+    private void validarPaginacion(int pagina, int tamanio) {
+        if (pagina < 0) {
+            throw new IllegalArgumentException(PAGINA_INVALIDA);
+        }
+
+        if (tamanio <= 0 || tamanio > 100) {
+            throw new IllegalArgumentException(TAMANIO_PAGINA_INVALIDO);
+        }
     }
 }

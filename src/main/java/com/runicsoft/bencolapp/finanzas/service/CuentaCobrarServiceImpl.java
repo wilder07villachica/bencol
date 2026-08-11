@@ -18,14 +18,21 @@ import com.runicsoft.bencolapp.seguridad.utils.SecurityUtils;
 import com.runicsoft.bencolapp.utils.exceptions.BusinessException;
 import com.runicsoft.bencolapp.utils.exceptions.ConflictException;
 import com.runicsoft.bencolapp.utils.exceptions.ResourceNotFoundException;
+import com.runicsoft.bencolapp.utils.pagination.PaginaResponse;
 import com.runicsoft.bencolapp.ventas.models.Venta;
 import com.runicsoft.bencolapp.ventas.repository.VentaRepository;
 import com.runicsoft.bencolapp.ventas.utils.EstadoVenta;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.runicsoft.bencolapp.utils.constants.MessageConstants.*;
@@ -43,9 +50,42 @@ public class CuentaCobrarServiceImpl implements CuentaCobrarService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<CuentaCobrarResponse> findAll() {
-        List<CuentaCobrar> cuentas = cuentaCobrarRepository.findAll();
-        return cuentaCobrarMapper.convertirListaCuentaDto(cuentas);
+    public PaginaResponse<CuentaCobrarResponse> findAll(int pagina, int tamanio, Long clienteId, EstadoCuenta estado, LocalDate desde, LocalDate hasta) {
+        validarPaginacion(pagina, tamanio);
+        validarRangoFechas(desde, hasta);
+
+        if (clienteId != null) {
+            if (clienteId <= 0) {
+                throw new IllegalArgumentException(ID_INVALIDO);
+            }
+
+            getCliente(clienteId);
+        }
+
+        LocalDateTime fechaInicio =
+                desde != null ? desde.atStartOfDay() : null;
+
+        LocalDateTime fechaFin =
+                hasta != null ? hasta.plusDays(1).atStartOfDay() : null;
+
+        Pageable pageable = PageRequest.of(
+                pagina,
+                tamanio,
+                Sort.by("venta.fechaCreacion").descending()
+        );
+
+        Page<CuentaCobrar> cuentas = cuentaCobrarRepository.buscar(
+                clienteId,
+                estado,
+                fechaInicio,
+                fechaFin,
+                pageable
+        );
+
+        Page<CuentaCobrarResponse> responses =
+                cuentas.map(cuentaCobrarMapper::convertirCuentaDto);
+
+        return PaginaResponse.from(responses);
     }
 
     @Override
@@ -90,10 +130,11 @@ public class CuentaCobrarServiceImpl implements CuentaCobrarService {
             throw new IllegalArgumentException(ID_INVALIDO);
         }
 
-        Cliente cliente = clienteRepository.findById(clienteId)
-                .orElseThrow(() -> new ResourceNotFoundException(CLIENTE_NO_ENCONTRADO));
+        Cliente cliente = getCliente(clienteId);
 
-        List<CuentaCobrar> cuentas = cuentaCobrarRepository.findByVentaClienteId(cliente.getId());
+        List<CuentaCobrar> cuentas =
+                cuentaCobrarRepository.findByVentaClienteId(cliente.getId());
+
         return cuentaCobrarMapper.convertirListaCuentaDto(cuentas);
     }
 
@@ -228,6 +269,13 @@ public class CuentaCobrarServiceImpl implements CuentaCobrarService {
     }
 
     // Metodos auxiliares
+    private Cliente getCliente(Long id) {
+        return clienteRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(CLIENTE_NO_ENCONTRADO)
+                );
+    }
+
     private CuentaCobrar getCuentaCobrar(Long id) {
         return cuentaCobrarRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(CUENTA_COBRAR_NO_ENCONTRADA));
@@ -284,5 +332,21 @@ public class CuentaCobrarServiceImpl implements CuentaCobrarService {
         }
 
         cuenta.setEstado(EstadoCuenta.PENDIENTE);
+    }
+
+    private void validarPaginacion(int pagina, int tamanio) {
+        if (pagina < 0) {
+            throw new IllegalArgumentException(PAGINA_INVALIDA);
+        }
+
+        if (tamanio <= 0 || tamanio > 100) {
+            throw new IllegalArgumentException(TAMANIO_PAGINA_INVALIDO);
+        }
+    }
+
+    private void validarRangoFechas(LocalDate desde, LocalDate hasta) {
+        if (desde != null && hasta != null && desde.isAfter(hasta)) {
+            throw new IllegalArgumentException(RANGO_FECHAS_INVALIDO);
+        }
     }
 }

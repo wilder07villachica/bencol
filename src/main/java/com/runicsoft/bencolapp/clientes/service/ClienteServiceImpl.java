@@ -5,13 +5,18 @@ import com.runicsoft.bencolapp.clientes.dtos.response.ClienteResponse;
 import com.runicsoft.bencolapp.clientes.mappers.ClienteMapper;
 import com.runicsoft.bencolapp.clientes.models.Cliente;
 import com.runicsoft.bencolapp.clientes.repository.ClienteRepository;
+import com.runicsoft.bencolapp.clientes.utils.CategoriaCliente;
+import com.runicsoft.bencolapp.utils.EstadoGeneral;
 import com.runicsoft.bencolapp.utils.exceptions.ConflictException;
 import com.runicsoft.bencolapp.utils.exceptions.ResourceNotFoundException;
+import com.runicsoft.bencolapp.utils.pagination.PaginaResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 import static com.runicsoft.bencolapp.utils.constants.MessageConstants.*;
 
@@ -24,9 +29,24 @@ public class ClienteServiceImpl implements ClienteService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ClienteResponse> findAll() {
-        List<Cliente> clientes = clienteRepository.findAll();
-        return clienteMapper.convertirListaClienteDto(clientes);
+    public PaginaResponse<ClienteResponse> findAll(int pagina, int tamanio, String texto, EstadoGeneral estado, CategoriaCliente categoria) {
+        validarPaginacion(pagina, tamanio);
+
+        if (texto != null && texto.isBlank()) {
+            texto = null;
+        }
+
+        Pageable pageable = PageRequest.of(
+                pagina,
+                tamanio,
+                Sort.by("nombre").ascending()
+        );
+
+        Page<Cliente> clientes = clienteRepository.buscar(texto, estado, categoria, pageable);
+
+        Page<ClienteResponse> responses = clientes.map(clienteMapper::convertirClienteDto);
+
+        return PaginaResponse.from(responses);
     }
 
     @Override
@@ -79,5 +99,15 @@ public class ClienteServiceImpl implements ClienteService {
     private Cliente getCliente(Long id) {
         return clienteRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(CLIENTE_NO_ENCONTRADO));
+    }
+
+    private void validarPaginacion(int pagina, int tamanio) {
+        if (pagina < 0) {
+            throw new IllegalArgumentException(PAGINA_INVALIDA);
+        }
+
+        if (tamanio <= 0 || tamanio > 100) {
+            throw new IllegalArgumentException(TAMANIO_PAGINA_INVALIDO);
+        }
     }
 }

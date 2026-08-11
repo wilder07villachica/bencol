@@ -24,11 +24,18 @@ import com.runicsoft.bencolapp.seguridad.utils.SecurityUtils;
 import com.runicsoft.bencolapp.utils.EstadoGeneral;
 import com.runicsoft.bencolapp.utils.exceptions.BusinessException;
 import com.runicsoft.bencolapp.utils.exceptions.ResourceNotFoundException;
+import com.runicsoft.bencolapp.utils.pagination.PaginaResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -51,9 +58,41 @@ public class CompraServiceImpl implements CompraService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<CompraResponse> findAll() {
-        List<Compra> compras = compraRepository.findAll();
-        return compraMapper.convertirListaCompraDto(compras);
+    public PaginaResponse<CompraResponse> findAll(int pagina, int tamanio, String codigo, Long proveedorId, EstadoCompra estado, LocalDate desde, LocalDate hasta) {
+        validarPaginacion(pagina, tamanio);
+        validarRangoFechas(desde, hasta);
+
+        if (codigo != null && codigo.isBlank()) {
+            codigo = null;
+        }
+
+        if (proveedorId != null) {
+            if (proveedorId <= 0) {
+                throw new IllegalArgumentException(ID_INVALIDO);
+            }
+            getProveedor(proveedorId);
+        }
+
+        LocalDateTime fechaInicio = desde != null ? desde.atStartOfDay() : null;
+        LocalDateTime fechaFin = hasta != null ? hasta.plusDays(1).atStartOfDay() : null;
+
+        Pageable pageable = PageRequest.of(
+                pagina,
+                tamanio,
+                Sort.by("fechaCreacion").descending()
+        );
+
+        Page<Compra> compras = compraRepository.buscar(
+                codigo,
+                proveedorId,
+                estado,
+                fechaInicio,
+                fechaFin,
+                pageable
+        );
+
+        Page<CompraResponse> responses = compras.map(compraMapper::convertirCompraDto);
+        return PaginaResponse.from(responses);
     }
 
     @Override
@@ -313,5 +352,21 @@ public class CompraServiceImpl implements CompraService {
 
         cuenta.setEstado(EstadoCuentaPagar.ANULADA);
         cuentaPagarRepository.save(cuenta);
+    }
+
+    private void validarPaginacion(int pagina, int tamanio) {
+        if (pagina < 0) {
+            throw new IllegalArgumentException(PAGINA_INVALIDA);
+        }
+
+        if (tamanio <= 0 || tamanio > 100) {
+            throw new IllegalArgumentException(TAMANIO_PAGINA_INVALIDO);
+        }
+    }
+
+    private void validarRangoFechas(LocalDate desde, LocalDate hasta) {
+        if (desde != null && hasta != null && desde.isAfter(hasta)) {
+            throw new IllegalArgumentException(RANGO_FECHAS_INVALIDO);
+        }
     }
 }

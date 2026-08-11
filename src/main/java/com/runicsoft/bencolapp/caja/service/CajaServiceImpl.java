@@ -17,11 +17,17 @@ import com.runicsoft.bencolapp.seguridad.utils.SecurityUtils;
 import com.runicsoft.bencolapp.utils.exceptions.BusinessException;
 import com.runicsoft.bencolapp.utils.exceptions.ConflictException;
 import com.runicsoft.bencolapp.utils.exceptions.ResourceNotFoundException;
+import com.runicsoft.bencolapp.utils.pagination.PaginaResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -38,9 +44,28 @@ public class CajaServiceImpl implements CajaService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<CajaResponse> findAll() {
-        List<Caja> cajas = cajaRepository.findAll();
-        return cajaMapper.convertirListaCajaDto(cajas);
+    public PaginaResponse<CajaResponse> findAll(int pagina, int tamanio, EstadoCaja estado, LocalDate desde, LocalDate hasta) {
+        validarPaginacion(pagina, tamanio);
+        validarRangoFechas(desde, hasta);
+
+        LocalDateTime fechaInicio = desde != null ? desde.atStartOfDay() : null;
+        LocalDateTime fechaFin = hasta != null ? hasta.plusDays(1).atStartOfDay() : null;
+
+        Pageable pageable = PageRequest.of(
+                pagina,
+                tamanio,
+                Sort.by("fechaApertura").descending()
+        );
+
+        Page<Caja> cajas = cajaRepository.buscar(
+                estado,
+                fechaInicio,
+                fechaFin,
+                pageable
+        );
+
+        Page<CajaResponse> responses = cajas.map(cajaMapper::convertirCajaDto);
+        return PaginaResponse.from(responses);
     }
 
     @Override
@@ -154,6 +179,41 @@ public class CajaServiceImpl implements CajaService {
         cajaRepository.save(caja);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public PaginaResponse<MovimientoCajaResponse> findMovimientos(int pagina, int tamanio, Long cajaId, TipoMovimientoCaja tipoMovimiento, LocalDate desde, LocalDate hasta) {
+        validarPaginacion(pagina, tamanio);
+        validarRangoFechas(desde, hasta);
+
+        if (cajaId != null) {
+            if (cajaId <= 0) {
+                throw new IllegalArgumentException(ID_INVALIDO);
+            }
+
+            getCaja(cajaId);
+        }
+
+        LocalDateTime fechaInicio = desde != null ? desde.atStartOfDay() : null;
+        LocalDateTime fechaFin = hasta != null ? hasta.plusDays(1).atStartOfDay() : null;
+
+        Pageable pageable = PageRequest.of(
+                pagina,
+                tamanio,
+                Sort.by("fechaMovimiento").descending()
+        );
+
+        Page<MovimientoCaja> movimientos = movimientoCajaRepository.buscar(
+                cajaId,
+                tipoMovimiento,
+                fechaInicio,
+                fechaFin,
+                pageable
+        );
+
+        Page<MovimientoCajaResponse> responses = movimientos.map(movimientoCajaMapper::convertirMovimientoDto);
+        return PaginaResponse.from(responses);
+    }
+
     private Caja getCaja(Long id) {
         return cajaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(CAJA_NO_ENCONTRADA));
@@ -197,6 +257,22 @@ public class CajaServiceImpl implements CajaService {
     private void validarSaldoCaja(Caja caja, BigDecimal monto) {
         if (monto.compareTo(caja.getSaldoActual()) > 0) {
             throw new BusinessException(SALDO_CAJA_INSUFICIENTE);
+        }
+    }
+
+    private void validarPaginacion(int pagina, int tamanio) {
+        if (pagina < 0) {
+            throw new IllegalArgumentException(PAGINA_INVALIDA);
+        }
+
+        if (tamanio <= 0 || tamanio > 100) {
+            throw new IllegalArgumentException(TAMANIO_PAGINA_INVALIDO);
+        }
+    }
+
+    private void validarRangoFechas(LocalDate desde, LocalDate hasta) {
+        if (desde != null && hasta != null && desde.isAfter(hasta)) {
+            throw new IllegalArgumentException(RANGO_FECHAS_INVALIDO);
         }
     }
 }

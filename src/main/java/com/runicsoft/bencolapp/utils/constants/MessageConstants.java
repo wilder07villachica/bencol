@@ -17,6 +17,8 @@ public final class MessageConstants {
     public static final String TELEFONO_EXISTENTE = "El teléfono ya esta registrdo.";
     public static final String CORREO_EXISTENTE = "El correo ya esta registrado.";
     public static final String CLIENTE_INACTIVO = "El Cliente seleccionado se encuentra Inactivo.";
+    public static final String PAGINA_INVALIDA = "El número de página no puede ser negativo.";
+    public static final String TAMANIO_PAGINA_INVALIDO = "El tamaño de página debe estar entre 1 y 100.";
 
     // PRODUCTO
     public static final String PRODUCTO_NO_ENCONTRADO = "Producto no encontrado.";

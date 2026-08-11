@@ -5,9 +5,16 @@ import com.runicsoft.bencolapp.productos.dtos.response.ProductoResponse;
 import com.runicsoft.bencolapp.productos.mapper.ProductoMapper;
 import com.runicsoft.bencolapp.productos.models.Producto;
 import com.runicsoft.bencolapp.productos.repository.ProductoRepository;
+import com.runicsoft.bencolapp.productos.utils.ProductoCategoria;
+import com.runicsoft.bencolapp.utils.EstadoGeneral;
 import com.runicsoft.bencolapp.utils.exceptions.ConflictException;
 import com.runicsoft.bencolapp.utils.exceptions.ResourceNotFoundException;
+import com.runicsoft.bencolapp.utils.pagination.PaginaResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,9 +31,22 @@ public class ProductoServiceImpl implements ProductoService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ProductoResponse> findAll() {
-        List<Producto> productos = productoRepository.findAll();
-        return productoMapper.convertirListaProductoDto(productos);
+    public PaginaResponse<ProductoResponse> findAll(int pagina, int tamanio, String texto, EstadoGeneral estado, ProductoCategoria categoria) {
+        validarPaginacion(pagina, tamanio);
+
+        if (texto != null && texto.isBlank()) {
+            texto = null;
+        }
+
+        Pageable pageable = PageRequest.of(
+                pagina,
+                tamanio,
+                Sort.by("descripcion").ascending()
+        );
+
+        Page<Producto> productos = productoRepository.buscar(texto, estado, categoria, pageable);
+        Page<ProductoResponse> responses = productos.map(productoMapper::convertirProductoDto);
+        return PaginaResponse.from(responses);
     }
 
     @Override
@@ -86,5 +106,15 @@ public class ProductoServiceImpl implements ProductoService {
     private Producto getProducto(Long id) {
         return productoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(PRODUCTO_NO_ENCONTRADO));
+    }
+
+    private void validarPaginacion(int pagina, int tamanio) {
+        if (pagina < 0) {
+            throw new IllegalArgumentException(PAGINA_INVALIDA);
+        }
+
+        if (tamanio <= 0 || tamanio > 100) {
+            throw new IllegalArgumentException(TAMANIO_PAGINA_INVALIDO);
+        }
     }
 }
