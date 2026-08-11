@@ -78,4 +78,12 @@ public final class MessageConstants {
     public static final String COMPRA_YA_ANULADA = "La compra ya se encuentra anulada.";
     public static final String COMPRA_CON_PAGOS = "No se puede anular una compra que ya tiene pagos registrados.";
     public static final String STOCK_INSUFICIENTE_ANULACION_COMPRA = "No existe stock suficiente para revertir la compra.";
+
+    // SEGURIDAD
+    public static final String USUARIO_NO_ENCONTRADO = "El usuario solicitado no fue encontrado.";
+    public static final String USERNAME_EXISTENTE = "Ya existe un usuario registrado con ese nombre de usuario.";
+    public static final String EMAIL_USUARIO_EXISTENTE = "Ya existe un usuario registrado con ese correo electrónico.";
+    public static final String USERNAME_INVALIDO = "El nombre de usuario proporcionado no es válido.";
+    public static final String ROL_INVALIDO = "El rol proporcionado no es válido.";
+    public static final String ESTADO_USUARIO_INVALIDO = "El estado del usuario no es válido.";
 }

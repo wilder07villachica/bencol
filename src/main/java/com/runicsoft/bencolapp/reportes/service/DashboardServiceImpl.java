@@ -5,15 +5,11 @@ import com.runicsoft.bencolapp.caja.repository.CajaRepository;
 import com.runicsoft.bencolapp.caja.repository.MovimientoCajaRepository;
 import com.runicsoft.bencolapp.caja.utils.EstadoCaja;
 import com.runicsoft.bencolapp.caja.utils.TipoMovimientoCaja;
-import com.runicsoft.bencolapp.compras.models.Compra;
 import com.runicsoft.bencolapp.compras.models.DetalleCompra;
 import com.runicsoft.bencolapp.compras.repository.CompraRepository;
 import com.runicsoft.bencolapp.compras.repository.DetalleCompraRepository;
 import com.runicsoft.bencolapp.compras.utils.EstadoCompra;
 import com.runicsoft.bencolapp.finanzas.models.CuentaCobrar;
-import com.runicsoft.bencolapp.finanzas.models.CuentaPagar;
-import com.runicsoft.bencolapp.finanzas.models.Pago;
-import com.runicsoft.bencolapp.finanzas.models.PagoProveedor;
 import com.runicsoft.bencolapp.finanzas.repository.CuentaCobrarRepository;
 import com.runicsoft.bencolapp.finanzas.repository.CuentaPagarRepository;
 import com.runicsoft.bencolapp.finanzas.repository.PagoProveedorRepository;
@@ -25,6 +21,7 @@ import com.runicsoft.bencolapp.inventario.repository.InventarioRepository;
 import com.runicsoft.bencolapp.reportes.dtos.response.*;
 import com.runicsoft.bencolapp.ventas.models.DetalleVenta;
 import com.runicsoft.bencolapp.ventas.models.Venta;
+import com.runicsoft.bencolapp.ventas.repository.DetalleVentaRepository;
 import com.runicsoft.bencolapp.ventas.repository.VentaRepository;
 import com.runicsoft.bencolapp.ventas.utils.EstadoVenta;
 import lombok.RequiredArgsConstructor;
@@ -57,6 +54,30 @@ public class DashboardServiceImpl implements DashboardService {
     private final MovimientoCajaRepository movimientoCajaRepository;
 
     private final DetalleCompraRepository detalleCompraRepository;
+    private final DetalleVentaRepository detalleVentaRepository;
+
+    private static @NonNull Map<Long, ClienteDeudaResponse> getLongClienteDeudaResponseMap(List<CuentaCobrar> cuentas) {
+        Map<Long, ClienteDeudaResponse> clientes = new HashMap<>();
+
+        for (CuentaCobrar cuenta : cuentas) {
+            Long clienteId = cuenta.getVenta()
+                    .getCliente()
+                    .getId();
+
+            ClienteDeudaResponse response = clientes.computeIfAbsent(clienteId, id -> {
+                ClienteDeudaResponse nuevo = new ClienteDeudaResponse();
+                nuevo.setClienteId(clienteId);
+                nuevo.setNombreCliente(cuenta.getVenta().getCliente().getNombre());
+                nuevo.setDeudaTotal(BigDecimal.ZERO);
+                nuevo.setCantidadCuentasPendientes(0L);
+                return nuevo;
+            });
+
+            response.setDeudaTotal(response.getDeudaTotal().add(cuenta.getSaldoPendiente()));
+            response.setCantidadCuentasPendientes(response.getCantidadCuentasPendientes() + 1);
+        }
+        return clientes;
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -82,49 +103,23 @@ public class DashboardServiceImpl implements DashboardService {
             limite = 10;
         }
 
-        LocalDateTime fechaInicio = desde.atStartOfDay();
+        LocalDateTime inicio = desde.atStartOfDay();
+        LocalDateTime fin = hasta.plusDays(1).atStartOfDay();
 
-        LocalDateTime fechaFin = hasta.plusDays(1).atStartOfDay();
-        List<Venta> ventas = ventaRepository
-                .findByFechaCreacionGreaterThanEqualAndFechaCreacionLessThan(fechaInicio, fechaFin)
-                .stream()
-                .filter(venta ->
-                        venta.getEstado() != EstadoVenta.ANULADA)
-                .toList();
+        List<Object[]> resultados = detalleVentaRepository.findProductosMasVendidos(inicio, fin, EstadoVenta.ANULADA);
 
-        Map<Long, ProductoMasVendidoResponse> productos = new HashMap<>();
-
-        for (Venta venta : ventas) {
-            for (DetalleVenta detalle : venta.getDetalles()) {
-                Long productoId = detalle.getProducto().getId();
-
-                ProductoMasVendidoResponse reporte = productos.computeIfAbsent(
-                        productoId, id -> {
-                            ProductoMasVendidoResponse nuevo = new ProductoMasVendidoResponse();
-                            nuevo.setProductoId(detalle.getProducto().getId());
-                            nuevo.setCodigoProducto(detalle.getProducto().getCodigo());
-                            nuevo.setDescripcionProducto(detalle.getProducto().getDescripcion());
-                            nuevo.setCantidadVendida(0L);
-                            nuevo.setUnidadesFisicasVendidas(0L);
-                            nuevo.setTotalVendido(BigDecimal.ZERO);
-                            return nuevo;
-                        }
-                );
-
-                long cantidadPaquetes = detalle.getCantidad().longValue();
-                long unidadesFisicas = cantidadPaquetes * detalle.getProducto().getUnidadesPorPaquete();
-                reporte.setCantidadVendida(reporte.getCantidadVendida() + cantidadPaquetes);
-                reporte.setUnidadesFisicasVendidas(reporte.getUnidadesFisicasVendidas() + unidadesFisicas);
-                reporte.setTotalVendido(reporte.getTotalVendido().add(detalle.getSubtotal()));
-            }
-        }
-
-        return productos.values()
-                .stream()
-                .sorted(
-                        Comparator.comparing(ProductoMasVendidoResponse::getCantidadVendida)
-                                .reversed())
+        return resultados.stream()
                 .limit(limite)
+                .map(fila -> {
+                    ProductoMasVendidoResponse response = new ProductoMasVendidoResponse();
+                    response.setProductoId(((Number) fila[0]).longValue());
+                    response.setCodigoProducto((String) fila[1]);
+                    response.setDescripcionProducto((String) fila[2]);
+                    response.setCantidadVendida(((Number) fila[3]).longValue());
+                    response.setUnidadesFisicasVendidas(((Number) fila[4]).longValue());
+                    response.setTotalVendido((BigDecimal) fila[5]);
+                    return response;
+                })
                 .toList();
     }
 
@@ -176,7 +171,7 @@ public class DashboardServiceImpl implements DashboardService {
         List<CuentaCobrar> cuentas = cuentaCobrarRepository.findAll()
                 .stream()
                 .filter(cuenta ->
-                                cuenta.getEstado() == EstadoCuenta.PENDIENTE || cuenta.getEstado() == EstadoCuenta.PARCIAL)
+                        cuenta.getEstado() == EstadoCuenta.PENDIENTE || cuenta.getEstado() == EstadoCuenta.PARCIAL)
                 .toList();
 
         Map<Long, ClienteDeudaResponse> clientes = getLongClienteDeudaResponseMap(cuentas);
@@ -189,29 +184,6 @@ public class DashboardServiceImpl implements DashboardService {
                         ).reversed())
                 .limit(limite)
                 .toList();
-    }
-
-    private static @NonNull Map<Long, ClienteDeudaResponse> getLongClienteDeudaResponseMap(List<CuentaCobrar> cuentas) {
-        Map<Long, ClienteDeudaResponse> clientes = new HashMap<>();
-
-        for (CuentaCobrar cuenta : cuentas) {
-            Long clienteId = cuenta.getVenta()
-                    .getCliente()
-                    .getId();
-
-            ClienteDeudaResponse response = clientes.computeIfAbsent(clienteId, id -> {
-                        ClienteDeudaResponse nuevo = new ClienteDeudaResponse();
-                                nuevo.setClienteId(clienteId);
-                                nuevo.setNombreCliente(cuenta.getVenta().getCliente().getNombre());
-                                nuevo.setDeudaTotal(BigDecimal.ZERO);
-                                nuevo.setCantidadCuentasPendientes(0L);
-                                return nuevo;
-            });
-
-            response.setDeudaTotal(response.getDeudaTotal().add(cuenta.getSaldoPendiente()));
-            response.setCantidadCuentasPendientes(response.getCantidadCuentasPendientes() + 1);
-        }
-        return clientes;
     }
 
     @Override
@@ -242,39 +214,41 @@ public class DashboardServiceImpl implements DashboardService {
     @Transactional(readOnly = true)
     public List<VentaPorMesResponse> obtenerVentasPorMes(LocalDate desde, LocalDate hasta) {
         validarFechas(desde, hasta);
+        LocalDateTime inicio = desde.atStartOfDay();
+        LocalDateTime fin = hasta.plusDays(1).atStartOfDay();
+        List<Object[]> resultados = ventaRepository.findVentasAgrupadasPorMes(inicio, fin, EstadoVenta.ANULADA);
 
-        LocalDateTime fechaInicio = desde.atStartOfDay();
-        LocalDateTime fechaFin = hasta.plusDays(1).atStartOfDay();
-        List<Venta> ventas = ventaRepository
-                .findByFechaCreacionGreaterThanEqualAndFechaCreacionLessThan(fechaInicio, fechaFin)
-                .stream()
-                .filter(venta -> venta.getEstado() != EstadoVenta.ANULADA)
-                .toList();
+        Map<YearMonth, VentaPorMesResponse> mapa = new HashMap<>();
+        for (Object[] fila : resultados) {
+            int anio = ((Number) fila[0]).intValue();
+            int mes = ((Number) fila[1]).intValue();
+            Long cantidad = ((Number) fila[2]).longValue();
+            BigDecimal total = (BigDecimal) fila[3];
 
-        Map<YearMonth, List<Venta>> ventasPorMes = ventas.stream()
-                .collect(
-                        Collectors.groupingBy(
-                                venta ->
-                                        YearMonth.from(venta.getFechaCreacion())
-                        )
-                );
+            VentaPorMesResponse response = new VentaPorMesResponse();
+
+            response.setAnio(anio);
+            response.setMes(mes);
+            response.setCantidadVentas(cantidad);
+            response.setTotalVendido(total);
+
+            mapa.put(YearMonth.of(anio, mes), response);
+        }
 
         List<VentaPorMesResponse> resultado = new ArrayList<>();
 
         for (YearMonth periodo : generarMeses(desde, hasta)) {
-            List<Venta> ventasMes = ventasPorMes.getOrDefault(periodo, List.of());
-
-            BigDecimal totalVendido = ventasMes.stream()
-                    .map(Venta::getTotal)
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-            VentaPorMesResponse response = new VentaPorMesResponse();
-            response.setAnio(periodo.getYear());
-            response.setMes(periodo.getMonthValue());
-            response.setCantidadVentas((long) ventasMes.size());
-            response.setTotalVendido(totalVendido);
+            VentaPorMesResponse response = mapa.get(periodo);
+            if (response == null) {
+                response = new VentaPorMesResponse();
+                response.setAnio(periodo.getYear());
+                response.setMes(periodo.getMonthValue());
+                response.setCantidadVentas(0L);
+                response.setTotalVendido(BigDecimal.ZERO);
+            }
             resultado.add(response);
         }
+
         return resultado;
     }
 
@@ -282,38 +256,29 @@ public class DashboardServiceImpl implements DashboardService {
     @Transactional(readOnly = true)
     public List<IngresoPorMesResponse> obtenerIngresosPorMes(LocalDate desde, LocalDate hasta) {
         validarFechas(desde, hasta);
+        LocalDateTime inicio = desde.atStartOfDay();
+        LocalDateTime fin = hasta.plusDays(1).atStartOfDay();
 
-        LocalDateTime fechaInicio = desde.atStartOfDay();
-        LocalDateTime fechaFin = hasta.plusDays(1).atStartOfDay();
-        List<Pago> pagos = pagoRepository
-                .findByFechaPagoGreaterThanEqualAndFechaPagoLessThan(fechaInicio, fechaFin);
+        List<Object[]> resultados = pagoRepository.findIngresosAgrupadosPorMes(inicio, fin);
+        Map<YearMonth, BigDecimal> mapa = new HashMap<>();
 
-        Map<YearMonth, List<Pago>> pagosPorMes =
-                pagos.stream()
-                        .collect(
-                                Collectors.groupingBy(
-                                        pago ->
-                                                YearMonth.from(pago.getFechaPago())
-                                )
-                        );
+        for (Object[] fila : resultados) {
+            int anio = ((Number) fila[0]).intValue();
+            int mes = ((Number) fila[1]).intValue();
+            BigDecimal total = (BigDecimal) fila[2];
+            mapa.put(YearMonth.of(anio, mes), total);
+        }
 
         List<IngresoPorMesResponse> resultado = new ArrayList<>();
 
         for (YearMonth periodo : generarMeses(desde, hasta)) {
-            List<Pago> pagosMes =
-                    pagosPorMes.getOrDefault(periodo, List.of());
-
-            BigDecimal totalIngresos =
-                    pagosMes.stream()
-                            .map(Pago::getMonto)
-                            .reduce(BigDecimal.ZERO, BigDecimal::add);
-
             IngresoPorMesResponse response = new IngresoPorMesResponse();
             response.setAnio(periodo.getYear());
             response.setMes(periodo.getMonthValue());
-            response.setTotalIngresos(totalIngresos);
+            response.setTotalIngresos(mapa.getOrDefault(periodo, BigDecimal.ZERO));
             resultado.add(response);
         }
+
         return resultado;
     }
 
@@ -321,39 +286,29 @@ public class DashboardServiceImpl implements DashboardService {
     @Transactional(readOnly = true)
     public List<EgresoPorMesResponse> obtenerEgresosPorMes(LocalDate desde, LocalDate hasta) {
         validarFechas(desde, hasta);
+        LocalDateTime inicio = desde.atStartOfDay();
+        LocalDateTime fin = hasta.plusDays(1).atStartOfDay();
 
-        LocalDateTime fechaInicio = desde.atStartOfDay();
-        LocalDateTime fechaFin = hasta.plusDays(1).atStartOfDay();
+        List<Object[]> resultados = movimientoCajaRepository.findMovimientosAgrupadosPorMes(inicio, fin, TipoMovimientoCaja.EGRESO);
+        Map<YearMonth, BigDecimal> mapa = new HashMap<>();
 
-        List<MovimientoCaja> movimientos = movimientoCajaRepository
-                .findByFechaMovimientoGreaterThanEqualAndFechaMovimientoLessThan(fechaInicio, fechaFin)
-                .stream()
-                .filter(movimiento -> movimiento.getTipoMovimiento() == TipoMovimientoCaja.EGRESO)
-                .toList();
-
-        Map<YearMonth, List<MovimientoCaja>> egresosPorMes = movimientos.stream()
-                .collect(
-                        Collectors.groupingBy(
-                                movimiento ->
-                                        YearMonth.from(movimiento.getFechaMovimiento())
-                        )
-                );
+        for (Object[] fila : resultados) {
+            int anio = ((Number) fila[0]).intValue();
+            int mes = ((Number) fila[1]).intValue();
+            BigDecimal total = (BigDecimal) fila[2];
+            mapa.put(YearMonth.of(anio, mes), total);
+        }
 
         List<EgresoPorMesResponse> resultado = new ArrayList<>();
 
         for (YearMonth periodo : generarMeses(desde, hasta)) {
-            List<MovimientoCaja> movimientosMes = egresosPorMes.getOrDefault(periodo, List.of());
-
-            BigDecimal totalEgresos = movimientosMes.stream()
-                    .map(MovimientoCaja::getMonto)
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-
             EgresoPorMesResponse response = new EgresoPorMesResponse();
             response.setAnio(periodo.getYear());
             response.setMes(periodo.getMonthValue());
-            response.setTotalEgresos(totalEgresos);
+            response.setTotalEgresos(mapa.getOrDefault(periodo, BigDecimal.ZERO));
             resultado.add(response);
         }
+
         return resultado;
     }
 
@@ -361,43 +316,30 @@ public class DashboardServiceImpl implements DashboardService {
     @Transactional(readOnly = true)
     public List<FlujoNetoPorMesResponse> obtenerFlujoNetoPorMes(LocalDate desde, LocalDate hasta) {
         validarFechas(desde, hasta);
+        LocalDateTime inicio = desde.atStartOfDay();
+        LocalDateTime fin = hasta.plusDays(1).atStartOfDay();
 
-        LocalDateTime fechaInicio = desde.atStartOfDay();
-        LocalDateTime fechaFin = hasta.plusDays(1).atStartOfDay();
-        List<MovimientoCaja> movimientos = movimientoCajaRepository
-                .findByFechaMovimientoGreaterThanEqualAndFechaMovimientoLessThan(fechaInicio, fechaFin);
+        List<Object[]> ingresos = movimientoCajaRepository.findMovimientosAgrupadosPorMes(inicio, fin, TipoMovimientoCaja.INGRESO);
+        List<Object[]> egresos = movimientoCajaRepository.findMovimientosAgrupadosPorMes(inicio, fin, TipoMovimientoCaja.EGRESO);
 
-        Map<YearMonth, List<MovimientoCaja>> movimientosPorMes = movimientos.stream()
-                .collect(
-                        Collectors.groupingBy(
-                                movimiento ->
-                                        YearMonth.from(movimiento.getFechaMovimiento())
-                        )
-                );
+        Map<YearMonth, BigDecimal> mapaIngresos = convertirResultadosMensuales(ingresos);
+        Map<YearMonth, BigDecimal> mapaEgresos = convertirResultadosMensuales(egresos);
 
         List<FlujoNetoPorMesResponse> resultado = new ArrayList<>();
 
         for (YearMonth periodo : generarMeses(desde, hasta)) {
-            List<MovimientoCaja> movimientosMes = movimientosPorMes.getOrDefault(periodo, List.of());
-
-            BigDecimal ingresos = movimientosMes.stream()
-                    .filter(movimiento -> movimiento.getTipoMovimiento() == TipoMovimientoCaja.INGRESO)
-                    .map(MovimientoCaja::getMonto)
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-            BigDecimal egresos = movimientosMes.stream()
-                    .filter(movimiento -> movimiento.getTipoMovimiento() == TipoMovimientoCaja.EGRESO)
-                    .map(MovimientoCaja::getMonto)
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            BigDecimal totalIngresos = mapaIngresos.getOrDefault(periodo, BigDecimal.ZERO);
+            BigDecimal totalEgresos = mapaEgresos.getOrDefault(periodo, BigDecimal.ZERO);
 
             FlujoNetoPorMesResponse response = new FlujoNetoPorMesResponse();
             response.setAnio(periodo.getYear());
             response.setMes(periodo.getMonthValue());
-            response.setTotalIngresos(ingresos);
-            response.setTotalEgresos(egresos);
-            response.setFlujoNeto(ingresos.subtract(egresos));
+            response.setTotalIngresos(totalIngresos);
+            response.setTotalEgresos(totalEgresos);
+            response.setFlujoNeto(totalIngresos.subtract(totalEgresos));
             resultado.add(response);
         }
+
         return resultado;
     }
 
@@ -495,62 +437,22 @@ public class DashboardServiceImpl implements DashboardService {
 
     // métodos auxiliares...
     private ResumenVentasResponse obtenerResumenVentas(LocalDateTime desde, LocalDateTime hasta) {
-        List<Venta> ventas = ventaRepository
-                .findByFechaCreacionGreaterThanEqualAndFechaCreacionLessThan(desde, hasta);
-        List<Venta> ventasValidas = ventas.stream()
-                .filter(venta ->
-                        venta.getEstado() != EstadoVenta.ANULADA)
-                .toList();
-
-        BigDecimal totalVendido =
-                ventasValidas.stream().map(Venta::getTotal)
-                        .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        long cantidadVentas = ventasValidas.size();
-
+        BigDecimal totalVendido = ventaRepository.sumTotalVentas(desde, hasta, EstadoVenta.ANULADA);
+        Long cantidadVentas = ventaRepository.countVentas(desde, hasta, EstadoVenta.ANULADA);
         BigDecimal ticketPromedio = cantidadVentas > 0 ? totalVendido.divide(BigDecimal.valueOf(cantidadVentas), 2, RoundingMode.HALF_UP) : BigDecimal.ZERO;
-
         ResumenVentasResponse response = new ResumenVentasResponse();
-
         response.setTotalVendido(totalVendido);
         response.setCantidadVentas(cantidadVentas);
         response.setTicketPromedio(ticketPromedio);
-
         return response;
     }
 
     private ResumenFinanzasResponse obtenerResumenFinanzas(LocalDateTime desde, LocalDateTime hasta) {
-        List<Pago> pagosClientes = pagoRepository
-                .findByFechaPagoGreaterThanEqualAndFechaPagoLessThan(desde, hasta);
-
-        List<PagoProveedor> pagosProveedores = pagoProveedorRepository
-                .findByFechaPagoGreaterThanEqualAndFechaPagoLessThan(desde, hasta);
-
-        BigDecimal totalCobrado = pagosClientes.stream()
-                .map(Pago::getMonto)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        BigDecimal totalPagadoProveedores = pagosProveedores.stream()
-                .map(PagoProveedor::getMonto)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        List<CuentaCobrar> cuentasCobrar = cuentaCobrarRepository.findAll();
-        List<CuentaPagar> cuentasPagar = cuentaPagarRepository.findAll();
-
-        BigDecimal totalPorCobrar = cuentasCobrar.stream()
-                .filter(cuenta ->
-                        cuenta.getEstado() == EstadoCuenta.PENDIENTE || cuenta.getEstado() == EstadoCuenta.PARCIAL)
-                .map(CuentaCobrar::getSaldoPendiente)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        BigDecimal totalPorPagar = cuentasPagar.stream()
-                .filter(cuenta ->
-                        cuenta.getEstado() == EstadoCuentaPagar.PENDIENTE || cuenta.getEstado() == EstadoCuentaPagar.PARCIAL)
-                .map(CuentaPagar::getSaldoPendiente)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
+        BigDecimal totalCobrado = pagoRepository.sumPagosPeriodo(desde, hasta);
+        BigDecimal totalPagadoProveedores = pagoProveedorRepository.sumPagosPeriodo(desde, hasta);
+        BigDecimal totalPorCobrar = cuentaCobrarRepository.sumSaldoPendienteByEstados(List.of(EstadoCuenta.PENDIENTE, EstadoCuenta.PARCIAL));
+        BigDecimal totalPorPagar = cuentaPagarRepository.sumSaldoPendienteByEstados(List.of(EstadoCuentaPagar.PENDIENTE, EstadoCuentaPagar.PARCIAL));
         ResumenFinanzasResponse response = new ResumenFinanzasResponse();
-
         response.setTotalCobrado(totalCobrado);
         response.setTotalPorCobrar(totalPorCobrar);
         response.setTotalPagadoProveedores(totalPagadoProveedores);
@@ -591,34 +493,18 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     private ResumenComprasResponse obtenerResumenCompras(LocalDateTime desde, LocalDateTime hasta) {
-        List<Compra> compras = compraRepository
-                .findByFechaCreacionGreaterThanEqualAndFechaCreacionLessThan(desde, hasta);
-
-        List<Compra> comprasValidas = compras.stream()
-                .filter(compra ->
-                        compra.getEstado() != EstadoCompra.ANULADA)
-                .toList();
-
-        BigDecimal totalComprado = comprasValidas.stream()
-                .map(Compra::getTotal)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
+        BigDecimal totalComprado = compraRepository.sumTotalCompras(desde, hasta, EstadoCompra.ANULADA);
+        Long cantidadCompras = compraRepository.countCompras(desde, hasta, EstadoCompra.ANULADA);
         ResumenComprasResponse response = new ResumenComprasResponse();
         response.setTotalComprado(totalComprado);
-        response.setCantidadCompras((long) comprasValidas.size());
+        response.setCantidadCompras(cantidadCompras);
         return response;
     }
 
     private ResumenInventarioResponse obtenerResumenInventario() {
-        List<Inventario> inventarios = inventarioRepository.findAll();
-        long productosStockBajo = inventarios.stream()
-                .filter(inventario ->
-                        inventario.getStockActual() <= inventario.getStockMinimo())
-                .count();
-
         ResumenInventarioResponse response = new ResumenInventarioResponse();
-        response.setCantidadProductosInventario((long) inventarios.size());
-        response.setProductosStockBajo(productosStockBajo);
+        response.setCantidadProductosInventario(inventarioRepository.countInventarios());
+        response.setProductosStockBajo(inventarioRepository.countStockBajo());
         return response;
     }
 
@@ -655,37 +541,19 @@ public class DashboardServiceImpl implements DashboardService {
     private BigDecimal calcularTotalVentas(LocalDate desde, LocalDate hasta) {
         LocalDateTime inicio = desde.atStartOfDay();
         LocalDateTime fin = hasta.plusDays(1).atStartOfDay();
-        return ventaRepository.findByFechaCreacionGreaterThanEqualAndFechaCreacionLessThan(inicio, fin)
-                .stream()
-                .filter(venta ->
-                        venta.getEstado() != EstadoVenta.ANULADA
-                )
-                .map(Venta::getTotal)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return ventaRepository.sumTotalVentas(inicio, fin, EstadoVenta.ANULADA);
     }
 
     private BigDecimal calcularTotalIngresos(LocalDate desde, LocalDate hasta) {
         LocalDateTime inicio = desde.atStartOfDay();
         LocalDateTime fin = hasta.plusDays(1).atStartOfDay();
-
-        return movimientoCajaRepository.findByFechaMovimientoGreaterThanEqualAndFechaMovimientoLessThan(inicio, fin)
-                .stream()
-                .filter(movimiento ->
-                        movimiento.getTipoMovimiento() == TipoMovimientoCaja.INGRESO)
-                .map(MovimientoCaja::getMonto)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return movimientoCajaRepository.sumMontoPeriodoByTipo(inicio, fin, TipoMovimientoCaja.INGRESO);
     }
 
     private BigDecimal calcularTotalEgresos(LocalDate desde, LocalDate hasta) {
         LocalDateTime inicio = desde.atStartOfDay();
         LocalDateTime fin = hasta.plusDays(1).atStartOfDay();
-
-        return movimientoCajaRepository.findByFechaMovimientoGreaterThanEqualAndFechaMovimientoLessThan(inicio, fin)
-                .stream()
-                .filter(movimiento ->
-                        movimiento.getTipoMovimiento() == TipoMovimientoCaja.EGRESO)
-                .map(MovimientoCaja::getMonto)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return movimientoCajaRepository.sumMontoPeriodoByTipo(inicio, fin, TipoMovimientoCaja.EGRESO);
     }
 
     private ComparacionPeriodoResponse crearComparacion(BigDecimal actual, BigDecimal anterior) {
@@ -731,5 +599,18 @@ public class DashboardServiceImpl implements DashboardService {
         }
 
         return costoTotal.divide(BigDecimal.valueOf(unidadesCompradas), 4, RoundingMode.HALF_UP);
+    }
+
+    private Map<YearMonth, BigDecimal> convertirResultadosMensuales(List<Object[]> resultados) {
+        Map<YearMonth, BigDecimal> mapa = new HashMap<>();
+
+        for (Object[] fila : resultados) {
+            int anio = ((Number) fila[0]).intValue();
+            int mes = ((Number) fila[1]).intValue();
+            BigDecimal total = (BigDecimal) fila[2];
+            mapa.put(YearMonth.of(anio, mes), total);
+        }
+
+        return mapa;
     }
 }

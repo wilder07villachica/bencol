@@ -25,3 +25,8 @@ logging:
     org.hibernate.SQL: DEBUG
     org.hibernate.orm.jdbc.bind: TRACE
     org.springframework.web: INFO
+
+security:
+  jwt:
+    secret: ${BENCOL_JWT_SECRET:12345678901234567890123456789012}
+    expiration-minutes: 120
