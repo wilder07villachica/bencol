@@ -26,6 +26,7 @@ import com.runicsoft.bencolapp.utils.exceptions.BusinessException;
 import com.runicsoft.bencolapp.utils.exceptions.ResourceNotFoundException;
 import com.runicsoft.bencolapp.utils.pagination.PaginaResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -46,6 +47,7 @@ import static com.runicsoft.bencolapp.utils.constants.MessageConstants.*;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CompraServiceImpl implements CompraService {
 
     private final CompraRepository compraRepository;
@@ -172,6 +174,15 @@ public class CompraServiceImpl implements CompraService {
         ingresarInventarioCompra(compraGuardada);
         crearCuentaPagar(compraGuardada);
 
+        log.info(
+                "Compra creada. id={}, codigo={}, proveedorId={}, total={}, usuario={}",
+                compraGuardada.getId(),
+                compraGuardada.getCodigo(),
+                proveedor.getId(),
+                compraGuardada.getTotal(),
+                SecurityUtils.getUsuarioActual()
+        );
+
         return compraMapper.convertirCompraDto(compraGuardada);
     }
 
@@ -196,6 +207,14 @@ public class CompraServiceImpl implements CompraService {
         compra.setActualizadoPor(SecurityUtils.getUsuarioActual());
 
         Compra compraActualizada = compraRepository.save(compra);
+
+        log.info(
+                "Compra anulada. id={}, codigo={}, usuario={}",
+                compraActualizada.getId(),
+                compraActualizada.getCodigo(),
+                SecurityUtils.getUsuarioActual()
+        );
+
         return compraMapper.convertirCompraDto(compraActualizada);
     }
 
@@ -247,7 +266,7 @@ public class CompraServiceImpl implements CompraService {
         for (DetalleCompra detalle : compra.getDetalles()) {
             Producto producto = detalle.getProducto();
 
-            Inventario inventario = inventarioRepository.findByProductoId(producto.getId())
+            Inventario inventario = inventarioRepository.findByProductoIdForUpdate(producto.getId())
                     .orElseThrow(() -> new ResourceNotFoundException(INVENTARIO_NO_ENCONTRADO));
 
             Integer stockAnterior = inventario.getStockActual();
@@ -309,7 +328,7 @@ public class CompraServiceImpl implements CompraService {
 
     private void revertirInventarioCompra(Compra compra) {
         for (DetalleCompra detalle : compra.getDetalles()) {
-            Inventario inventario = inventarioRepository.findByProductoId(detalle.getProducto().getId())
+            Inventario inventario = inventarioRepository.findByProductoIdForUpdate(detalle.getProducto().getId())
                     .orElseThrow(() -> new ResourceNotFoundException(INVENTARIO_NO_ENCONTRADO));
 
             Integer stockAnterior = inventario.getStockActual();

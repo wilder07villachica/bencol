@@ -2,9 +2,11 @@ package com.runicsoft.bencolapp.caja.repository;
 
 import com.runicsoft.bencolapp.caja.models.Caja;
 import com.runicsoft.bencolapp.caja.utils.EstadoCaja;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -30,4 +32,24 @@ public interface CajaRepository extends JpaRepository<Caja, Long> {
             @Param("hasta") LocalDateTime hasta,
             Pageable pageable
     );
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+        SELECT c
+        FROM Caja c
+        WHERE c.estado = :estado
+        ORDER BY c.fechaApertura DESC
+        """)
+    List<Caja> findByEstadoForUpdate(
+            @Param("estado") EstadoCaja estado,
+            Pageable pageable
+    );
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+        SELECT c
+        FROM Caja c
+        WHERE c.id = :id
+        """)
+    Optional<Caja> findByIdForUpdate(@Param("id") Long id);
 }

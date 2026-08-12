@@ -19,7 +19,12 @@ spring:
     locations: classpath:db/migration
 
 logging:
+  file:
+    name: ${LOG_FILE:logs/bencol-app.log}
+
   level:
+    root: INFO
+    com.runicsoft.bencolapp: INFO
     org.hibernate.SQL: WARN
     org.hibernate.orm.jdbc.bind: WARN
     org.springframework.web: WARN
@@ -28,6 +33,11 @@ security:
   jwt:
     secret: ${BENCOL_JWT_SECRET}
     expiration-minutes: ${JWT_EXPIRATION_MINUTES:480}
+
+  admin:
+    username: ${BENCOL_ADMIN_USERNAME:}
+    email: ${BENCOL_ADMIN_EMAIL:}
+    password: ${BENCOL_ADMIN_PASSWORD:}
 
 server:
   forward-headers-strategy: framework

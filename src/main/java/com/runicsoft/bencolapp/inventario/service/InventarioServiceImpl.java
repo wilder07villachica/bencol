@@ -127,7 +127,7 @@ public class InventarioServiceImpl implements InventarioService {
     @Transactional
     public MovimientoInventarioResponse registrarMovimiento(MovimientoInventarioRequest request) {
         Producto producto = getProducto(request.getProductoId());
-        Inventario inventario = getInventarioByProducto(producto.getId());
+        Inventario inventario = getInventarioByProductoForUpdate(producto.getId());
         Integer stockAnterior = inventario.getStockActual();
 
         Integer stockNuevo = calcularStockNuevo(
@@ -235,5 +235,10 @@ public class InventarioServiceImpl implements InventarioService {
         if (desde != null && hasta != null && desde.isAfter(hasta)) {
             throw new IllegalArgumentException(RANGO_FECHAS_INVALIDO);
         }
+    }
+
+    private Inventario getInventarioByProductoForUpdate(Long productoId) {
+        return inventarioRepository.findByProductoIdForUpdate(productoId)
+                .orElseThrow(() -> new ResourceNotFoundException(INVENTARIO_NO_ENCONTRADO));
     }
 }

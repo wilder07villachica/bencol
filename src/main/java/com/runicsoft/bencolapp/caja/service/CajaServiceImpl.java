@@ -19,6 +19,7 @@ import com.runicsoft.bencolapp.utils.exceptions.ConflictException;
 import com.runicsoft.bencolapp.utils.exceptions.ResourceNotFoundException;
 import com.runicsoft.bencolapp.utils.pagination.PaginaResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,12 +30,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 
 import static com.runicsoft.bencolapp.utils.constants.MessageConstants.*;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CajaServiceImpl implements CajaService {
 
     private final CajaRepository cajaRepository;
@@ -102,13 +103,21 @@ public class CajaServiceImpl implements CajaService {
         caja.setAbiertaPor(SecurityUtils.getUsuarioActual());
 
         Caja cajaGuardada = cajaRepository.save(caja);
+
+        log.info(
+                "Caja abierta. id={}, saldoInicial={}, usuario={}",
+                cajaGuardada.getId(),
+                cajaGuardada.getSaldoInicial(),
+                cajaGuardada.getAbiertaPor()
+        );
+
         return cajaMapper.convertirCajaDto(cajaGuardada);
     }
 
     @Override
     @Transactional
     public MovimientoCajaResponse registrarMovimiento(MovimientoCajaRequest request) {
-        Caja caja = getCaja(request.getCajaId());
+        Caja caja = getCajaForUpdate(request.getCajaId());
         validarCajaAbierta(caja);
 
         if (request.getTipoMovimiento() == TipoMovimientoCaja.INGRESO) {
@@ -139,7 +148,7 @@ public class CajaServiceImpl implements CajaService {
             throw new IllegalArgumentException(ID_INVALIDO);
         }
 
-        Caja caja = getCaja(id);
+        Caja caja = getCajaForUpdate(id);
         validarCajaAbierta(caja);
 
         BigDecimal saldoEsperado = caja.getSaldoInicial()
@@ -157,13 +166,23 @@ public class CajaServiceImpl implements CajaService {
         caja.setCerradaPor(SecurityUtils.getUsuarioActual());
 
         Caja cajaCerrada = cajaRepository.save(caja);
+
+        log.info(
+                "Caja cerrada. id={}, saldoEsperado={}, saldoReal={}, diferencia={}, usuario={}",
+                cajaCerrada.getId(),
+                cajaCerrada.getSaldoEsperado(),
+                cajaCerrada.getSaldoReal(),
+                cajaCerrada.getDiferencia(),
+                cajaCerrada.getCerradaPor()
+        );
+
         return cajaMapper.convertirCajaDto(cajaCerrada);
     }
 
     @Override
     @Transactional
     public void registrarIngreso(BigDecimal monto, String concepto, String referencia) {
-        Caja caja = getCajaAbierta();
+        Caja caja = getCajaAbiertaForUpdate();
         actualizarIngresoCaja(caja, monto);
         crearMovimientoCaja(caja, TipoMovimientoCaja.INGRESO, monto, concepto, referencia);
         cajaRepository.save(caja);
@@ -172,7 +191,7 @@ public class CajaServiceImpl implements CajaService {
     @Override
     @Transactional
     public void registrarEgreso(BigDecimal monto, String concepto, String referencia) {
-        Caja caja = getCajaAbierta();
+        Caja caja = getCajaAbiertaForUpdate();
         validarSaldoCaja(caja, monto);
         actualizarEgresoCaja(caja, monto);
         crearMovimientoCaja(caja, TipoMovimientoCaja.EGRESO, monto, concepto, referencia);
@@ -274,5 +293,19 @@ public class CajaServiceImpl implements CajaService {
         if (desde != null && hasta != null && desde.isAfter(hasta)) {
             throw new IllegalArgumentException(RANGO_FECHAS_INVALIDO);
         }
+    }
+
+    private Caja getCajaAbiertaForUpdate() {
+        Pageable pageable = PageRequest.of(0, 1);
+
+        return cajaRepository.findByEstadoForUpdate(EstadoCaja.ABIERTA,pageable)
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new BusinessException(CAJA_NO_ABIERTA));
+    }
+
+    private Caja getCajaForUpdate(Long id) {
+        return cajaRepository.findByIdForUpdate(id)
+                .orElseThrow(() -> new ResourceNotFoundException(CAJA_NO_ENCONTRADA));
     }
 }

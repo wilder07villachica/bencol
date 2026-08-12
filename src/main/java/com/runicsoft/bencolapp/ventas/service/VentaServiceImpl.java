@@ -28,6 +28,7 @@ import com.runicsoft.bencolapp.ventas.models.Venta;
 import com.runicsoft.bencolapp.ventas.repository.VentaRepository;
 import com.runicsoft.bencolapp.ventas.utils.EstadoVenta;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -44,6 +45,7 @@ import static com.runicsoft.bencolapp.utils.constants.MessageConstants.*;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class VentaServiceImpl implements VentaService {
 
     private final VentaRepository ventaRepository;
@@ -123,7 +125,6 @@ public class VentaServiceImpl implements VentaService {
         Cliente cliente = getCliente(request.getClienteId());
         validarClienteActivo(cliente);
         validarProductosDuplicados(request.getDetalles());
-        validarStockVenta(request);
 
         Venta venta = new Venta();
         venta.setCodigo(generarCodigoVenta());
@@ -158,6 +159,16 @@ public class VentaServiceImpl implements VentaService {
         Venta ventaGuardada = ventaRepository.save(venta);
         descontarInventarioVenta(ventaGuardada, request.getDetalles());
         crearCuentaCobrar(ventaGuardada);
+
+        log.info(
+                "Venta creada. id={}, codigo={}, clienteId={}, total={}, usuario={}",
+                ventaGuardada.getId(),
+                ventaGuardada.getCodigo(),
+                cliente.getId(),
+                ventaGuardada.getTotal(),
+                SecurityUtils.getUsuarioActual()
+        );
+
         return ventaMapper.convertirVentaDto(ventaGuardada);
     }
 
@@ -182,6 +193,14 @@ public class VentaServiceImpl implements VentaService {
         venta.setActualizadoPor(SecurityUtils.getUsuarioActual());
 
         Venta ventaActualizada = ventaRepository.save(venta);
+
+        log.info(
+                "Venta anulada. id={}, codigo={}, usuario={}",
+                ventaActualizada.getId(),
+                ventaActualizada.getCodigo(),
+                SecurityUtils.getUsuarioActual()
+        );
+
         return ventaMapper.convertirVentaDto(ventaActualizada);
     }
 
@@ -229,21 +248,6 @@ public class VentaServiceImpl implements VentaService {
         }
     }
 
-    private void validarStockVenta(VentaRequest request) {
-        for (DetalleVentaRequest detalle : request.getDetalles()) {
-            Producto producto = getProducto(detalle.getProductoId());
-
-            Inventario inventario = inventarioRepository.findByProductoId(producto.getId())
-                    .orElseThrow(() -> new ResourceNotFoundException(INVENTARIO_NO_ENCONTRADO));
-
-            Integer cantidadUnidades = calcularUnidadesFisicas(detalle.getCantidad(), producto);
-
-            if (cantidadUnidades > inventario.getStockActual()) {
-                throw new BusinessException(STOCK_INSUFICIENTE);
-            }
-        }
-    }
-
     private void validarCuentaParaAnulacion(Venta venta) {
         CuentaCobrar cuenta = cuentaCobrarRepository.findByVentaId(venta.getId())
                 .orElseThrow(() -> new ResourceNotFoundException(CUENTA_COBRAR_NO_ENCONTRADA));
@@ -269,15 +273,22 @@ public class VentaServiceImpl implements VentaService {
         for (DetalleVentaRequest detalleRequest : detalles) {
             Producto producto = getProducto(detalleRequest.getProductoId());
 
-            Inventario inventario = inventarioRepository.findByProductoId(producto.getId())
+            Inventario inventario = inventarioRepository.findByProductoIdForUpdate(producto.getId())
                     .orElseThrow(() -> new ResourceNotFoundException(INVENTARIO_NO_ENCONTRADO));
 
             Integer cantidadUnidades = calcularUnidadesFisicas(detalleRequest.getCantidad(), producto);
+
             Integer stockAnterior = inventario.getStockActual();
+
+            if (cantidadUnidades > stockAnterior) {
+                throw new BusinessException(STOCK_INSUFICIENTE);
+            }
+
             Integer stockNuevo = stockAnterior - cantidadUnidades;
 
             inventario.setStockActual(stockNuevo);
             inventarioRepository.save(inventario);
+
             registrarMovimientoVenta(venta, inventario, cantidadUnidades, stockAnterior, stockNuevo);
         }
     }
@@ -298,10 +309,11 @@ public class VentaServiceImpl implements VentaService {
         for (DetalleVenta detalle : venta.getDetalles()) {
             Producto producto = detalle.getProducto();
 
-            Inventario inventario = inventarioRepository.findByProductoId(producto.getId())
+            Inventario inventario = inventarioRepository.findByProductoIdForUpdate(producto.getId())
                     .orElseThrow(() -> new ResourceNotFoundException(INVENTARIO_NO_ENCONTRADO));
 
             Integer cantidadUnidades = calcularUnidadesFisicas(detalle.getCantidad(), producto);
+
             Integer stockAnterior = inventario.getStockActual();
             Integer stockNuevo = stockAnterior + cantidadUnidades;
 
@@ -309,6 +321,7 @@ public class VentaServiceImpl implements VentaService {
 
             inventario.setStockActual(stockNuevo);
             inventarioRepository.save(inventario);
+
             registrarMovimientoAnulacion(venta, inventario, cantidadUnidades, stockAnterior, stockNuevo);
         }
     }

@@ -1,6 +1,8 @@
 package com.runicsoft.bencolapp.utils.exceptions;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -13,6 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
@@ -23,7 +26,8 @@ public class GlobalExceptionHandler {
                         HttpStatus.BAD_REQUEST.value(),
                         HttpStatus.BAD_REQUEST.getReasonPhrase(),
                         exception.getMessage(),
-                        request.getRequestURI()
+                        request.getRequestURI(),
+                        getRequestId()
                 );
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
@@ -46,6 +50,7 @@ public class GlobalExceptionHandler {
                 "Validation Error",
                 "Existen campos inválidos.",
                 request.getRequestURI(),
+                getRequestId(),
                 errores
         );
 
@@ -54,12 +59,19 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleGeneralException(Exception exception, HttpServletRequest request) {
+        log.error(
+                "Error interno no controlado. path={}",
+                request.getRequestURI(),
+                exception
+        );
+
         ApiErrorResponse response = new ApiErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
                 "Ocurrió un error interno en el servidor.",
-                request.getRequestURI()
+                request.getRequestURI(),
+                getRequestId()
         );
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
@@ -79,7 +91,8 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST.value(),
                 HttpStatus.BAD_REQUEST.getReasonPhrase(),
                 mensaje,
-                request.getRequestURI()
+                request.getRequestURI(),
+                getRequestId()
         );
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
@@ -92,7 +105,8 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST.value(),
                 HttpStatus.BAD_REQUEST.getReasonPhrase(),
                 "El cuerpo de la solicitud no es válido.",
-                request.getRequestURI()
+                request.getRequestURI(),
+                getRequestId()
         );
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
@@ -101,12 +115,19 @@ public class GlobalExceptionHandler {
     // ===============================================================================================================
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiErrorResponse> handleResourceNotFound(ResourceNotFoundException exception, HttpServletRequest request) {
+        log.warn(
+                "Recurso no encontrado. path={}, mensaje={}",
+                request.getRequestURI(),
+                exception.getMessage()
+        );
+
         ApiErrorResponse response = new ApiErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.NOT_FOUND.value(),
                 HttpStatus.NOT_FOUND.getReasonPhrase(),
                 exception.getMessage(),
-                request.getRequestURI()
+                request.getRequestURI(),
+                getRequestId()
         );
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
@@ -114,12 +135,19 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ApiErrorResponse> handleBusinessException(BusinessException exception, HttpServletRequest request) {
+        log.warn(
+                "Regla de negocio rechazada. path={}, mensaje={}",
+                request.getRequestURI(),
+                exception.getMessage()
+        );
+
         ApiErrorResponse response = new ApiErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.BAD_REQUEST.value(),
                 HttpStatus.BAD_REQUEST.getReasonPhrase(),
                 exception.getMessage(),
-                request.getRequestURI()
+                request.getRequestURI(),
+                getRequestId()
         );
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
@@ -127,12 +155,19 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ConflictException.class)
     public ResponseEntity<ApiErrorResponse> handleConflictException(ConflictException exception, HttpServletRequest request) {
+        log.warn(
+                "Conflicto de negocio. path={}, mensaje={}",
+                request.getRequestURI(),
+                exception.getMessage()
+        );
+
         ApiErrorResponse response = new ApiErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.CONFLICT.value(),
                 HttpStatus.CONFLICT.getReasonPhrase(),
                 exception.getMessage(),
-                request.getRequestURI()
+                request.getRequestURI(),
+                getRequestId()
         );
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
@@ -140,12 +175,18 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ApiErrorResponse> handleAuthenticationException(AuthenticationException exception, HttpServletRequest request) {
+        log.warn(
+                "Autenticación rechazada. path={}",
+                request.getRequestURI()
+        );
+
         ApiErrorResponse response = new ApiErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.UNAUTHORIZED.value(),
                 HttpStatus.UNAUTHORIZED.getReasonPhrase(),
                 exception.getMessage(),
-                request.getRequestURI()
+                request.getRequestURI(),
+                getRequestId()
         );
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
@@ -158,7 +199,8 @@ public class GlobalExceptionHandler {
                 HttpStatus.CONFLICT.value(),
                 HttpStatus.CONFLICT.getReasonPhrase(),
                 "La operación genera un conflicto con datos existentes.",
-                request.getRequestURI()
+                request.getRequestURI(),
+                getRequestId()
         );
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
@@ -171,9 +213,15 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST.value(),
                 HttpStatus.BAD_REQUEST.getReasonPhrase(),
                 "El parámetro '" + exception.getParameterName() + "' es obligatorio.",
-                request.getRequestURI()
+                request.getRequestURI(),
+                getRequestId()
         );
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    private String getRequestId() {
+        String requestId = MDC.get("requestId");
+        return requestId != null ? requestId : "N/A";
     }
 }
