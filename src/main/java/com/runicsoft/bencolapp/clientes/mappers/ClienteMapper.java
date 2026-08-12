@@ -13,7 +13,10 @@ import java.util.List;
 public interface ClienteMapper {
 
     ClienteResponse convertirClienteDto(Cliente cliente);
+
+    @Mapping(target = "id", ignore = true)
     Cliente convertirClienteEntidad(ClienteRequest request);
+
     List<ClienteResponse> convertirListaClienteDto(List<Cliente> clientes);
 
     @Mapping(target = "id", ignore = true)

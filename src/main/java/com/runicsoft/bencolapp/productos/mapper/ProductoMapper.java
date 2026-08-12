@@ -17,6 +17,7 @@ public interface ProductoMapper {
     @Mapping(source = "unidadesPorPaquete", target = "unidadesPorPaquete")
     ProductoResponse convertirProductoDto(Producto producto);
 
+    @Mapping(target = "id", ignore = true)
     @Mapping(source = "contenido", target = "contenido")
     @Mapping(source = "unidadMedida", target = "unidadMedida")
     @Mapping(source = "unidadesPorPaquete", target = "unidadesPorPaquete")

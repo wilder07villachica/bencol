@@ -2,6 +2,9 @@ package com.runicsoft.bencolapp.ventas.service;
 
 import com.runicsoft.bencolapp.clientes.models.Cliente;
 import com.runicsoft.bencolapp.clientes.repository.ClienteRepository;
+import com.runicsoft.bencolapp.envases.dtos.request.MovimientoEnvaseRequest;
+import com.runicsoft.bencolapp.envases.service.EnvaseService;
+import com.runicsoft.bencolapp.envases.utils.TipoMovimientoEnvase;
 import com.runicsoft.bencolapp.finanzas.models.CuentaCobrar;
 import com.runicsoft.bencolapp.finanzas.repository.CuentaCobrarRepository;
 import com.runicsoft.bencolapp.finanzas.utils.EstadoCuenta;
@@ -14,6 +17,7 @@ import com.runicsoft.bencolapp.precios_clientes.models.ClientePrecio;
 import com.runicsoft.bencolapp.precios_clientes.repository.ClientePrecioRepository;
 import com.runicsoft.bencolapp.productos.models.Producto;
 import com.runicsoft.bencolapp.productos.repository.ProductoRepository;
+import com.runicsoft.bencolapp.productos.utils.ProductoCategoria;
 import com.runicsoft.bencolapp.seguridad.utils.SecurityUtils;
 import com.runicsoft.bencolapp.utils.EstadoGeneral;
 import com.runicsoft.bencolapp.utils.exceptions.BusinessException;
@@ -56,6 +60,8 @@ public class VentaServiceImpl implements VentaService {
     private final InventarioRepository inventarioRepository;
     private final MovimientoInventarioRepository movimientoInventarioRepository;
     private final CuentaCobrarRepository cuentaCobrarRepository;
+
+    private final EnvaseService envaseService;
 
     @Override
     @Transactional(readOnly = true)
@@ -137,13 +143,19 @@ public class VentaServiceImpl implements VentaService {
             Producto producto = getProducto(detalleRequest.getProductoId());
             validarProductoActivo(producto);
 
-            BigDecimal precioUnitario = obtenerPrecioProducto(cliente.getId(), producto);
+            BigDecimal precioUnitario = obtenerPrecioProducto(
+                    cliente.getId(),
+                    producto,
+                    detalleRequest
+            );
             BigDecimal subtotalDetalle = precioUnitario.multiply(BigDecimal.valueOf(detalleRequest.getCantidad()));
 
             DetalleVenta detalle = new DetalleVenta();
             detalle.setVenta(venta);
             detalle.setProducto(producto);
             detalle.setCantidad(detalleRequest.getCantidad());
+            detalle.setEnvasesDevueltos(detalleRequest.getEnvasesDevueltos());
+            detalle.setModalidadEnvase(detalleRequest.getModalidadEnvase());
             detalle.setPrecioUnitario(precioUnitario);
             detalle.setSubtotal(subtotalDetalle);
 
@@ -158,6 +170,7 @@ public class VentaServiceImpl implements VentaService {
 
         Venta ventaGuardada = ventaRepository.save(venta);
         descontarInventarioVenta(ventaGuardada, request.getDetalles());
+        procesarEnvasesVenta(ventaGuardada, request.getDetalles());
         crearCuentaCobrar(ventaGuardada);
 
         log.info(
@@ -187,6 +200,7 @@ public class VentaServiceImpl implements VentaService {
 
         validarCuentaParaAnulacion(venta);
         devolverInventarioVenta(venta);
+        revertirEnvasesVenta(venta);
         anularCuentaCobrar(venta);
 
         venta.setEstado(EstadoVenta.ANULADA);
@@ -220,8 +234,45 @@ public class VentaServiceImpl implements VentaService {
                 .orElseThrow(() -> new ResourceNotFoundException(PRODUCTO_NO_ENCONTRADO));
     }
 
-    private BigDecimal obtenerPrecioProducto(Long clienteId, Producto producto) {
-        return clientePrecioRepository.findByClienteIdAndProductoId(clienteId, producto.getId())
+    private BigDecimal obtenerPrecioProducto(Long clienteId, Producto producto, DetalleVentaRequest detalle) {
+        /*
+         * COMPRA DE BIDÓN
+         *
+         * Por defecto se utiliza precioBase.
+         *
+         * Ejemplo:
+         * precioBase = 20
+         *
+         * Excepcionalmente ADMIN puede establecer
+         * un precio menor para esa venta.
+         */
+        if (producto.getCategoria() == ProductoCategoria.BIDON && detalle.getModalidadEnvase() == TipoMovimientoEnvase.COMPRA) {
+            BigDecimal precioBase = producto.getPrecioBase();
+
+            if (detalle.getPrecioManual() == null) {
+                return precioBase;
+            }
+
+            validarPrecioManualCompra(detalle.getPrecioManual(), precioBase);
+            return detalle.getPrecioManual();
+        }
+
+        /*
+         * Fuera de una COMPRA de bidones no permitimos que
+         * este campo altere silenciosamente el precio.
+         */
+        if (detalle.getPrecioManual() != null) {
+            throw new BusinessException("El precio manual solo puede utilizarse en la compra de bidones.");
+        }
+
+        /*
+         * RECARGA / INTERCAMBIO / PRÉSTAMO
+         *
+         * Precio especial del cliente si existe.
+         * De lo contrario precioBase.
+         */
+        return clientePrecioRepository
+                .findByClienteIdAndProductoId(clienteId, producto.getId())
                 .map(ClientePrecio::getPrecio)
                 .orElse(producto.getPrecioBase());
     }
@@ -273,10 +324,25 @@ public class VentaServiceImpl implements VentaService {
         for (DetalleVentaRequest detalleRequest : detalles) {
             Producto producto = getProducto(detalleRequest.getProductoId());
 
-            Inventario inventario = inventarioRepository.findByProductoIdForUpdate(producto.getId())
-                    .orElseThrow(() -> new ResourceNotFoundException(INVENTARIO_NO_ENCONTRADO));
+            if (producto.getCategoria() == ProductoCategoria.BIDON) {
+                descontarInventarioBidon(
+                        venta,
+                        producto,
+                        detalleRequest
+                );
+                continue;
+            }
 
-            Integer cantidadUnidades = calcularUnidadesFisicas(detalleRequest.getCantidad(), producto);
+            Inventario inventario = inventarioRepository
+                    .findByProductoIdForUpdate(producto.getId())
+                    .orElseThrow(() ->
+                            new ResourceNotFoundException(INVENTARIO_NO_ENCONTRADO)
+                    );
+
+            Integer cantidadUnidades = calcularUnidadesFisicas(
+                    detalleRequest.getCantidad(),
+                    producto
+            );
 
             Integer stockAnterior = inventario.getStockActual();
 
@@ -289,8 +355,66 @@ public class VentaServiceImpl implements VentaService {
             inventario.setStockActual(stockNuevo);
             inventarioRepository.save(inventario);
 
-            registrarMovimientoVenta(venta, inventario, cantidadUnidades, stockAnterior, stockNuevo);
+            registrarMovimientoVenta(
+                    venta,
+                    inventario,
+                    cantidadUnidades,
+                    stockAnterior,
+                    stockNuevo
+            );
         }
+    }
+
+    private void descontarInventarioBidon(Venta venta, Producto producto, DetalleVentaRequest detalle) {
+        if (detalle.getModalidadEnvase() == null) {
+            throw new BusinessException(
+                    "La modalidad de envase es obligatoria para productos BIDON."
+            );
+        }
+
+        Integer envasesDevueltos = detalle.getEnvasesDevueltos() != null
+                ? detalle.getEnvasesDevueltos()
+                : 0;
+
+        validarEnvasesVenta(detalle, envasesDevueltos);
+
+        if (detalle.getModalidadEnvase() == TipoMovimientoEnvase.INTERCAMBIO) {
+            return;
+        }
+
+        if (detalle.getModalidadEnvase() != TipoMovimientoEnvase.PRESTAMO &&
+                detalle.getModalidadEnvase() != TipoMovimientoEnvase.COMPRA) {
+
+            throw new BusinessException(
+                    "Modalidad de envase inválida para la venta."
+            );
+        }
+
+        Inventario inventario = inventarioRepository
+                .findByProductoIdForUpdate(producto.getId())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(INVENTARIO_NO_ENCONTRADO)
+                );
+
+        Integer stockAnterior = inventario.getStockActual();
+        Integer cantidad = detalle.getCantidad();
+
+        if (cantidad > stockAnterior) {
+            throw new BusinessException(STOCK_INSUFICIENTE);
+        }
+
+        Integer stockNuevo = stockAnterior - cantidad;
+
+        inventario.setStockActual(stockNuevo);
+        inventarioRepository.save(inventario);
+
+        registrarMovimientoVenta(
+                venta,
+                inventario,
+                cantidad,
+                stockAnterior,
+                stockNuevo
+        );
     }
 
     private void registrarMovimientoVenta(Venta venta, Inventario inventario, Integer cantidad, Integer stockAnterior, Integer stockNuevo) {
@@ -309,10 +433,21 @@ public class VentaServiceImpl implements VentaService {
         for (DetalleVenta detalle : venta.getDetalles()) {
             Producto producto = detalle.getProducto();
 
-            Inventario inventario = inventarioRepository.findByProductoIdForUpdate(producto.getId())
-                    .orElseThrow(() -> new ResourceNotFoundException(INVENTARIO_NO_ENCONTRADO));
+            if (producto.getCategoria() == ProductoCategoria.BIDON) {
+                devolverInventarioBidon(venta, detalle);
+                continue;
+            }
 
-            Integer cantidadUnidades = calcularUnidadesFisicas(detalle.getCantidad(), producto);
+            Inventario inventario = inventarioRepository
+                    .findByProductoIdForUpdate(producto.getId())
+                    .orElseThrow(() ->
+                            new ResourceNotFoundException(INVENTARIO_NO_ENCONTRADO)
+                    );
+
+            Integer cantidadUnidades = calcularUnidadesFisicas(
+                    detalle.getCantidad(),
+                    producto
+            );
 
             Integer stockAnterior = inventario.getStockActual();
             Integer stockNuevo = stockAnterior + cantidadUnidades;
@@ -322,8 +457,51 @@ public class VentaServiceImpl implements VentaService {
             inventario.setStockActual(stockNuevo);
             inventarioRepository.save(inventario);
 
-            registrarMovimientoAnulacion(venta, inventario, cantidadUnidades, stockAnterior, stockNuevo);
+            registrarMovimientoAnulacion(
+                    venta,
+                    inventario,
+                    cantidadUnidades,
+                    stockAnterior,
+                    stockNuevo
+            );
         }
+    }
+
+    private void devolverInventarioBidon(Venta venta, DetalleVenta detalle) {
+        /*
+         * Un INTERCAMBIO nunca redujo el inventario,
+         * por lo tanto tampoco tenemos nada que devolver.
+         */
+        if (detalle.getModalidadEnvase() == TipoMovimientoEnvase.INTERCAMBIO) {
+            return;
+        }
+
+        if (detalle.getModalidadEnvase() != TipoMovimientoEnvase.PRESTAMO &&
+                detalle.getModalidadEnvase() != TipoMovimientoEnvase.COMPRA) {
+            return;
+        }
+
+        Inventario inventario = inventarioRepository
+                .findByProductoIdForUpdate(detalle.getProducto().getId())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(INVENTARIO_NO_ENCONTRADO)
+                );
+
+        Integer stockAnterior = inventario.getStockActual();
+        Integer stockNuevo = stockAnterior + detalle.getCantidad();
+
+        validarStockMaximo(inventario, stockNuevo);
+
+        inventario.setStockActual(stockNuevo);
+        inventarioRepository.save(inventario);
+
+        registrarMovimientoAnulacion(
+                venta,
+                inventario,
+                detalle.getCantidad(),
+                stockAnterior,
+                stockNuevo
+        );
     }
 
     private void registrarMovimientoAnulacion(Venta venta, Inventario inventario, Integer cantidad, Integer stockAnterior, Integer stockNuevo) {
@@ -374,6 +552,103 @@ public class VentaServiceImpl implements VentaService {
     private void validarRangoFechas(LocalDate desde, LocalDate hasta) {
         if (desde != null && hasta != null && desde.isAfter(hasta)) {
             throw new IllegalArgumentException(RANGO_FECHAS_INVALIDO);
+        }
+    }
+
+    private void procesarEnvasesVenta(
+            Venta venta,
+            List<DetalleVentaRequest> detalles
+    ) {
+        for (DetalleVentaRequest detalle : detalles) {
+            Producto producto = getProducto(detalle.getProductoId());
+
+            if (producto.getCategoria() != ProductoCategoria.BIDON) {
+                continue;
+            }
+
+            MovimientoEnvaseRequest movimiento = new MovimientoEnvaseRequest();
+            movimiento.setClienteId(venta.getCliente().getId());
+            movimiento.setProductoId(producto.getId());
+            movimiento.setTipoMovimiento(detalle.getModalidadEnvase());
+            movimiento.setCantidad(detalle.getCantidad());
+            movimiento.setReferencia("Venta " + venta.getCodigo());
+
+            envaseService.registrarMovimiento(movimiento);
+        }
+    }
+
+    private void validarEnvasesVenta(DetalleVentaRequest detalle, Integer envasesDevueltos) {
+        if (envasesDevueltos < 0) {
+            throw new BusinessException("La cantidad de envases devueltos no puede ser negativa.");
+        }
+
+        if (envasesDevueltos > detalle.getCantidad()) {
+            throw new BusinessException("Los envases devueltos no pueden superar la cantidad vendida.");
+        }
+
+        if (detalle.getModalidadEnvase() == TipoMovimientoEnvase.INTERCAMBIO &&
+                !envasesDevueltos.equals(detalle.getCantidad())) {
+            throw new BusinessException(
+                    "En un intercambio, el cliente debe devolver la misma cantidad de envases que recibe."
+            );
+        }
+
+        if ((detalle.getModalidadEnvase() == TipoMovimientoEnvase.PRESTAMO ||
+                detalle.getModalidadEnvase() == TipoMovimientoEnvase.COMPRA) &&
+                envasesDevueltos > 0) {
+            throw new BusinessException(
+                    "Un préstamo o compra de envases no debe registrar envases devueltos."
+            );
+        }
+
+        if (detalle.getModalidadEnvase() == TipoMovimientoEnvase.DEVOLUCION ||
+                detalle.getModalidadEnvase() == TipoMovimientoEnvase.CONVERSION_COMPRA ||
+                detalle.getModalidadEnvase() == TipoMovimientoEnvase.AJUSTE) {
+            throw new BusinessException(
+                    "Esta modalidad de envase no puede registrarse directamente desde una venta."
+            );
+        }
+    }
+
+    private void revertirEnvasesVenta(Venta venta) {
+        for (DetalleVenta detalle : venta.getDetalles()) {
+            Producto producto = detalle.getProducto();
+
+            if (producto.getCategoria() != ProductoCategoria.BIDON) {
+                continue;
+            }
+
+            if (detalle.getModalidadEnvase() == null) {
+                continue;
+            }
+
+            envaseService.revertirMovimientoVenta(
+                    venta.getCliente().getId(),
+                    producto.getId(),
+                    detalle.getModalidadEnvase(),
+                    detalle.getCantidad(),
+                    "Anulación venta " + venta.getCodigo()
+            );
+        }
+    }
+
+    private void validarPrecioManualCompra(BigDecimal precioManual, BigDecimal precioBase) {
+        if (!SecurityUtils.esAdmin()) {
+            throw new BusinessException(
+                    "Solo un administrador puede modificar el precio de compra de un bidón."
+            );
+        }
+
+        if (precioManual.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BusinessException(
+                    "El precio de compra debe ser mayor a cero."
+            );
+        }
+
+        if (precioManual.compareTo(precioBase) > 0) {
+            throw new BusinessException(
+                    "El precio manual no puede superar el precio base del bidón."
+            );
         }
     }
 }

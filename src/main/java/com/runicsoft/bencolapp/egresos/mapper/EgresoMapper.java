@@ -11,9 +11,11 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface EgresoMapper {
 
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "fechaEgreso", ignore = true)
+    @Mapping(target = "registradoPor", ignore = true)
     Egreso convertirEgresoEntidad(EgresoRequest request);
 
-    @Mapping(source = "registradoPor", target = "registradoPor")
     EgresoResponse convertirEgresoDto(Egreso egreso);
 
     List<EgresoResponse> convertirListaEgresoDto(List<Egreso> egresos);

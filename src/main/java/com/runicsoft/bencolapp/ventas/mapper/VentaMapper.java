@@ -24,5 +24,7 @@ public interface VentaMapper {
     @Mapping(source = "producto.id", target = "productoId")
     @Mapping(source = "producto.codigo", target = "codigoProducto")
     @Mapping(source = "producto.descripcion", target = "descripcionProducto")
+    @Mapping(source = "envasesDevueltos", target = "envasesDevueltos")
+    @Mapping(source = "modalidadEnvase", target = "modalidadEnvase")
     DetalleVentaResponse convertirDetalleDto(DetalleVenta detalle);
 }

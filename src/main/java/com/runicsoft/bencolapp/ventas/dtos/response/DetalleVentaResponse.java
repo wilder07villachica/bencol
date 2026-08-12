@@ -1,5 +1,6 @@
 package com.runicsoft.bencolapp.ventas.dtos.response;
 
+import com.runicsoft.bencolapp.envases.utils.TipoMovimientoEnvase;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -13,4 +14,6 @@ public class DetalleVentaResponse {
     private Integer cantidad;
     private BigDecimal precioUnitario;
     private BigDecimal subtotal;
+    private Integer envasesDevueltos;
+    private TipoMovimientoEnvase modalidadEnvase;
 }

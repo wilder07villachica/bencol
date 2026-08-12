@@ -14,6 +14,7 @@ public interface ProveedorMapper {
 
     ProveedorResponse convertirProveedorDto(Proveedor proveedor);
 
+    @Mapping(target = "id", ignore = true)
     Proveedor convertirProveedorEntidad(ProveedorRequest request);
 
     List<ProveedorResponse> convertirListaProveedorDto(List<Proveedor> proveedores);

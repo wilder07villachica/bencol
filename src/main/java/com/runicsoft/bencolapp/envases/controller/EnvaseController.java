@@ -1,6 +1,7 @@
 package com.runicsoft.bencolapp.envases.controller;
 
 import com.runicsoft.bencolapp.envases.dtos.request.MovimientoEnvaseRequest;
+import com.runicsoft.bencolapp.envases.dtos.request.SaldoInicialEnvaseRequest;
 import com.runicsoft.bencolapp.envases.dtos.response.CuentaEnvasesClienteResponse;
 import com.runicsoft.bencolapp.envases.dtos.response.MovimientoEnvaseResponse;
 import com.runicsoft.bencolapp.envases.service.EnvaseService;
@@ -45,6 +46,12 @@ public class EnvaseController {
     @PostMapping("/movimientos")
     public ResponseEntity<CuentaEnvasesClienteResponse> registrarMovimiento(@Valid @RequestBody MovimientoEnvaseRequest request) {
         CuentaEnvasesClienteResponse response = envaseService.registrarMovimiento(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PostMapping("/saldo-inicial")
+    public ResponseEntity<CuentaEnvasesClienteResponse> registrarSaldoInicial(@Valid @RequestBody SaldoInicialEnvaseRequest request) {
+        CuentaEnvasesClienteResponse response = envaseService.registrarSaldoInicial(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }

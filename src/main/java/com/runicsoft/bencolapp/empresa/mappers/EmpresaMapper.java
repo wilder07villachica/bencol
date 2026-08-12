@@ -13,9 +13,14 @@ import java.util.List;
 public interface EmpresaMapper {
 
     EmpresaResponse convertirEmpresaDto(Empresa empresa);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "estado", ignore = true)
     Empresa convertirEmpresaEntidad(EmpresaRequest request);
+
     List<EmpresaResponse> convertirListaEmpresaDto(List<Empresa> empresas);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "estado", ignore = true)
     void updateEmpresa(EmpresaRequest request, @MappingTarget Empresa empresa);
 }

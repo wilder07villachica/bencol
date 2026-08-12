@@ -1,0 +1,4 @@
+ALTER TABLE compras
+    MODIFY COLUMN estado
+    ENUM('REGISTRADA', 'ANULADA')
+    NOT NULL;

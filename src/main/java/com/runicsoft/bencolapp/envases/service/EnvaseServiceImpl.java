@@ -3,6 +3,7 @@ package com.runicsoft.bencolapp.envases.service;
 import com.runicsoft.bencolapp.clientes.models.Cliente;
 import com.runicsoft.bencolapp.clientes.repository.ClienteRepository;
 import com.runicsoft.bencolapp.envases.dtos.request.MovimientoEnvaseRequest;
+import com.runicsoft.bencolapp.envases.dtos.request.SaldoInicialEnvaseRequest;
 import com.runicsoft.bencolapp.envases.dtos.response.CuentaEnvasesClienteResponse;
 import com.runicsoft.bencolapp.envases.dtos.response.MovimientoEnvaseResponse;
 import com.runicsoft.bencolapp.envases.mapper.CuentaEnvasesClienteMapper;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -112,6 +114,137 @@ public class EnvaseServiceImpl implements EnvaseService {
         );
 
         return cuentaEnvasesClienteMapper.convertirCuentaDto(cuentaActualizada);
+    }
+
+    @Override
+    @Transactional
+    public void revertirMovimientoVenta(Long clienteId, Long productoId, TipoMovimientoEnvase tipoMovimiento, Integer cantidad, String referencia) {
+        validarId(clienteId);
+        validarId(productoId);
+
+        if (tipoMovimiento == null) {
+            throw new IllegalArgumentException(
+                    "El tipo de movimiento de envase es obligatorio."
+            );
+        }
+
+        if (cantidad == null || cantidad <= 0) {
+            throw new IllegalArgumentException(
+                    "La cantidad de envases debe ser mayor a cero."
+            );
+        }
+
+        CuentaEnvasesCliente cuenta = cuentaEnvasesClienteRepository
+                .findByClienteIdAndProductoIdForUpdate(
+                        clienteId,
+                        productoId
+                )
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                MessageConstants.CUENTA_ENVASE_NO_ENCONTRADA
+                        )
+                );
+
+        switch (tipoMovimiento) {
+
+            case INTERCAMBIO -> {
+            }
+
+            case PRESTAMO -> {
+                if (cantidad > cuenta.getCantidadPrestados()) {
+                    throw new BusinessException(
+                            "No es posible revertir el préstamo porque " +
+                                    "el saldo de envases prestados es insuficiente."
+                    );
+                }
+
+                cuenta.setCantidadPrestados(
+                        cuenta.getCantidadPrestados() - cantidad
+                );
+            }
+
+            case COMPRA -> {
+                if (cantidad > cuenta.getCantidadPropios()) {
+                    throw new BusinessException(
+                            "No es posible revertir la compra porque " +
+                                    "el saldo de envases propios es insuficiente."
+                    );
+                }
+
+                cuenta.setCantidadPropios(
+                        cuenta.getCantidadPropios() - cantidad
+                );
+            }
+
+            default -> throw new BusinessException(
+                    "El movimiento de envase no puede revertirse desde una venta."
+            );
+        }
+
+        CuentaEnvasesCliente cuentaActualizada =
+                cuentaEnvasesClienteRepository.save(cuenta);
+
+        registrarHistorial(
+                cuentaActualizada,
+                TipoMovimientoEnvase.AJUSTE,
+                cantidad,
+                referencia
+        );
+    }
+
+    @Override
+    @Transactional
+    public CuentaEnvasesClienteResponse registrarSaldoInicial(SaldoInicialEnvaseRequest request) {
+        Cliente cliente = getCliente(request.getClienteId());
+        Producto producto = getProducto(request.getProductoId());
+
+        validarProductoEnvase(producto);
+
+        if (request.getCantidadPropios() == 0 &&
+                request.getCantidadPrestados() == 0) {
+            throw new BusinessException(
+                    "El saldo inicial debe contener al menos un envase."
+            );
+        }
+
+        Optional<CuentaEnvasesCliente> cuentaExistente =
+                cuentaEnvasesClienteRepository.findByClienteIdAndProductoIdForUpdate(
+                        cliente.getId(),
+                        producto.getId()
+                );
+
+        if (cuentaExistente.isPresent()) {
+            throw new BusinessException(
+                    "El cliente ya tiene una cuenta de envases para este producto."
+            );
+        }
+
+        CuentaEnvasesCliente cuenta = new CuentaEnvasesCliente();
+        cuenta.setCliente(cliente);
+        cuenta.setProducto(producto);
+        cuenta.setCantidadPropios(request.getCantidadPropios());
+        cuenta.setCantidadPrestados(request.getCantidadPrestados());
+
+        CuentaEnvasesCliente cuentaGuardada =
+                cuentaEnvasesClienteRepository.save(cuenta);
+
+        Integer cantidadTotal =
+                request.getCantidadPropios()
+                        + request.getCantidadPrestados();
+
+        registrarHistorial(
+                cuentaGuardada,
+                TipoMovimientoEnvase.AJUSTE,
+                cantidadTotal,
+                request.getReferencia() != null &&
+                        !request.getReferencia().isBlank()
+                        ? request.getReferencia()
+                        : "Carga inicial de envases"
+        );
+
+        return cuentaEnvasesClienteMapper.convertirCuentaDto(
+                cuentaGuardada
+        );
     }
 
     private Cliente getCliente(Long id) {

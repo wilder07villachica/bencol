@@ -1,5 +1,6 @@
 package com.runicsoft.bencolapp.ventas.service;
 
+import com.runicsoft.bencolapp.envases.utils.TipoMovimientoEnvase;
 import com.runicsoft.bencolapp.utils.pagination.PaginaResponse;
 import com.runicsoft.bencolapp.ventas.dtos.request.VentaRequest;
 import com.runicsoft.bencolapp.ventas.dtos.response.VentaResponse;

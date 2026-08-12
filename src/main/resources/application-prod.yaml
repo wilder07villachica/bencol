@@ -35,9 +35,9 @@ security:
     expiration-minutes: ${JWT_EXPIRATION_MINUTES:480}
 
   admin:
-    username: ${BENCOL_ADMIN_USERNAME:}
-    email: ${BENCOL_ADMIN_EMAIL:}
-    password: ${BENCOL_ADMIN_PASSWORD:}
+    username: ${BENCOL_ADMIN_USERNAME}
+    email: ${BENCOL_ADMIN_EMAIL}
+    password: ${BENCOL_ADMIN_PASSWORD}
 
 server:
   forward-headers-strategy: framework

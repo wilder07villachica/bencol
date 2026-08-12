@@ -1,5 +1,6 @@
 package com.runicsoft.bencolapp.ventas.models;
 
+import com.runicsoft.bencolapp.envases.utils.TipoMovimientoEnvase;
 import com.runicsoft.bencolapp.productos.models.Producto;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -36,4 +37,11 @@ public class DetalleVenta {
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal subtotal;
+
+    @Column(name = "envases_devueltos")
+    private Integer envasesDevueltos;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "modalidad_envase")
+    private TipoMovimientoEnvase modalidadEnvase;
 }

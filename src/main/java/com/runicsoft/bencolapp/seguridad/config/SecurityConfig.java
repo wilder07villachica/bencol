@@ -24,18 +24,17 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
+
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(
                                 SessionCreationPolicy.STATELESS
                         )
                 )
-
                 .exceptionHandling(exception ->
                         exception
                                 .authenticationEntryPoint(authenticationEntryPoint)
                                 .accessDeniedHandler(accessDeniedHandler)
                 )
-
                 .authorizeHttpRequests(auth -> auth
 
                         // AUTH
@@ -189,6 +188,57 @@ public class SecurityConfig {
                                 "ALMACEN"
                         )
 
+                        // ENVASES
+                        /*
+                         * SALDO INICIAL
+                         *
+                         * Se utiliza únicamente para registrar la situación
+                         * inicial real de los envases de un cliente.
+                         *
+                         * Ejemplo:
+                         * cliente nuevo en el sistema que ya poseía
+                         * 30 bidones antes de utilizar Bencol App.
+                         *
+                         * Por seguridad solo ADMIN puede realizarlo.
+                         */
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/bencol.agua/envases/saldo-inicial"
+                        ).hasRole("ADMIN")
+
+                        /*
+                         * CONSULTAS DE ENVASES
+                         */
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/bencol.agua/envases/**"
+                        ).hasAnyRole(
+                                "ADMIN",
+                                "VENTAS",
+                                "ALMACEN"
+                        )
+
+                        /*
+                         * MOVIMIENTOS DE ENVASES
+                         *
+                         * PRESTAMO
+                         * COMPRA
+                         * DEVOLUCION
+                         * INTERCAMBIO
+                         * CONVERSION_COMPRA
+                         *
+                         * AJUSTE continúa controlado internamente
+                         * por EnvaseServiceImpl.
+                         */
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/bencol.agua/envases/movimientos"
+                        ).hasAnyRole(
+                                "ADMIN",
+                                "VENTAS",
+                                "ALMACEN"
+                        )
+
                         // CUENTAS POR COBRAR
                         .requestMatchers(
                                 HttpMethod.GET,
@@ -333,9 +383,9 @@ public class SecurityConfig {
                                 "COMPRAS"
                         )
 
-                        // Todo endpoint no contemplado
+                        // CUALQUIER OTRO ENDPOINT
                         .anyRequest()
-                        .authenticated()
+                        .denyAll()
                 )
 
                 .oauth2ResourceServer(oauth2 ->
@@ -350,10 +400,13 @@ public class SecurityConfig {
     }
 
     @Bean
-    public Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter() {
+    public Converter<Jwt, ? extends AbstractAuthenticationToken>
+    jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter authorities = new JwtGrantedAuthoritiesConverter();
+
         authorities.setAuthoritiesClaimName("rol");
         authorities.setAuthorityPrefix("ROLE_");
+
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
         converter.setJwtGrantedAuthoritiesConverter(authorities);
         return converter;

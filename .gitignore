@@ -1,33 +1,64 @@
-HELP.md
+# Maven / Build
 target/
-.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+*.jar
+*.war
+*.ear
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
+# Maven Wrapper JAR debe mantenerse si existe dentro de .mvn/wrapper
+!/.mvn/wrapper/maven-wrapper.jar
 
-### IntelliJ IDEA ###
-.idea
-*.iws
+# Logs
+logs/
+*.log
+
+# IntelliJ IDEA
+.idea/
 *.iml
+*.iws
 *.ipr
+out/
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
+# Eclipse
+.project
+.classpath
+.settings/
 
-### VS Code ###
+# VS Code
 .vscode/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Variables de entorno
+.env
+.env.*
+!.env.example
+
+# Archivos de secretos
+*.secret
+*.secrets
+secrets/
+config/secrets/
+
+# Certificados / llaves
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+
+# Temporales
+*.tmp
+*.temp
+*.bak
+*.swp
+*~
+
+# Cobertura / tests
+coverage/
+jacoco.exec
+
+# Spring Boot PID
+*.pid
