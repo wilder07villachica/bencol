@@ -98,4 +98,12 @@ public final class MessageConstants {
     // DASHBOARD
     public static final String FECHAS_OBLIGATORIAS = "Las fechas desde y hasta son obligatorias.";
     public static final String RANGO_FECHAS_INVALIDO = "La fecha inicial no puede ser posterior a la fecha final.";
+
+    // ENVASES
+    public static final String CUENTA_ENVASE_NO_ENCONTRADA = "La cuenta de envases no fue encontrada.";
+    public static final String PRODUCTO_NO_ES_ENVASE = "El control de envases solo aplica a productos de categoría BIDON.";
+    public static final String DEVOLUCION_ENVASE_SUPERA_PRESTADOS = "El cliente no puede devolver más envases prestados de los que tiene.";
+    public static final String INTERCAMBIO_ENVASE_SUPERA_DISPONIBLES = "El cliente no puede intercambiar más envases de los que tiene registrados.";
+    public static final String CONVERSION_ENVASE_SUPERA_PRESTADOS = "No se pueden convertir a compra más envases de los que están prestados.";
+    public static final String AJUSTE_ENVASE_NO_PERMITIDO = "El movimiento AJUSTE requiere una operación administrativa específica.";
 }

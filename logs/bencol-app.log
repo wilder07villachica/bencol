@@ -47,3 +47,965 @@
 2026-08-11 21:28:00.573 INFO  [SpringApplicationShutdownHook] [requestId=N/A] o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
 2026-08-11 21:28:00.575 INFO  [SpringApplicationShutdownHook] [requestId=N/A] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
 2026-08-11 21:28:00.581 INFO  [SpringApplicationShutdownHook] [requestId=N/A] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-08-11 21:36:01.867 INFO  [restartedMain] [requestId=N/A] c.r.bencolapp.BencolAppApplication - Starting BencolAppApplication using Java 21.0.7 with PID 5416 (C:\Users\WILDER\OneDrive\Escritorio\bencol-app\bencol\target\classes started by WILDER in C:\Users\WILDER\OneDrive\Escritorio\bencol-app\bencol)
+2026-08-11 21:36:01.869 DEBUG [restartedMain] [requestId=N/A] c.r.bencolapp.BencolAppApplication - Running with Spring Boot v4.1.0, Spring v7.0.8
+2026-08-11 21:36:01.869 INFO  [restartedMain] [requestId=N/A] c.r.bencolapp.BencolAppApplication - The following 1 profile is active: "dev"
+2026-08-11 21:36:01.905 INFO  [restartedMain] [requestId=N/A] o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-08-11 21:36:01.906 INFO  [restartedMain] [requestId=N/A] o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-08-11 21:36:02.509 INFO  [restartedMain] [requestId=N/A] o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-08-11 21:36:02.649 INFO  [restartedMain] [requestId=N/A] o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 133 ms. Found 19 JPA repository interfaces.
+2026-08-11 21:36:03.098 INFO  [restartedMain] [requestId=N/A] o.s.boot.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-08-11 21:36:03.110 INFO  [restartedMain] [requestId=N/A] o.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-08-11 21:36:03.110 INFO  [restartedMain] [requestId=N/A] org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.22]
+2026-08-11 21:36:03.150 INFO  [restartedMain] [requestId=N/A] o.s.b.w.c.s.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 1244 ms
+2026-08-11 21:36:03.185 DEBUG [restartedMain] [requestId=N/A] c.r.b.utils.logging.RequestIdFilter - Filter 'requestIdFilter' configured for use
+2026-08-11 21:36:03.366 INFO  [restartedMain] [requestId=N/A] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-08-11 21:36:03.485 INFO  [restartedMain] [requestId=N/A] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@33fe4408
+2026-08-11 21:36:03.486 INFO  [restartedMain] [requestId=N/A] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-08-11 21:36:03.511 INFO  [restartedMain] [requestId=N/A] org.flywaydb.core.FlywayExecutor - Database: jdbc:mysql://localhost:3306/bencol_system?useSSL=false&serverTimezone=America/Lima&allowPublicKeyRetrieval=true (MySQL 8.0)
+2026-08-11 21:36:03.567 INFO  [restartedMain] [requestId=N/A] o.f.core.internal.command.DbValidate - Successfully validated 3 migrations (execution time 00:00.023s)
+2026-08-11 21:36:03.579 INFO  [restartedMain] [requestId=N/A] o.f.core.internal.command.DbMigrate - Current version of schema `bencol_system`: 2
+2026-08-11 21:36:03.595 INFO  [restartedMain] [requestId=N/A] o.f.core.internal.command.DbMigrate - Migrating schema `bencol_system` to version "3 - crear modulo envases"
+2026-08-11 21:36:03.689 INFO  [restartedMain] [requestId=N/A] o.f.core.internal.command.DbMigrate - Successfully applied 1 migration to schema `bencol_system`, now at version v3 (execution time 00:00.077s)
+2026-08-11 21:36:03.794 INFO  [restartedMain] [requestId=N/A] org.hibernate.orm.jpa - HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-08-11 21:36:03.841 INFO  [restartedMain] [requestId=N/A] org.hibernate.orm.core - HHH000001: Hibernate ORM core version 7.4.1.Final
+2026-08-11 21:36:04.202 INFO  [restartedMain] [requestId=N/A] o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-08-11 21:36:04.275 INFO  [restartedMain] [requestId=N/A] org.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [jdbc:mysql://localhost:3306/bencol_system?useSSL=false&serverTimezone=America/Lima&allowPublicKeyRetrieval=true]
+	Database driver: MySQL Connector/J
+	Database dialect: MySQLDialect
+	Database version: 8.0.44
+	Default catalog/schema: bencol_system/undefined
+	Autocommit mode: undefined/unknown
+	Isolation level: REPEATABLE_READ [default REPEATABLE_READ]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-08-11 21:36:05.287 INFO  [restartedMain] [requestId=N/A] org.hibernate.orm.core - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-08-11 21:36:05.327 INFO  [restartedMain] [requestId=N/A] o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-08-11 21:36:05.391 INFO  [restartedMain] [requestId=N/A] o.s.d.j.r.query.QueryEnhancerFactories - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-08-11 21:36:07.478 INFO  [restartedMain] [requestId=N/A] o.s.boot.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-08-11 21:36:07.482 INFO  [restartedMain] [requestId=N/A] c.r.bencolapp.BencolAppApplication - Started BencolAppApplication in 6.131 seconds (process running for 6.615)
+2026-08-11 21:36:07.532 DEBUG [restartedMain] [requestId=N/A] org.hibernate.SQL - 
+    select
+        count(*) 
+    from
+        usuarios u1_0
+2026-08-11 21:36:59.028 INFO  [SpringApplicationShutdownHook] [requestId=N/A] o.s.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-08-11 21:36:59.032 INFO  [tomcat-shutdown] [requestId=N/A] o.s.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-08-11 21:36:59.036 INFO  [SpringApplicationShutdownHook] [requestId=N/A] o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-08-11 21:36:59.038 INFO  [SpringApplicationShutdownHook] [requestId=N/A] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-08-11 21:36:59.045 INFO  [SpringApplicationShutdownHook] [requestId=N/A] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-08-11 21:47:24.468 INFO  [restartedMain] [requestId=N/A] c.r.bencolapp.BencolAppApplication - Starting BencolAppApplication using Java 21.0.7 with PID 1920 (C:\Users\WILDER\OneDrive\Escritorio\bencol-app\bencol\target\classes started by WILDER in C:\Users\WILDER\OneDrive\Escritorio\bencol-app\bencol)
+2026-08-11 21:47:24.470 DEBUG [restartedMain] [requestId=N/A] c.r.bencolapp.BencolAppApplication - Running with Spring Boot v4.1.0, Spring v7.0.8
+2026-08-11 21:47:24.470 INFO  [restartedMain] [requestId=N/A] c.r.bencolapp.BencolAppApplication - The following 1 profile is active: "dev"
+2026-08-11 21:47:24.504 INFO  [restartedMain] [requestId=N/A] o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-08-11 21:47:24.504 INFO  [restartedMain] [requestId=N/A] o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-08-11 21:47:25.122 INFO  [restartedMain] [requestId=N/A] o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-08-11 21:47:25.266 INFO  [restartedMain] [requestId=N/A] o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 137 ms. Found 21 JPA repository interfaces.
+2026-08-11 21:47:25.723 INFO  [restartedMain] [requestId=N/A] o.s.boot.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-08-11 21:47:25.735 INFO  [restartedMain] [requestId=N/A] o.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-08-11 21:47:25.735 INFO  [restartedMain] [requestId=N/A] org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.22]
+2026-08-11 21:47:25.776 INFO  [restartedMain] [requestId=N/A] o.s.b.w.c.s.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 1272 ms
+2026-08-11 21:47:25.814 DEBUG [restartedMain] [requestId=N/A] c.r.b.utils.logging.RequestIdFilter - Filter 'requestIdFilter' configured for use
+2026-08-11 21:47:25.992 INFO  [restartedMain] [requestId=N/A] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-08-11 21:47:26.113 INFO  [restartedMain] [requestId=N/A] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@7b18e6bf
+2026-08-11 21:47:26.114 INFO  [restartedMain] [requestId=N/A] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-08-11 21:47:26.140 INFO  [restartedMain] [requestId=N/A] org.flywaydb.core.FlywayExecutor - Database: jdbc:mysql://localhost:3306/bencol_system?useSSL=false&serverTimezone=America/Lima&allowPublicKeyRetrieval=true (MySQL 8.0)
+2026-08-11 21:47:26.195 INFO  [restartedMain] [requestId=N/A] o.f.core.internal.command.DbValidate - Successfully validated 3 migrations (execution time 00:00.022s)
+2026-08-11 21:47:26.206 INFO  [restartedMain] [requestId=N/A] o.f.core.internal.command.DbMigrate - Current version of schema `bencol_system`: 3
+2026-08-11 21:47:26.210 INFO  [restartedMain] [requestId=N/A] o.f.core.internal.command.DbMigrate - Schema `bencol_system` is up to date. No migration necessary.
+2026-08-11 21:47:26.315 INFO  [restartedMain] [requestId=N/A] org.hibernate.orm.jpa - HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-08-11 21:47:26.364 INFO  [restartedMain] [requestId=N/A] org.hibernate.orm.core - HHH000001: Hibernate ORM core version 7.4.1.Final
+2026-08-11 21:47:26.725 INFO  [restartedMain] [requestId=N/A] o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-08-11 21:47:26.795 INFO  [restartedMain] [requestId=N/A] org.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [jdbc:mysql://localhost:3306/bencol_system?useSSL=false&serverTimezone=America/Lima&allowPublicKeyRetrieval=true]
+	Database driver: MySQL Connector/J
+	Database dialect: MySQLDialect
+	Database version: 8.0.44
+	Default catalog/schema: bencol_system/undefined
+	Autocommit mode: undefined/unknown
+	Isolation level: REPEATABLE_READ [default REPEATABLE_READ]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-08-11 21:47:27.803 INFO  [restartedMain] [requestId=N/A] org.hibernate.orm.core - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-08-11 21:47:27.846 INFO  [restartedMain] [requestId=N/A] o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-08-11 21:47:27.908 INFO  [restartedMain] [requestId=N/A] o.s.d.j.r.query.QueryEnhancerFactories - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-08-11 21:47:30.044 INFO  [restartedMain] [requestId=N/A] o.s.boot.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-08-11 21:47:30.049 INFO  [restartedMain] [requestId=N/A] c.r.bencolapp.BencolAppApplication - Started BencolAppApplication in 6.093 seconds (process running for 6.754)
+2026-08-11 21:47:30.101 DEBUG [restartedMain] [requestId=N/A] org.hibernate.SQL - 
+    select
+        count(*) 
+    from
+        usuarios u1_0
+2026-08-11 21:48:20.625 INFO  [SpringApplicationShutdownHook] [requestId=N/A] o.s.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-08-11 21:48:20.629 INFO  [tomcat-shutdown] [requestId=N/A] o.s.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-08-11 21:48:20.634 INFO  [SpringApplicationShutdownHook] [requestId=N/A] o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-08-11 21:48:20.636 INFO  [SpringApplicationShutdownHook] [requestId=N/A] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-08-11 21:48:20.642 INFO  [SpringApplicationShutdownHook] [requestId=N/A] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-08-11 21:48:23.824 INFO  [restartedMain] [requestId=N/A] c.r.bencolapp.BencolAppApplication - Starting BencolAppApplication using Java 21.0.7 with PID 6880 (C:\Users\WILDER\OneDrive\Escritorio\bencol-app\bencol\target\classes started by WILDER in C:\Users\WILDER\OneDrive\Escritorio\bencol-app\bencol)
+2026-08-11 21:48:23.826 DEBUG [restartedMain] [requestId=N/A] c.r.bencolapp.BencolAppApplication - Running with Spring Boot v4.1.0, Spring v7.0.8
+2026-08-11 21:48:23.827 INFO  [restartedMain] [requestId=N/A] c.r.bencolapp.BencolAppApplication - The following 1 profile is active: "dev"
+2026-08-11 21:48:23.862 INFO  [restartedMain] [requestId=N/A] o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-08-11 21:48:23.862 INFO  [restartedMain] [requestId=N/A] o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-08-11 21:48:24.473 INFO  [restartedMain] [requestId=N/A] o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-08-11 21:48:24.619 INFO  [restartedMain] [requestId=N/A] o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 139 ms. Found 21 JPA repository interfaces.
+2026-08-11 21:48:25.073 INFO  [restartedMain] [requestId=N/A] o.s.boot.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-08-11 21:48:25.088 INFO  [restartedMain] [requestId=N/A] o.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-08-11 21:48:25.088 INFO  [restartedMain] [requestId=N/A] org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.22]
+2026-08-11 21:48:25.131 INFO  [restartedMain] [requestId=N/A] o.s.b.w.c.s.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 1268 ms
+2026-08-11 21:48:25.168 DEBUG [restartedMain] [requestId=N/A] c.r.b.utils.logging.RequestIdFilter - Filter 'requestIdFilter' configured for use
+2026-08-11 21:48:25.374 INFO  [restartedMain] [requestId=N/A] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-08-11 21:48:25.494 INFO  [restartedMain] [requestId=N/A] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@78ae6c90
+2026-08-11 21:48:25.496 INFO  [restartedMain] [requestId=N/A] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-08-11 21:48:25.521 INFO  [restartedMain] [requestId=N/A] org.flywaydb.core.FlywayExecutor - Database: jdbc:mysql://localhost:3306/bencol_system?useSSL=false&serverTimezone=America/Lima&allowPublicKeyRetrieval=true (MySQL 8.0)
+2026-08-11 21:48:25.576 INFO  [restartedMain] [requestId=N/A] o.f.core.internal.command.DbValidate - Successfully validated 3 migrations (execution time 00:00.023s)
+2026-08-11 21:48:25.588 INFO  [restartedMain] [requestId=N/A] o.f.core.internal.command.DbMigrate - Current version of schema `bencol_system`: 3
+2026-08-11 21:48:25.591 INFO  [restartedMain] [requestId=N/A] o.f.core.internal.command.DbMigrate - Schema `bencol_system` is up to date. No migration necessary.
+2026-08-11 21:48:25.700 INFO  [restartedMain] [requestId=N/A] org.hibernate.orm.jpa - HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-08-11 21:48:25.746 INFO  [restartedMain] [requestId=N/A] org.hibernate.orm.core - HHH000001: Hibernate ORM core version 7.4.1.Final
+2026-08-11 21:48:26.129 INFO  [restartedMain] [requestId=N/A] o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-08-11 21:48:26.199 INFO  [restartedMain] [requestId=N/A] org.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [jdbc:mysql://localhost:3306/bencol_system?useSSL=false&serverTimezone=America/Lima&allowPublicKeyRetrieval=true]
+	Database driver: MySQL Connector/J
+	Database dialect: MySQLDialect
+	Database version: 8.0.44
+	Default catalog/schema: bencol_system/undefined
+	Autocommit mode: undefined/unknown
+	Isolation level: REPEATABLE_READ [default REPEATABLE_READ]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-08-11 21:48:27.222 INFO  [restartedMain] [requestId=N/A] org.hibernate.orm.core - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-08-11 21:48:27.263 INFO  [restartedMain] [requestId=N/A] o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-08-11 21:48:27.327 INFO  [restartedMain] [requestId=N/A] o.s.d.j.r.query.QueryEnhancerFactories - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-08-11 21:48:29.524 INFO  [restartedMain] [requestId=N/A] o.s.boot.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-08-11 21:48:29.529 INFO  [restartedMain] [requestId=N/A] c.r.bencolapp.BencolAppApplication - Started BencolAppApplication in 6.235 seconds (process running for 6.718)
+2026-08-11 21:48:29.584 DEBUG [restartedMain] [requestId=N/A] org.hibernate.SQL - 
+    select
+        count(*) 
+    from
+        usuarios u1_0
+2026-08-11 21:49:04.107 INFO  [http-nio-8080-exec-1] [requestId=N/A] o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-08-11 21:49:04.107 INFO  [http-nio-8080-exec-1] [requestId=N/A] o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-08-11 21:49:04.109 INFO  [http-nio-8080-exec-1] [requestId=N/A] o.s.web.servlet.DispatcherServlet - Completed initialization in 2 ms
+2026-08-11 21:49:04.219 DEBUG [http-nio-8080-exec-1] [requestId=9039b278-8e0e-44ae-820c-393730d8fd07] org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.email,
+        u1_0.estado,
+        u1_0.fecha_actualizacion,
+        u1_0.fecha_creacion,
+        u1_0.password,
+        u1_0.rol,
+        u1_0.username 
+    from
+        usuarios u1_0 
+    where
+        u1_0.username=?
+2026-08-11 21:49:04.220 TRACE [http-nio-8080-exec-1] [requestId=9039b278-8e0e-44ae-820c-393730d8fd07] org.hibernate.orm.jdbc.bind - binding parameter (1:VARCHAR) <- [adminbencol]
+2026-08-11 21:49:31.932 DEBUG [http-nio-8080-exec-2] [requestId=c18d137d-90f7-40b0-a303-138f9b20763c] org.hibernate.SQL - 
+    select
+        c1_0.id,
+        c1_0.categoria,
+        c1_0.direccion,
+        c1_0.email,
+        c1_0.estado,
+        c1_0.nombre,
+        c1_0.telefono 
+    from
+        clients c1_0 
+    where
+        c1_0.id=?
+2026-08-11 21:49:31.933 TRACE [http-nio-8080-exec-2] [requestId=c18d137d-90f7-40b0-a303-138f9b20763c] org.hibernate.orm.jdbc.bind - binding parameter (1:BIGINT) <- [1]
+2026-08-11 21:49:31.939 DEBUG [http-nio-8080-exec-2] [requestId=c18d137d-90f7-40b0-a303-138f9b20763c] org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.categoria,
+        p1_0.codigo,
+        p1_0.contenido,
+        p1_0.descripcion,
+        p1_0.estado,
+        p1_0.precio_base,
+        p1_0.unidad_medida,
+        p1_0.unidades_por_paquete 
+    from
+        productos p1_0 
+    where
+        p1_0.id=?
+2026-08-11 21:49:31.941 TRACE [http-nio-8080-exec-2] [requestId=c18d137d-90f7-40b0-a303-138f9b20763c] org.hibernate.orm.jdbc.bind - binding parameter (1:BIGINT) <- [1]
+2026-08-11 21:49:31.957 DEBUG [http-nio-8080-exec-2] [requestId=c18d137d-90f7-40b0-a303-138f9b20763c] org.hibernate.SQL - 
+    select
+        cec1_0.id,
+        cec1_0.cantidad_prestados,
+        cec1_0.cantidad_propios,
+        cec1_0.cliente_id,
+        cec1_0.fecha_actualizacion,
+        cec1_0.fecha_creacion,
+        cec1_0.producto_id 
+    from
+        cuentas_envases_clientes cec1_0 
+    where
+        cec1_0.cliente_id=? 
+        and cec1_0.producto_id=? 
+    for
+        updateof cec1_0
+2026-08-11 21:49:31.958 TRACE [http-nio-8080-exec-2] [requestId=c18d137d-90f7-40b0-a303-138f9b20763c] org.hibernate.orm.jdbc.bind - binding parameter (1:BIGINT) <- [1]
+2026-08-11 21:49:31.958 TRACE [http-nio-8080-exec-2] [requestId=c18d137d-90f7-40b0-a303-138f9b20763c] org.hibernate.orm.jdbc.bind - binding parameter (2:BIGINT) <- [1]
+2026-08-11 21:49:31.976 DEBUG [http-nio-8080-exec-2] [requestId=c18d137d-90f7-40b0-a303-138f9b20763c] org.hibernate.SQL - 
+    insert 
+    into
+        cuentas_envases_clientes
+        (cantidad_prestados, cantidad_propios, cliente_id, fecha_actualizacion, fecha_creacion, producto_id) 
+    values
+        (?, ?, ?, ?, ?, ?)
+2026-08-11 21:49:31.978 TRACE [http-nio-8080-exec-2] [requestId=c18d137d-90f7-40b0-a303-138f9b20763c] org.hibernate.orm.jdbc.bind - binding parameter (1:INTEGER) <- [0]
+2026-08-11 21:49:31.978 TRACE [http-nio-8080-exec-2] [requestId=c18d137d-90f7-40b0-a303-138f9b20763c] org.hibernate.orm.jdbc.bind - binding parameter (2:INTEGER) <- [0]
+2026-08-11 21:49:31.978 TRACE [http-nio-8080-exec-2] [requestId=c18d137d-90f7-40b0-a303-138f9b20763c] org.hibernate.orm.jdbc.bind - binding parameter (3:BIGINT) <- [1]
+2026-08-11 21:49:31.978 TRACE [http-nio-8080-exec-2] [requestId=c18d137d-90f7-40b0-a303-138f9b20763c] org.hibernate.orm.jdbc.bind - binding parameter (4:TIMESTAMP) <- [null]
+2026-08-11 21:49:31.978 TRACE [http-nio-8080-exec-2] [requestId=c18d137d-90f7-40b0-a303-138f9b20763c] org.hibernate.orm.jdbc.bind - binding parameter (5:TIMESTAMP) <- [2026-08-11T21:49:31.965633100]
+2026-08-11 21:49:31.979 TRACE [http-nio-8080-exec-2] [requestId=c18d137d-90f7-40b0-a303-138f9b20763c] org.hibernate.orm.jdbc.bind - binding parameter (6:BIGINT) <- [1]
+2026-08-11 21:49:31.990 DEBUG [http-nio-8080-exec-2] [requestId=c18d137d-90f7-40b0-a303-138f9b20763c] org.hibernate.SQL - 
+    insert 
+    into
+        movimientos_envases
+        (cantidad, cuenta_envase_id, fecha_movimiento, referencia, registrado_por, tipo_movimiento) 
+    values
+        (?, ?, ?, ?, ?, ?)
+2026-08-11 21:49:31.990 TRACE [http-nio-8080-exec-2] [requestId=c18d137d-90f7-40b0-a303-138f9b20763c] org.hibernate.orm.jdbc.bind - binding parameter (1:INTEGER) <- [15]
+2026-08-11 21:49:31.990 TRACE [http-nio-8080-exec-2] [requestId=c18d137d-90f7-40b0-a303-138f9b20763c] org.hibernate.orm.jdbc.bind - binding parameter (2:BIGINT) <- [1]
+2026-08-11 21:49:31.990 TRACE [http-nio-8080-exec-2] [requestId=c18d137d-90f7-40b0-a303-138f9b20763c] org.hibernate.orm.jdbc.bind - binding parameter (3:TIMESTAMP) <- [2026-08-11T21:49:31.989678500]
+2026-08-11 21:49:31.990 TRACE [http-nio-8080-exec-2] [requestId=c18d137d-90f7-40b0-a303-138f9b20763c] org.hibernate.orm.jdbc.bind - binding parameter (4:VARCHAR) <- [Préstamo inicial de bidones]
+2026-08-11 21:49:31.991 TRACE [http-nio-8080-exec-2] [requestId=c18d137d-90f7-40b0-a303-138f9b20763c] org.hibernate.orm.jdbc.bind - binding parameter (5:VARCHAR) <- [adminbencol]
+2026-08-11 21:49:31.991 TRACE [http-nio-8080-exec-2] [requestId=c18d137d-90f7-40b0-a303-138f9b20763c] org.hibernate.orm.jdbc.bind - binding parameter (6:ENUM) <- [PRESTAMO]
+2026-08-11 21:49:31.999 DEBUG [http-nio-8080-exec-2] [requestId=c18d137d-90f7-40b0-a303-138f9b20763c] org.hibernate.SQL - 
+    update
+        cuentas_envases_clientes 
+    set
+        cantidad_prestados=?,
+        cantidad_propios=?,
+        cliente_id=?,
+        fecha_actualizacion=?,
+        fecha_creacion=?,
+        producto_id=? 
+    where
+        id=?
+2026-08-11 21:49:32.000 TRACE [http-nio-8080-exec-2] [requestId=c18d137d-90f7-40b0-a303-138f9b20763c] org.hibernate.orm.jdbc.bind - binding parameter (1:INTEGER) <- [15]
+2026-08-11 21:49:32.000 TRACE [http-nio-8080-exec-2] [requestId=c18d137d-90f7-40b0-a303-138f9b20763c] org.hibernate.orm.jdbc.bind - binding parameter (2:INTEGER) <- [0]
+2026-08-11 21:49:32.000 TRACE [http-nio-8080-exec-2] [requestId=c18d137d-90f7-40b0-a303-138f9b20763c] org.hibernate.orm.jdbc.bind - binding parameter (3:BIGINT) <- [1]
+2026-08-11 21:49:32.000 TRACE [http-nio-8080-exec-2] [requestId=c18d137d-90f7-40b0-a303-138f9b20763c] org.hibernate.orm.jdbc.bind - binding parameter (4:TIMESTAMP) <- [2026-08-11T21:49:31.995202700]
+2026-08-11 21:49:32.000 TRACE [http-nio-8080-exec-2] [requestId=c18d137d-90f7-40b0-a303-138f9b20763c] org.hibernate.orm.jdbc.bind - binding parameter (5:TIMESTAMP) <- [2026-08-11T21:49:31.965633100]
+2026-08-11 21:49:32.000 TRACE [http-nio-8080-exec-2] [requestId=c18d137d-90f7-40b0-a303-138f9b20763c] org.hibernate.orm.jdbc.bind - binding parameter (6:BIGINT) <- [1]
+2026-08-11 21:49:32.000 TRACE [http-nio-8080-exec-2] [requestId=c18d137d-90f7-40b0-a303-138f9b20763c] org.hibernate.orm.jdbc.bind - binding parameter (7:BIGINT) <- [1]
+2026-08-11 21:50:01.439 DEBUG [http-nio-8080-exec-4] [requestId=d61b58e7-adf0-4abc-b201-6dd6f882dcdb] org.hibernate.SQL - 
+    select
+        c1_0.id,
+        c1_0.categoria,
+        c1_0.direccion,
+        c1_0.email,
+        c1_0.estado,
+        c1_0.nombre,
+        c1_0.telefono 
+    from
+        clients c1_0 
+    where
+        c1_0.id=?
+2026-08-11 21:50:01.439 TRACE [http-nio-8080-exec-4] [requestId=d61b58e7-adf0-4abc-b201-6dd6f882dcdb] org.hibernate.orm.jdbc.bind - binding parameter (1:BIGINT) <- [1]
+2026-08-11 21:50:01.440 DEBUG [http-nio-8080-exec-4] [requestId=d61b58e7-adf0-4abc-b201-6dd6f882dcdb] org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.categoria,
+        p1_0.codigo,
+        p1_0.contenido,
+        p1_0.descripcion,
+        p1_0.estado,
+        p1_0.precio_base,
+        p1_0.unidad_medida,
+        p1_0.unidades_por_paquete 
+    from
+        productos p1_0 
+    where
+        p1_0.id=?
+2026-08-11 21:50:01.440 TRACE [http-nio-8080-exec-4] [requestId=d61b58e7-adf0-4abc-b201-6dd6f882dcdb] org.hibernate.orm.jdbc.bind - binding parameter (1:BIGINT) <- [1]
+2026-08-11 21:50:01.443 DEBUG [http-nio-8080-exec-4] [requestId=d61b58e7-adf0-4abc-b201-6dd6f882dcdb] org.hibernate.SQL - 
+    select
+        cec1_0.id,
+        cec1_0.cantidad_prestados,
+        cec1_0.cantidad_propios,
+        cec1_0.cliente_id,
+        cec1_0.fecha_actualizacion,
+        cec1_0.fecha_creacion,
+        cec1_0.producto_id 
+    from
+        cuentas_envases_clientes cec1_0 
+    where
+        cec1_0.cliente_id=? 
+        and cec1_0.producto_id=? 
+    for
+        updateof cec1_0
+2026-08-11 21:50:01.444 TRACE [http-nio-8080-exec-4] [requestId=d61b58e7-adf0-4abc-b201-6dd6f882dcdb] org.hibernate.orm.jdbc.bind - binding parameter (1:BIGINT) <- [1]
+2026-08-11 21:50:01.444 TRACE [http-nio-8080-exec-4] [requestId=d61b58e7-adf0-4abc-b201-6dd6f882dcdb] org.hibernate.orm.jdbc.bind - binding parameter (2:BIGINT) <- [1]
+2026-08-11 21:50:01.446 DEBUG [http-nio-8080-exec-4] [requestId=d61b58e7-adf0-4abc-b201-6dd6f882dcdb] org.hibernate.SQL - 
+    insert 
+    into
+        movimientos_envases
+        (cantidad, cuenta_envase_id, fecha_movimiento, referencia, registrado_por, tipo_movimiento) 
+    values
+        (?, ?, ?, ?, ?, ?)
+2026-08-11 21:50:01.446 TRACE [http-nio-8080-exec-4] [requestId=d61b58e7-adf0-4abc-b201-6dd6f882dcdb] org.hibernate.orm.jdbc.bind - binding parameter (1:INTEGER) <- [15]
+2026-08-11 21:50:01.446 TRACE [http-nio-8080-exec-4] [requestId=d61b58e7-adf0-4abc-b201-6dd6f882dcdb] org.hibernate.orm.jdbc.bind - binding parameter (2:BIGINT) <- [1]
+2026-08-11 21:50:01.446 TRACE [http-nio-8080-exec-4] [requestId=d61b58e7-adf0-4abc-b201-6dd6f882dcdb] org.hibernate.orm.jdbc.bind - binding parameter (3:TIMESTAMP) <- [2026-08-11T21:50:01.446323]
+2026-08-11 21:50:01.447 TRACE [http-nio-8080-exec-4] [requestId=d61b58e7-adf0-4abc-b201-6dd6f882dcdb] org.hibernate.orm.jdbc.bind - binding parameter (4:VARCHAR) <- [Intercambio de 15 bidones]
+2026-08-11 21:50:01.447 TRACE [http-nio-8080-exec-4] [requestId=d61b58e7-adf0-4abc-b201-6dd6f882dcdb] org.hibernate.orm.jdbc.bind - binding parameter (5:VARCHAR) <- [adminbencol]
+2026-08-11 21:50:01.447 TRACE [http-nio-8080-exec-4] [requestId=d61b58e7-adf0-4abc-b201-6dd6f882dcdb] org.hibernate.orm.jdbc.bind - binding parameter (6:ENUM) <- [INTERCAMBIO]
+2026-08-11 21:50:01.820 WARN  [http-nio-8080-exec-4] [requestId=d61b58e7-adf0-4abc-b201-6dd6f882dcdb] org.hibernate.orm.jdbc.error - HHH000247: ErrorCode: 1265, SQLState: 01000
+2026-08-11 21:50:01.822 WARN  [http-nio-8080-exec-4] [requestId=d61b58e7-adf0-4abc-b201-6dd6f882dcdb] org.hibernate.orm.jdbc.error - Data truncated for column 'tipo_movimiento' at row 1
+2026-08-11 21:50:01.829 ERROR [http-nio-8080-exec-4] [requestId=d61b58e7-adf0-4abc-b201-6dd6f882dcdb] c.r.b.u.e.GlobalExceptionHandler - Error interno no controlado. path=/bencol.agua/envases/movimientos
+org.springframework.orm.jpa.JpaSystemException: could not execute statement [Data truncated for column 'tipo_movimiento' at row 1] [insert into movimientos_envases (cantidad,cuenta_envase_id,fecha_movimiento,referencia,registrado_por,tipo_movimiento) values (?,?,?,?,?,?)]
+	at org.springframework.orm.jpa.hibernate.HibernateExceptionTranslator.convertHibernateAccessException(HibernateExceptionTranslator.java:223)
+	at org.springframework.orm.jpa.hibernate.HibernateExceptionTranslator.convertHibernateAccessException(HibernateExceptionTranslator.java:131)
+	at org.springframework.orm.jpa.hibernate.HibernateExceptionTranslator.translateExceptionIfPossible(HibernateExceptionTranslator.java:105)
+	at org.springframework.orm.jpa.vendor.HibernateJpaDialect.translateExceptionIfPossible(HibernateJpaDialect.java:223)
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.translateExceptionIfPossible(AbstractEntityManagerFactoryBean.java:577)
+	at org.springframework.dao.support.ChainedPersistenceExceptionTranslator.translateExceptionIfPossible(ChainedPersistenceExceptionTranslator.java:61)
+	at org.springframework.dao.support.DataAccessUtils.translateIfNecessary(DataAccessUtils.java:346)
+	at org.springframework.dao.support.PersistenceExceptionTranslationInterceptor.invoke(PersistenceExceptionTranslationInterceptor.java:157)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:179)
+	at org.springframework.data.jpa.repository.support.CrudMethodMetadataPostProcessor$CrudMethodMetadataPopulatingMethodInterceptor.invoke(CrudMethodMetadataPostProcessor.java:166)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:179)
+	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:222)
+	at jdk.proxy4/jdk.proxy4.$Proxy164.save(Unknown Source)
+	at com.runicsoft.bencolapp.envases.service.EnvaseServiceImpl.registrarHistorial(EnvaseServiceImpl.java:199)
+	at com.runicsoft.bencolapp.envases.service.EnvaseServiceImpl.registrarMovimiento(EnvaseServiceImpl.java:107)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:359)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:190)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:158)
+	at org.springframework.transaction.interceptor.TransactionInterceptor$1.proceedWithInvocation(TransactionInterceptor.java:133)
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.invokeWithinTransaction(TransactionAspectSupport.java:371)
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:130)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:179)
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:719)
+	at com.runicsoft.bencolapp.envases.service.EnvaseServiceImpl$$SpringCGLIB$$0.registrarMovimiento(<generated>)
+	at com.runicsoft.bencolapp.envases.controller.EnvaseController.registrarMovimiento(EnvaseController.java:47)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:252)
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:184)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:117)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:934)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:853)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:86)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:963)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:866)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1000)
+	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:903)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:649)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:874)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:710)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:128)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at com.runicsoft.bencolapp.utils.logging.RequestIdFilter.doFilterInternal(RequestIdFilter.java:35)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108)
+	at org.springframework.security.web.FilterChainProxy.lambda$doFilterInternal$2(FilterChainProxy.java:235)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:376)
+	at org.springframework.security.web.access.intercept.AuthorizationFilter.doFilter(AuthorizationFilter.java:101)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:126)
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:120)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:132)
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:86)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:100)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:181)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter.doFilterInternal(BearerTokenAuthenticationFilter.java:207)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.oauth2.server.resource.web.OAuth2ProtectedResourceMetadataFilter.doFilterInternal(OAuth2ProtectedResourceMetadataFilter.java:98)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:110)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:96)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90)
+	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:237)
+	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:195)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.filter.ServletRequestPathFilter.doFilter(ServletRequestPathFilter.java:52)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74)
+	at org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebSecurityConfiguration.java:317)
+	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:355)
+	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:272)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:199)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:165)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:77)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:492)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:113)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:83)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:72)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:341)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:397)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:1272)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1801)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:946)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:480)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:57)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: org.hibernate.exception.GenericJDBCException: could not execute statement [Data truncated for column 'tipo_movimiento' at row 1] [insert into movimientos_envases (cantidad,cuenta_envase_id,fecha_movimiento,referencia,registrado_por,tipo_movimiento) values (?,?,?,?,?,?)]
+	at org.hibernate.exception.internal.StandardSQLExceptionConverter.convert(StandardSQLExceptionConverter.java:39)
+	at org.hibernate.engine.jdbc.spi.SqlExceptionHelper.convert(SqlExceptionHelper.java:115)
+	at org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.executeUpdate(ResultSetReturnImpl.java:189)
+	at org.hibernate.id.insert.GetGeneratedKeysDelegate.performMutation(GetGeneratedKeysDelegate.java:96)
+	at org.hibernate.engine.jdbc.mutation.internal.MutationExecutorSingleNonBatched.performNonBatchedOperations(MutationExecutorSingleNonBatched.java:45)
+	at org.hibernate.engine.jdbc.mutation.internal.AbstractMutationExecutor.execute(AbstractMutationExecutor.java:65)
+	at org.hibernate.engine.jdbc.mutation.internal.AbstractMutationExecutor.execute(AbstractMutationExecutor.java:54)
+	at org.hibernate.persister.entity.mutation.InsertCoordinatorStandard.doStaticInserts(InsertCoordinatorStandard.java:183)
+	at org.hibernate.persister.entity.mutation.InsertCoordinatorStandard.coordinateInsert(InsertCoordinatorStandard.java:123)
+	at org.hibernate.persister.entity.mutation.InsertCoordinatorStandard.insert(InsertCoordinatorStandard.java:87)
+	at org.hibernate.action.internal.EntityIdentityInsertAction.execute(EntityIdentityInsertAction.java:87)
+	at org.hibernate.engine.spi.ActionQueue.execute(ActionQueue.java:667)
+	at org.hibernate.engine.spi.ActionQueue.addResolvedEntityInsertAction(ActionQueue.java:291)
+	at org.hibernate.engine.spi.ActionQueue.addInsertAction(ActionQueue.java:270)
+	at org.hibernate.engine.spi.ActionQueue.addAction(ActionQueue.java:322)
+	at org.hibernate.event.internal.AbstractSaveEventListener.addInsertAction(AbstractSaveEventListener.java:384)
+	at org.hibernate.event.internal.AbstractSaveEventListener.performSaveOrReplicate(AbstractSaveEventListener.java:298)
+	at org.hibernate.event.internal.AbstractSaveEventListener.performSave(AbstractSaveEventListener.java:228)
+	at org.hibernate.event.internal.AbstractSaveEventListener.saveWithGeneratedId(AbstractSaveEventListener.java:144)
+	at org.hibernate.event.internal.DefaultPersistEventListener.entityIsTransient(DefaultPersistEventListener.java:144)
+	at org.hibernate.event.internal.DefaultPersistEventListener.persist(DefaultPersistEventListener.java:91)
+	at org.hibernate.event.internal.DefaultPersistEventListener.onPersist(DefaultPersistEventListener.java:75)
+	at org.hibernate.event.internal.DefaultPersistEventListener.onPersist(DefaultPersistEventListener.java:51)
+	at org.hibernate.event.service.internal.EventListenerGroupImpl.fireEventOnEachListener(EventListenerGroupImpl.java:138)
+	at org.hibernate.internal.SessionImpl.firePersist(SessionImpl.java:695)
+	at org.hibernate.internal.SessionImpl.persist(SessionImpl.java:678)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityHandlerInvocationHandler.invokeMethod(SharedEntityManagerCreator.java:239)
+	at org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler.invoke(SharedEntityManagerCreator.java:383)
+	at jdk.proxy4/jdk.proxy4.$Proxy139.persist(Unknown Source)
+	at org.springframework.data.jpa.repository.support.SimpleJpaRepository.save(SimpleJpaRepository.java:664)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:359)
+	at org.springframework.data.repository.core.support.RepositoryMethodInvoker$RepositoryFragmentMethodInvoker.lambda$new$0(RepositoryMethodInvoker.java:278)
+	at org.springframework.data.repository.core.support.RepositoryMethodInvoker.doInvoke(RepositoryMethodInvoker.java:169)
+	at org.springframework.data.repository.core.support.RepositoryMethodInvoker.invoke(RepositoryMethodInvoker.java:158)
+	at org.springframework.data.repository.core.support.RepositoryComposition$RepositoryFragments.invoke(RepositoryComposition.java:545)
+	at org.springframework.data.repository.core.support.RepositoryComposition.invoke(RepositoryComposition.java:290)
+	at org.springframework.data.repository.core.support.RepositoryFactorySupport$ImplementationMethodExecutionInterceptor.invoke(RepositoryFactorySupport.java:690)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:179)
+	at org.springframework.data.repository.core.support.QueryExecutorMethodInterceptor.doInvoke(QueryExecutorMethodInterceptor.java:171)
+	at org.springframework.data.repository.core.support.QueryExecutorMethodInterceptor.invoke(QueryExecutorMethodInterceptor.java:146)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:179)
+	at org.springframework.data.projection.DefaultMethodInvokingMethodInterceptor.invoke(DefaultMethodInvokingMethodInterceptor.java:69)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:179)
+	at org.springframework.transaction.interceptor.TransactionInterceptor$1.proceedWithInvocation(TransactionInterceptor.java:133)
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.invokeWithinTransaction(TransactionAspectSupport.java:371)
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:130)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:179)
+	at org.springframework.dao.support.PersistenceExceptionTranslationInterceptor.invoke(PersistenceExceptionTranslationInterceptor.java:135)
+	... 114 common frames omitted
+Caused by: java.sql.SQLException: Data truncated for column 'tipo_movimiento' at row 1
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:121)
+	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:114)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeInternal(ClientPreparedStatement.java:988)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdateInternal(ClientPreparedStatement.java:1166)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdateInternal(ClientPreparedStatement.java:1101)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeLargeUpdate(ClientPreparedStatement.java:1448)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdate(ClientPreparedStatement.java:1084)
+	at com.zaxxer.hikari.pool.ProxyPreparedStatement.executeUpdate(ProxyPreparedStatement.java:61)
+	at com.zaxxer.hikari.pool.HikariProxyPreparedStatement.executeUpdate(HikariProxyPreparedStatement.java)
+	at org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.executeUpdate(ResultSetReturnImpl.java:185)
+	... 163 common frames omitted
+2026-08-11 21:50:01.835 WARN  [http-nio-8080-exec-4] [requestId=d61b58e7-adf0-4abc-b201-6dd6f882dcdb] o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - Resolved [org.springframework.orm.jpa.JpaSystemException: could not execute statement [Data truncated for column 'tipo_movimiento' at row 1] [insert into movimientos_envases (cantidad,cuenta_envase_id,fecha_movimiento,referencia,registrado_por,tipo_movimiento) values (?,?,?,?,?,?)]]
+2026-08-11 21:51:39.327 INFO  [SpringApplicationShutdownHook] [requestId=N/A] o.s.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-08-11 21:51:39.332 INFO  [tomcat-shutdown] [requestId=N/A] o.s.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-08-11 21:51:39.336 INFO  [SpringApplicationShutdownHook] [requestId=N/A] o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-08-11 21:51:39.339 INFO  [SpringApplicationShutdownHook] [requestId=N/A] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-08-11 21:51:39.344 INFO  [SpringApplicationShutdownHook] [requestId=N/A] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-08-11 21:51:55.792 INFO  [restartedMain] [requestId=N/A] c.r.bencolapp.BencolAppApplication - Starting BencolAppApplication using Java 21.0.7 with PID 5480 (C:\Users\WILDER\OneDrive\Escritorio\bencol-app\bencol\target\classes started by WILDER in C:\Users\WILDER\OneDrive\Escritorio\bencol-app\bencol)
+2026-08-11 21:51:55.794 DEBUG [restartedMain] [requestId=N/A] c.r.bencolapp.BencolAppApplication - Running with Spring Boot v4.1.0, Spring v7.0.8
+2026-08-11 21:51:55.794 INFO  [restartedMain] [requestId=N/A] c.r.bencolapp.BencolAppApplication - The following 1 profile is active: "dev"
+2026-08-11 21:51:55.829 INFO  [restartedMain] [requestId=N/A] o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-08-11 21:51:55.830 INFO  [restartedMain] [requestId=N/A] o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-08-11 21:51:56.446 INFO  [restartedMain] [requestId=N/A] o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-08-11 21:51:56.597 INFO  [restartedMain] [requestId=N/A] o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 143 ms. Found 21 JPA repository interfaces.
+2026-08-11 21:51:57.052 INFO  [restartedMain] [requestId=N/A] o.s.boot.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-08-11 21:51:57.064 INFO  [restartedMain] [requestId=N/A] o.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-08-11 21:51:57.064 INFO  [restartedMain] [requestId=N/A] org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.22]
+2026-08-11 21:51:57.104 INFO  [restartedMain] [requestId=N/A] o.s.b.w.c.s.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 1274 ms
+2026-08-11 21:51:57.139 DEBUG [restartedMain] [requestId=N/A] c.r.b.utils.logging.RequestIdFilter - Filter 'requestIdFilter' configured for use
+2026-08-11 21:51:57.323 INFO  [restartedMain] [requestId=N/A] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-08-11 21:51:57.444 INFO  [restartedMain] [requestId=N/A] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@2a57885f
+2026-08-11 21:51:57.445 INFO  [restartedMain] [requestId=N/A] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-08-11 21:51:57.471 INFO  [restartedMain] [requestId=N/A] org.flywaydb.core.FlywayExecutor - Database: jdbc:mysql://localhost:3306/bencol_system?useSSL=false&serverTimezone=America/Lima&allowPublicKeyRetrieval=true (MySQL 8.0)
+2026-08-11 21:51:57.529 INFO  [restartedMain] [requestId=N/A] o.f.core.internal.command.DbValidate - Successfully validated 4 migrations (execution time 00:00.024s)
+2026-08-11 21:51:57.542 INFO  [restartedMain] [requestId=N/A] o.f.core.internal.command.DbMigrate - Current version of schema `bencol_system`: 3
+2026-08-11 21:51:57.554 INFO  [restartedMain] [requestId=N/A] o.f.core.internal.command.DbMigrate - Migrating schema `bencol_system` to version "4 - agregar intercambio movimientos envases"
+2026-08-11 21:51:57.637 INFO  [restartedMain] [requestId=N/A] o.f.core.internal.command.DbMigrate - Successfully applied 1 migration to schema `bencol_system`, now at version v4 (execution time 00:00.067s)
+2026-08-11 21:51:57.744 INFO  [restartedMain] [requestId=N/A] org.hibernate.orm.jpa - HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-08-11 21:51:57.794 INFO  [restartedMain] [requestId=N/A] org.hibernate.orm.core - HHH000001: Hibernate ORM core version 7.4.1.Final
+2026-08-11 21:51:58.158 INFO  [restartedMain] [requestId=N/A] o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-08-11 21:51:58.228 INFO  [restartedMain] [requestId=N/A] org.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [jdbc:mysql://localhost:3306/bencol_system?useSSL=false&serverTimezone=America/Lima&allowPublicKeyRetrieval=true]
+	Database driver: MySQL Connector/J
+	Database dialect: MySQLDialect
+	Database version: 8.0.44
+	Default catalog/schema: bencol_system/undefined
+	Autocommit mode: undefined/unknown
+	Isolation level: REPEATABLE_READ [default REPEATABLE_READ]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-08-11 21:51:59.248 INFO  [restartedMain] [requestId=N/A] org.hibernate.orm.core - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-08-11 21:51:59.287 INFO  [restartedMain] [requestId=N/A] o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-08-11 21:51:59.350 INFO  [restartedMain] [requestId=N/A] o.s.d.j.r.query.QueryEnhancerFactories - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-08-11 21:52:01.499 INFO  [restartedMain] [requestId=N/A] o.s.boot.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-08-11 21:52:01.504 INFO  [restartedMain] [requestId=N/A] c.r.bencolapp.BencolAppApplication - Started BencolAppApplication in 6.213 seconds (process running for 6.707)
+2026-08-11 21:52:01.558 DEBUG [restartedMain] [requestId=N/A] org.hibernate.SQL - 
+    select
+        count(*) 
+    from
+        usuarios u1_0
+2026-08-11 21:52:06.109 INFO  [http-nio-8080-exec-1] [requestId=N/A] o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-08-11 21:52:06.109 INFO  [http-nio-8080-exec-1] [requestId=N/A] o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-08-11 21:52:06.110 INFO  [http-nio-8080-exec-1] [requestId=N/A] o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2026-08-11 21:52:06.213 DEBUG [http-nio-8080-exec-1] [requestId=d7ea908d-f09a-4f2b-bfc6-c8bdfaa7671f] org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.email,
+        u1_0.estado,
+        u1_0.fecha_actualizacion,
+        u1_0.fecha_creacion,
+        u1_0.password,
+        u1_0.rol,
+        u1_0.username 
+    from
+        usuarios u1_0 
+    where
+        u1_0.username=?
+2026-08-11 21:52:06.214 TRACE [http-nio-8080-exec-1] [requestId=d7ea908d-f09a-4f2b-bfc6-c8bdfaa7671f] org.hibernate.orm.jdbc.bind - binding parameter (1:VARCHAR) <- [adminbencol]
+2026-08-11 21:52:55.356 ERROR [http-nio-8080-exec-3] [requestId=4b37233c-276b-48b1-8404-8a59a14a7b30] c.r.b.u.e.GlobalExceptionHandler - Error interno no controlado. path=/bencol.agua/envases/movimientos
+org.springframework.web.HttpRequestMethodNotSupportedException: Request method 'GET' is not supported
+	at org.springframework.web.servlet.mvc.method.RequestMappingInfoHandlerMapping.handleNoMatch(RequestMappingInfoHandlerMapping.java:260)
+	at org.springframework.web.servlet.handler.AbstractHandlerMethodMapping.lookupHandlerMethod(AbstractHandlerMethodMapping.java:434)
+	at org.springframework.web.servlet.handler.AbstractHandlerMethodMapping.getHandlerInternal(AbstractHandlerMethodMapping.java:376)
+	at org.springframework.web.servlet.mvc.method.RequestMappingInfoHandlerMapping.getHandlerInternal(RequestMappingInfoHandlerMapping.java:116)
+	at org.springframework.web.servlet.mvc.method.RequestMappingInfoHandlerMapping.getHandlerInternal(RequestMappingInfoHandlerMapping.java:68)
+	at org.springframework.web.servlet.handler.AbstractHandlerMapping.getHandler(AbstractHandlerMapping.java:544)
+	at org.springframework.web.servlet.DispatcherServlet.getHandler(DispatcherServlet.java:1157)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:951)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:866)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1000)
+	at org.springframework.web.servlet.FrameworkServlet.doGet(FrameworkServlet.java:892)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:622)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:874)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:710)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:128)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at com.runicsoft.bencolapp.utils.logging.RequestIdFilter.doFilterInternal(RequestIdFilter.java:35)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108)
+	at org.springframework.security.web.FilterChainProxy.lambda$doFilterInternal$2(FilterChainProxy.java:235)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:376)
+	at org.springframework.security.web.access.intercept.AuthorizationFilter.doFilter(AuthorizationFilter.java:101)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:126)
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:120)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:132)
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:86)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:100)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:181)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter.doFilterInternal(BearerTokenAuthenticationFilter.java:207)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.oauth2.server.resource.web.OAuth2ProtectedResourceMetadataFilter.doFilterInternal(OAuth2ProtectedResourceMetadataFilter.java:98)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:110)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:96)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90)
+	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:237)
+	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:195)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.filter.ServletRequestPathFilter.doFilter(ServletRequestPathFilter.java:52)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74)
+	at org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebSecurityConfiguration.java:317)
+	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:355)
+	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:272)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:199)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:165)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:77)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:492)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:113)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:83)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:72)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:341)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:397)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:1272)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1801)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:946)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:480)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:57)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2026-08-11 21:52:55.363 WARN  [http-nio-8080-exec-3] [requestId=4b37233c-276b-48b1-8404-8a59a14a7b30] o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - Resolved [org.springframework.web.HttpRequestMethodNotSupportedException: Request method 'GET' is not supported]
+2026-08-11 21:53:11.418 DEBUG [http-nio-8080-exec-5] [requestId=4a34f459-d905-46bb-87bd-f25ce8518eec] org.hibernate.SQL - 
+    select
+        cec1_0.id,
+        cec1_0.cantidad_prestados,
+        cec1_0.cantidad_propios,
+        cec1_0.cliente_id,
+        cec1_0.fecha_actualizacion,
+        cec1_0.fecha_creacion,
+        cec1_0.producto_id 
+    from
+        cuentas_envases_clientes cec1_0
+2026-08-11 21:53:11.425 DEBUG [http-nio-8080-exec-5] [requestId=4a34f459-d905-46bb-87bd-f25ce8518eec] org.hibernate.SQL - 
+    select
+        c1_0.id,
+        c1_0.categoria,
+        c1_0.direccion,
+        c1_0.email,
+        c1_0.estado,
+        c1_0.nombre,
+        c1_0.telefono 
+    from
+        clients c1_0 
+    where
+        c1_0.id=?
+2026-08-11 21:53:11.425 TRACE [http-nio-8080-exec-5] [requestId=4a34f459-d905-46bb-87bd-f25ce8518eec] org.hibernate.orm.jdbc.bind - binding parameter (1:BIGINT) <- [1]
+2026-08-11 21:53:11.427 DEBUG [http-nio-8080-exec-5] [requestId=4a34f459-d905-46bb-87bd-f25ce8518eec] org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.categoria,
+        p1_0.codigo,
+        p1_0.contenido,
+        p1_0.descripcion,
+        p1_0.estado,
+        p1_0.precio_base,
+        p1_0.unidad_medida,
+        p1_0.unidades_por_paquete 
+    from
+        productos p1_0 
+    where
+        p1_0.id=?
+2026-08-11 21:53:11.427 TRACE [http-nio-8080-exec-5] [requestId=4a34f459-d905-46bb-87bd-f25ce8518eec] org.hibernate.orm.jdbc.bind - binding parameter (1:BIGINT) <- [1]
+2026-08-11 21:53:35.964 DEBUG [http-nio-8080-exec-6] [requestId=ab76ee42-f0b3-4523-bb66-4798c322804e] org.hibernate.SQL - 
+    select
+        c1_0.id,
+        c1_0.categoria,
+        c1_0.direccion,
+        c1_0.email,
+        c1_0.estado,
+        c1_0.nombre,
+        c1_0.telefono 
+    from
+        clients c1_0 
+    where
+        c1_0.id=?
+2026-08-11 21:53:35.965 TRACE [http-nio-8080-exec-6] [requestId=ab76ee42-f0b3-4523-bb66-4798c322804e] org.hibernate.orm.jdbc.bind - binding parameter (1:BIGINT) <- [1]
+2026-08-11 21:53:35.969 DEBUG [http-nio-8080-exec-6] [requestId=ab76ee42-f0b3-4523-bb66-4798c322804e] org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.categoria,
+        p1_0.codigo,
+        p1_0.contenido,
+        p1_0.descripcion,
+        p1_0.estado,
+        p1_0.precio_base,
+        p1_0.unidad_medida,
+        p1_0.unidades_por_paquete 
+    from
+        productos p1_0 
+    where
+        p1_0.id=?
+2026-08-11 21:53:35.970 TRACE [http-nio-8080-exec-6] [requestId=ab76ee42-f0b3-4523-bb66-4798c322804e] org.hibernate.orm.jdbc.bind - binding parameter (1:BIGINT) <- [1]
+2026-08-11 21:53:35.984 DEBUG [http-nio-8080-exec-6] [requestId=ab76ee42-f0b3-4523-bb66-4798c322804e] org.hibernate.SQL - 
+    select
+        cec1_0.id,
+        cec1_0.cantidad_prestados,
+        cec1_0.cantidad_propios,
+        cec1_0.cliente_id,
+        cec1_0.fecha_actualizacion,
+        cec1_0.fecha_creacion,
+        cec1_0.producto_id 
+    from
+        cuentas_envases_clientes cec1_0 
+    where
+        cec1_0.cliente_id=? 
+        and cec1_0.producto_id=? 
+    for
+        updateof cec1_0
+2026-08-11 21:53:35.984 TRACE [http-nio-8080-exec-6] [requestId=ab76ee42-f0b3-4523-bb66-4798c322804e] org.hibernate.orm.jdbc.bind - binding parameter (1:BIGINT) <- [1]
+2026-08-11 21:53:35.985 TRACE [http-nio-8080-exec-6] [requestId=ab76ee42-f0b3-4523-bb66-4798c322804e] org.hibernate.orm.jdbc.bind - binding parameter (2:BIGINT) <- [1]
+2026-08-11 21:53:36.001 DEBUG [http-nio-8080-exec-6] [requestId=ab76ee42-f0b3-4523-bb66-4798c322804e] org.hibernate.SQL - 
+    insert 
+    into
+        movimientos_envases
+        (cantidad, cuenta_envase_id, fecha_movimiento, referencia, registrado_por, tipo_movimiento) 
+    values
+        (?, ?, ?, ?, ?, ?)
+2026-08-11 21:53:36.003 TRACE [http-nio-8080-exec-6] [requestId=ab76ee42-f0b3-4523-bb66-4798c322804e] org.hibernate.orm.jdbc.bind - binding parameter (1:INTEGER) <- [15]
+2026-08-11 21:53:36.003 TRACE [http-nio-8080-exec-6] [requestId=ab76ee42-f0b3-4523-bb66-4798c322804e] org.hibernate.orm.jdbc.bind - binding parameter (2:BIGINT) <- [1]
+2026-08-11 21:53:36.003 TRACE [http-nio-8080-exec-6] [requestId=ab76ee42-f0b3-4523-bb66-4798c322804e] org.hibernate.orm.jdbc.bind - binding parameter (3:TIMESTAMP) <- [2026-08-11T21:53:35.992795800]
+2026-08-11 21:53:36.003 TRACE [http-nio-8080-exec-6] [requestId=ab76ee42-f0b3-4523-bb66-4798c322804e] org.hibernate.orm.jdbc.bind - binding parameter (4:VARCHAR) <- [Intercambio de 15 bidones]
+2026-08-11 21:53:36.003 TRACE [http-nio-8080-exec-6] [requestId=ab76ee42-f0b3-4523-bb66-4798c322804e] org.hibernate.orm.jdbc.bind - binding parameter (5:VARCHAR) <- [adminbencol]
+2026-08-11 21:53:36.003 TRACE [http-nio-8080-exec-6] [requestId=ab76ee42-f0b3-4523-bb66-4798c322804e] org.hibernate.orm.jdbc.bind - binding parameter (6:ENUM) <- [INTERCAMBIO]
+2026-08-11 21:54:00.213 DEBUG [http-nio-8080-exec-7] [requestId=ff02b128-bd45-4f3f-a144-8740b5482456] org.hibernate.SQL - 
+    select
+        cec1_0.id,
+        cec1_0.cantidad_prestados,
+        cec1_0.cantidad_propios,
+        cec1_0.cliente_id,
+        cec1_0.fecha_actualizacion,
+        cec1_0.fecha_creacion,
+        cec1_0.producto_id 
+    from
+        cuentas_envases_clientes cec1_0
+2026-08-11 21:54:00.214 DEBUG [http-nio-8080-exec-7] [requestId=ff02b128-bd45-4f3f-a144-8740b5482456] org.hibernate.SQL - 
+    select
+        c1_0.id,
+        c1_0.categoria,
+        c1_0.direccion,
+        c1_0.email,
+        c1_0.estado,
+        c1_0.nombre,
+        c1_0.telefono 
+    from
+        clients c1_0 
+    where
+        c1_0.id=?
+2026-08-11 21:54:00.214 TRACE [http-nio-8080-exec-7] [requestId=ff02b128-bd45-4f3f-a144-8740b5482456] org.hibernate.orm.jdbc.bind - binding parameter (1:BIGINT) <- [1]
+2026-08-11 21:54:00.215 DEBUG [http-nio-8080-exec-7] [requestId=ff02b128-bd45-4f3f-a144-8740b5482456] org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.categoria,
+        p1_0.codigo,
+        p1_0.contenido,
+        p1_0.descripcion,
+        p1_0.estado,
+        p1_0.precio_base,
+        p1_0.unidad_medida,
+        p1_0.unidades_por_paquete 
+    from
+        productos p1_0 
+    where
+        p1_0.id=?
+2026-08-11 21:54:00.215 TRACE [http-nio-8080-exec-7] [requestId=ff02b128-bd45-4f3f-a144-8740b5482456] org.hibernate.orm.jdbc.bind - binding parameter (1:BIGINT) <- [1]
+2026-08-11 21:54:25.290 ERROR [http-nio-8080-exec-8] [requestId=4674304f-c5f0-425b-8976-8559d7bb1d05] c.r.b.u.e.GlobalExceptionHandler - Error interno no controlado. path=/bencol.agua/envases/movimientos
+org.springframework.web.HttpRequestMethodNotSupportedException: Request method 'GET' is not supported
+	at org.springframework.web.servlet.mvc.method.RequestMappingInfoHandlerMapping.handleNoMatch(RequestMappingInfoHandlerMapping.java:260)
+	at org.springframework.web.servlet.handler.AbstractHandlerMethodMapping.lookupHandlerMethod(AbstractHandlerMethodMapping.java:434)
+	at org.springframework.web.servlet.handler.AbstractHandlerMethodMapping.getHandlerInternal(AbstractHandlerMethodMapping.java:376)
+	at org.springframework.web.servlet.mvc.method.RequestMappingInfoHandlerMapping.getHandlerInternal(RequestMappingInfoHandlerMapping.java:116)
+	at org.springframework.web.servlet.mvc.method.RequestMappingInfoHandlerMapping.getHandlerInternal(RequestMappingInfoHandlerMapping.java:68)
+	at org.springframework.web.servlet.handler.AbstractHandlerMapping.getHandler(AbstractHandlerMapping.java:544)
+	at org.springframework.web.servlet.DispatcherServlet.getHandler(DispatcherServlet.java:1157)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:951)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:866)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1000)
+	at org.springframework.web.servlet.FrameworkServlet.doGet(FrameworkServlet.java:892)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:622)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:874)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:710)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:128)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at com.runicsoft.bencolapp.utils.logging.RequestIdFilter.doFilterInternal(RequestIdFilter.java:35)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108)
+	at org.springframework.security.web.FilterChainProxy.lambda$doFilterInternal$2(FilterChainProxy.java:235)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:376)
+	at org.springframework.security.web.access.intercept.AuthorizationFilter.doFilter(AuthorizationFilter.java:101)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:126)
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:120)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:132)
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:86)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:100)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:181)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter.doFilterInternal(BearerTokenAuthenticationFilter.java:207)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.oauth2.server.resource.web.OAuth2ProtectedResourceMetadataFilter.doFilterInternal(OAuth2ProtectedResourceMetadataFilter.java:98)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:110)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:96)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90)
+	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:385)
+	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:237)
+	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:195)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.filter.ServletRequestPathFilter.doFilter(ServletRequestPathFilter.java:52)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74)
+	at org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebSecurityConfiguration.java:317)
+	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:355)
+	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:272)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:199)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:165)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:77)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:492)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:113)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:83)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:72)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:341)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:397)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:1272)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1801)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:946)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:480)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:57)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2026-08-11 21:54:25.291 WARN  [http-nio-8080-exec-8] [requestId=4674304f-c5f0-425b-8976-8559d7bb1d05] o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - Resolved [org.springframework.web.HttpRequestMethodNotSupportedException: Request method 'GET' is not supported]
+2026-08-11 21:54:50.593 DEBUG [http-nio-8080-exec-10] [requestId=27d46bcb-283b-490e-a10f-65ea57d9f7a8] org.hibernate.SQL - 
+    select
+        c1_0.id,
+        c1_0.categoria,
+        c1_0.direccion,
+        c1_0.email,
+        c1_0.estado,
+        c1_0.nombre,
+        c1_0.telefono 
+    from
+        clients c1_0 
+    where
+        c1_0.id=?
+2026-08-11 21:54:50.594 TRACE [http-nio-8080-exec-10] [requestId=27d46bcb-283b-490e-a10f-65ea57d9f7a8] org.hibernate.orm.jdbc.bind - binding parameter (1:BIGINT) <- [1]
+2026-08-11 21:54:50.597 DEBUG [http-nio-8080-exec-10] [requestId=27d46bcb-283b-490e-a10f-65ea57d9f7a8] org.hibernate.SQL - 
+    select
+        cec1_0.id,
+        cec1_0.cantidad_prestados,
+        cec1_0.cantidad_propios,
+        cec1_0.cliente_id,
+        cec1_0.fecha_actualizacion,
+        cec1_0.fecha_creacion,
+        cec1_0.producto_id 
+    from
+        cuentas_envases_clientes cec1_0 
+    where
+        cec1_0.cliente_id=?
+2026-08-11 21:54:50.597 TRACE [http-nio-8080-exec-10] [requestId=27d46bcb-283b-490e-a10f-65ea57d9f7a8] org.hibernate.orm.jdbc.bind - binding parameter (1:BIGINT) <- [1]
+2026-08-11 21:54:50.598 DEBUG [http-nio-8080-exec-10] [requestId=27d46bcb-283b-490e-a10f-65ea57d9f7a8] org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.categoria,
+        p1_0.codigo,
+        p1_0.contenido,
+        p1_0.descripcion,
+        p1_0.estado,
+        p1_0.precio_base,
+        p1_0.unidad_medida,
+        p1_0.unidades_por_paquete 
+    from
+        productos p1_0 
+    where
+        p1_0.id=?
+2026-08-11 21:54:50.599 TRACE [http-nio-8080-exec-10] [requestId=27d46bcb-283b-490e-a10f-65ea57d9f7a8] org.hibernate.orm.jdbc.bind - binding parameter (1:BIGINT) <- [1]
+2026-08-11 21:56:41.406 INFO  [SpringApplicationShutdownHook] [requestId=N/A] o.s.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-08-11 21:56:41.411 INFO  [tomcat-shutdown] [requestId=N/A] o.s.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-08-11 21:56:41.418 INFO  [SpringApplicationShutdownHook] [requestId=N/A] o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-08-11 21:56:41.421 INFO  [SpringApplicationShutdownHook] [requestId=N/A] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-08-11 21:56:41.427 INFO  [SpringApplicationShutdownHook] [requestId=N/A] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
