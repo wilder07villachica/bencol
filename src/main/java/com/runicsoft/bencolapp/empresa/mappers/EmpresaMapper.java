@@ -16,11 +16,17 @@ public interface EmpresaMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "estado", ignore = true)
+    @Mapping(target = "logoNombre", ignore = true)
+    @Mapping(target = "logoTipo", ignore = true)
+    @Mapping(target = "logoRuta", ignore = true)
     Empresa convertirEmpresaEntidad(EmpresaRequest request);
 
     List<EmpresaResponse> convertirListaEmpresaDto(List<Empresa> empresas);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "estado", ignore = true)
+    @Mapping(target = "logoNombre", ignore = true)
+    @Mapping(target = "logoTipo", ignore = true)
+    @Mapping(target = "logoRuta", ignore = true)
     void updateEmpresa(EmpresaRequest request, @MappingTarget Empresa empresa);
 }

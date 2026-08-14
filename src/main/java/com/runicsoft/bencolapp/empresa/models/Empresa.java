@@ -22,6 +22,24 @@ public class Empresa {
     @Column(name = "nombre_comercial", length = 225)
     private String nombreComercial;
 
+    @Column(length = 255)
+    private String direccion;
+
+    @Column(length = 20)
+    private String telefono;
+
+    @Column(length = 100)
+    private String email;
+
+    @Column(name = "logo_nombre", length = 255)
+    private String logoNombre;
+
+    @Column(name = "logo_tipo", length = 100)
+    private String logoTipo;
+
+    @Column(name = "logo_ruta", length = 500)
+    private String logoRuta;
+
     @Enumerated(EnumType.STRING)
     private EstadoGeneral estado;
 

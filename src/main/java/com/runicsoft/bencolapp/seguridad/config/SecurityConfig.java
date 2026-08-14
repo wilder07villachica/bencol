@@ -370,6 +370,11 @@ public class SecurityConfig {
                                 "COMPRAS"
                         )
 
+                        // COTIZACIONES
+                        .requestMatchers(
+                                "/bencol.agua/cotizaciones/**"
+                        ).hasRole("ADMIN")
+
                         // REPORTES
                         .requestMatchers(
                                 HttpMethod.GET,
@@ -400,8 +405,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public Converter<Jwt, ? extends AbstractAuthenticationToken>
-    jwtAuthenticationConverter() {
+    public Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter authorities = new JwtGrantedAuthoritiesConverter();
 
         authorities.setAuthoritiesClaimName("rol");
