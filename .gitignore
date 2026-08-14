@@ -61,4 +61,4 @@ coverage/
 jacoco.exec
 
 # Spring Boot PID
-*.pid
+*.pidlogs/
