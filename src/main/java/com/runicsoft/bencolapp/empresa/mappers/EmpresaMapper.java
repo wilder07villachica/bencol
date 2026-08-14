@@ -12,6 +12,7 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface EmpresaMapper {
 
+    @Mapping(target = "tieneLogo", expression = "java(empresa.getLogoRuta() != null && !empresa.getLogoRuta().isBlank())")
     EmpresaResponse convertirEmpresaDto(Empresa empresa);
 
     @Mapping(target = "id", ignore = true)

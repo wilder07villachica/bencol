@@ -1,9 +1,9 @@
 package com.runicsoft.bencolapp.cotizaciones.dtos.request;
 
-import com.runicsoft.bencolapp.envases.utils.TipoMovimientoEnvase;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -19,8 +19,13 @@ public class DetalleCotizacionRequest {
     @Positive(message = "La cantidad debe ser mayor que cero.")
     private Integer cantidad;
 
-    private TipoMovimientoEnvase modalidadEnvase;
+    @NotNull(message = "El precio unitario es obligatorio.")
+    @DecimalMin(value = "0.01", message = "El precio unitario debe ser mayor que cero.")
+    private BigDecimal precioUnitario;
 
-    @DecimalMin(value = "0.01", message = "El precio manual debe ser mayor que cero.")
-    private BigDecimal precioManual;
+    @Size(max = 255, message = "La frecuencia de abastecimiento no debe superar los 255 caracteres.")
+    private String frecuenciaAbastecimiento;
+
+    @Size(max = 500, message = "La descripción adicional no debe superar los 500 caracteres.")
+    private String descripcionAdicional;
 }

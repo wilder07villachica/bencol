@@ -10,35 +10,26 @@ import java.util.List;
 
 @Data
 public class CotizacionResponse {
-
     private Long id;
     private String codigo;
-
     private Long empresaId;
     private String rucEmpresa;
     private String razonSocialEmpresa;
     private String nombreComercialEmpresa;
-
     private Long clienteId;
     private String nombreCliente;
-
     private BigDecimal subtotal;
+    private BigDecimal porcentajeImpuesto;
+    private BigDecimal montoImpuesto;
     private BigDecimal total;
-
     private EstadoCotizacion estado;
-
     private LocalDate fechaVencimiento;
+    private String condicionesPago;
+    private String plazoEntrega;
     private String observacion;
-
-    private String imagenNombre;
-    private String imagenTipo;
-    private Boolean tieneImagen;
-
     private List<DetalleCotizacionResponse> detalles;
-
     private String creadoPor;
     private String actualizadoPor;
-
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaActualizacion;
 }

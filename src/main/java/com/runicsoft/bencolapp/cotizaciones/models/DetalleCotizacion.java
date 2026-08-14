@@ -1,6 +1,5 @@
 package com.runicsoft.bencolapp.cotizaciones.models;
 
-import com.runicsoft.bencolapp.envases.utils.TipoMovimientoEnvase;
 import com.runicsoft.bencolapp.productos.models.Producto;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -27,13 +26,24 @@ public class DetalleCotizacion {
     @Column(nullable = false)
     private Integer cantidad;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "modalidad_envase")
-    private TipoMovimientoEnvase modalidadEnvase;
-
     @Column(name = "precio_unitario", nullable = false, precision = 12, scale = 2)
     private BigDecimal precioUnitario;
 
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal subtotal;
+
+    @Column(name = "frecuencia_abastecimiento", length = 255)
+    private String frecuenciaAbastecimiento;
+
+    @Column(name = "descripcion_adicional", length = 500)
+    private String descripcionAdicional;
+
+    @Column(name = "imagen_nombre", length = 255)
+    private String imagenNombre;
+
+    @Column(name = "imagen_tipo", length = 100)
+    private String imagenTipo;
+
+    @Column(name = "imagen_ruta", length = 500)
+    private String imagenRuta;
 }

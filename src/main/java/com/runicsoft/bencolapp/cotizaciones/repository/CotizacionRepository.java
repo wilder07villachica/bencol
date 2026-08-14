@@ -15,8 +15,6 @@ public interface CotizacionRepository extends JpaRepository<Cotizacion, Long> {
 
     Optional<Cotizacion> findByCodigo(String codigo);
 
-    Boolean existsByCodigo(String codigo);
-
     @Query("""
             SELECT c
             FROM Cotizacion c

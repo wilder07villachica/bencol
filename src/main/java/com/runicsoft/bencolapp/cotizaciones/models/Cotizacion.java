@@ -40,6 +40,12 @@ public class Cotizacion {
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal subtotal;
 
+    @Column(name = "porcentaje_impuesto", nullable = false, precision = 5, scale = 2)
+    private BigDecimal porcentajeImpuesto;
+
+    @Column(name = "monto_impuesto", nullable = false, precision = 12, scale = 2)
+    private BigDecimal montoImpuesto;
+
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal total;
 
@@ -50,17 +56,14 @@ public class Cotizacion {
     @Column(name = "fecha_vencimiento")
     private LocalDate fechaVencimiento;
 
-    @Column(length = 500)
+    @Column(name = "condiciones_pago", length = 500)
+    private String condicionesPago;
+
+    @Column(name = "plazo_entrega", length = 255)
+    private String plazoEntrega;
+
+    @Column(length = 1000)
     private String observacion;
-
-    @Column(name = "imagen_nombre", length = 255)
-    private String imagenNombre;
-
-    @Column(name = "imagen_tipo", length = 100)
-    private String imagenTipo;
-
-    @Column(name = "imagen_ruta", length = 500)
-    private String imagenRuta;
 
     @OneToMany(mappedBy = "cotizacion", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DetalleCotizacion> detalles = new ArrayList<>();

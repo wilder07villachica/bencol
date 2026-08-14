@@ -375,6 +375,10 @@ public class SecurityConfig {
                                 "/bencol.agua/cotizaciones/**"
                         ).hasRole("ADMIN")
 
+                        .requestMatchers(
+                                "/bencol.agua/empresa/**"
+                        ).hasRole("ADMIN")
+
                         // REPORTES
                         .requestMatchers(
                                 HttpMethod.GET,

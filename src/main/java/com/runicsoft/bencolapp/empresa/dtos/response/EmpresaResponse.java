@@ -13,5 +13,6 @@ public class EmpresaResponse {
     private String email;
     private String logoNombre;
     private String logoTipo;
+    private Boolean tieneLogo;
     private String estado;
 }
