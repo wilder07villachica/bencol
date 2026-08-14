@@ -75,4 +75,11 @@ public class EmpresaController {
                 .contentType(mediaType)
                 .body(recurso);
     }
+
+    @DeleteMapping("/{idEmpresa}/logo")
+    public ResponseEntity<EmpresaResponse> eliminarLogo(@PathVariable Long idEmpresa) {
+        return ResponseEntity.ok(
+                empresaService.eliminarLogo(idEmpresa)
+        );
+    }
 }

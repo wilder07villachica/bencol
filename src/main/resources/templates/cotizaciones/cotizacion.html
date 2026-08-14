@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+
+    <title>Cotización</title>
+
+    <style>
+        @page {
+            size: A4;
+            margin: 10mm;
+        }
+
+        /*
+         * =====================================================
+         * PALETA DEL DOCUMENTO
+         * =====================================================
+         *
+         * Cuando tengas los colores definitivos de la empresa,
+         * modifica únicamente estos valores repetidos.
+         *
+         * PRINCIPAL:   #174A7E
+         * PRINCIPAL 2: #0F365E
+         * SUAVE:       #F4F7FA
+         * BORDE:       #DCE3EA
+         * TEXTO:       #20242A
+         * MUTED:       #667085
+         */
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #20242A;
+            background: #FFFFFF;
+            font-size: 10px;
+        }
+
+        .page {
+            width: 100%;
+        }
+
+        /*
+         * =====================================================
+         * CABECERA
+         * =====================================================
+         */
+
+        .header {
+            width: 100%;
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+            border-bottom: 3px solid #174A7E;
+        }
+
+        .header-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .header-left {
+            width: 58%;
+            vertical-align: middle;
+        }
+
+        .header-right {
+            width: 42%;
+            vertical-align: middle;
+            text-align: right;
+        }
+
+        .brand-table {
+            border-collapse: collapse;
+        }
+
+        .brand-logo-cell {
+            vertical-align: middle;
+            padding-right: 12px;
+        }
+
+        .brand-info-cell {
+            vertical-align: middle;
+        }
+
+        .brand-logo {
+            max-width: 95px;
+            max-height: 75px;
+        }
+
+        .brand-name {
+            font-size: 23px;
+            font-weight: bold;
+            color: #174A7E;
+            letter-spacing: 0.8px;
+            margin-bottom: 3px;
+        }
+
+        .brand-business-name {
+            font-size: 11px;
+            color: #20242A;
+            margin-bottom: 4px;
+        }
+
+        .brand-subtitle {
+            font-size: 9px;
+            color: #667085;
+        }
+
+        .document-title {
+            font-size: 25px;
+            font-weight: bold;
+            color: #0F365E;
+            letter-spacing: 1px;
+            margin-bottom: 7px;
+        }
+
+        .document-code {
+            display: inline-block;
+            padding: 7px 13px;
+            background: #174A7E;
+            color: #FFFFFF;
+            border-radius: 7px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 7px;
+        }
+
+        .document-date {
+            font-size: 10px;
+            color: #475467;
+        }
+
+        /*
+         * =====================================================
+         * TÍTULOS DE BLOQUES
+         * =====================================================
+         */
+
+        .block-title {
+            display: inline-block;
+            background: #174A7E;
+            color: #FFFFFF;
+            padding: 6px 13px;
+            border-radius: 7px 7px 0 0;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        /*
+         * =====================================================
+         * EMISOR / RECEPTOR
+         * =====================================================
+         */
+
+        .party-section {
+            width: 100%;
+            margin-bottom: 16px;
+        }
+
+        .party-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .party-left {
+            width: 49%;
+            vertical-align: top;
+            padding-right: 6px;
+        }
+
+        .party-right {
+            width: 49%;
+            vertical-align: top;
+            padding-left: 6px;
+        }
+
+        .party-card {
+            min-height: 150px;
+            border: 1px solid #DCE3EA;
+            background: #F8FAFC;
+            border-radius: 0 8px 8px 8px;
+            padding: 14px;
+        }
+
+        .party-name {
+            font-size: 15px;
+            font-weight: bold;
+            color: #20242A;
+            margin-bottom: 4px;
+        }
+
+        .party-business-name {
+            font-size: 10px;
+            color: #475467;
+            margin-bottom: 11px;
+        }
+
+        .party-row {
+            margin-bottom: 7px;
+            line-height: 1.4;
+        }
+
+        .party-label {
+            font-weight: bold;
+            color: #174A7E;
+        }
+
+        .party-value {
+            color: #344054;
+        }
+
+        .contact-divider {
+            border-top: 1px dashed #CBD5E1;
+            margin: 10px 0;
+        }
+
+        .contact-subtitle {
+            font-size: 10px;
+            font-weight: bold;
+            color: #174A7E;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        /*
+         * =====================================================
+         * ITEMS
+         * =====================================================
+         */
+
+        .items-section {
+            margin-bottom: 16px;
+        }
+
+        .items-heading {
+            margin-bottom: 7px;
+        }
+
+        .items-wrapper {
+            border: 1px solid #DCE3EA;
+            border-radius: 7px;
+            overflow: hidden;
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        .items-table thead {
+            background: #174A7E;
+        }
+
+        .items-table th {
+            color: #FFFFFF;
+            font-size: 8px;
+            font-weight: bold;
+            text-transform: uppercase;
+            text-align: center;
+            padding: 8px 5px;
+            border-right: 1px solid rgba(255,255,255,0.25);
+        }
+
+        .items-table td {
+            padding: 10px 6px;
+            border-right: 1px solid #E4E7EC;
+            border-bottom: 1px solid #E4E7EC;
+            vertical-align: middle;
+            page-break-inside: avoid;
+        }
+
+        .items-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .items-table th:last-child,
+        .items-table td:last-child {
+            border-right: none;
+        }
+
+        .col-image {
+            width: 15%;
+            text-align: center;
+        }
+
+        .col-description {
+            width: 31%;
+        }
+
+        .col-quantity {
+            width: 11%;
+            text-align: center;
+        }
+
+        .col-frequency {
+            width: 14%;
+            text-align: center;
+        }
+
+        .col-price {
+            width: 14%;
+            text-align: right;
+        }
+
+        .col-subtotal {
+            width: 15%;
+            text-align: right;
+        }
+
+        .product-image-container {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto;
+            border: 1px solid #E4E7EC;
+            background: #F8FAFC;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .product-image-real {
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
+            border-radius: 5px;
+        }
+
+        .product-image-placeholder {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto;
+            border: 1px solid #E4E7EC;
+            background: #F8FAFC;
+            border-radius: 6px;
+            line-height: 70px;
+            color: #98A2B3;
+            font-size: 7px;
+            text-align: center;
+        }
+
+        .product-name {
+            font-size: 11px;
+            font-weight: bold;
+            color: #20242A;
+            margin-bottom: 5px;
+        }
+
+        .product-content {
+            font-size: 9px;
+            color: #667085;
+            margin-bottom: 4px;
+        }
+
+        .product-extra {
+            font-size: 9px;
+            color: #475467;
+            line-height: 1.4;
+        }
+
+        .quantity-value {
+            font-size: 12px;
+            font-weight: bold;
+            color: #174A7E;
+        }
+
+        .frequency-value {
+            color: #344054;
+            line-height: 1.4;
+        }
+
+        .price-value {
+            font-size: 10px;
+            font-weight: bold;
+            color: #20242A;
+        }
+
+        .price-tax-info {
+            margin-top: 3px;
+            font-size: 7px;
+            color: #667085;
+        }
+
+        .subtotal-value {
+            font-size: 10px;
+            font-weight: bold;
+            color: #174A7E;
+        }
+
+        /*
+         * =====================================================
+         * CONDICIONES / OBSERVACIONES
+         * =====================================================
+         */
+
+        .commercial-section {
+            width: 100%;
+            margin-bottom: 14px;
+        }
+
+        .commercial-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .commercial-left {
+            width: 47%;
+            vertical-align: top;
+            padding-right: 6px;
+        }
+
+        .commercial-right {
+            width: 53%;
+            vertical-align: top;
+            padding-left: 6px;
+        }
+
+        .commercial-card {
+            border: 1px solid #DCE3EA;
+            border-radius: 0 8px 8px 8px;
+            background: #FFFFFF;
+            padding: 12px 14px;
+        }
+
+        .condition-row {
+            padding: 7px 0;
+            border-bottom: 1px dashed #DCE3EA;
+        }
+
+        .condition-row:last-child {
+            border-bottom: none;
+        }
+
+        .condition-label {
+            display: block;
+            color: #174A7E;
+            font-size: 8px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+
+        .condition-value {
+            color: #344054;
+            line-height: 1.45;
+        }
+
+        .observation-card {
+            border: 1px solid #DCE3EA;
+            border-radius: 0 8px 8px 8px;
+            background: #F8FAFC;
+            padding: 12px 14px;
+            min-height: 62px;
+            margin-bottom: 10px;
+        }
+
+        .observation-value {
+            color: #344054;
+            line-height: 1.5;
+        }
+
+        /*
+         * =====================================================
+         * TOTALES
+         * =====================================================
+         */
+
+        .totals-card {
+            border: 1px solid #DCE3EA;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #FFFFFF;
+        }
+
+        .totals-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .totals-table td {
+            padding: 7px 12px;
+        }
+
+        .totals-label {
+            color: #344054;
+            font-size: 10px;
+        }
+
+        .totals-value {
+            text-align: right;
+            color: #20242A;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .total-final td {
+            background: #174A7E;
+            color: #FFFFFF;
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+
+        .total-final .totals-label {
+            color: #FFFFFF;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .total-final .totals-value {
+            color: #FFFFFF;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        /*
+         * =====================================================
+         * FIRMA
+         * =====================================================
+         */
+
+        .signature-section {
+            margin-top: 22px;
+            margin-bottom: 18px;
+            text-align: center;
+        }
+
+        .signature-space {
+            height: 48px;
+        }
+
+        .signature-line {
+            width: 190px;
+            margin: 0 auto;
+            border-top: 1px solid #344054;
+            padding-top: 5px;
+        }
+
+        .signature-title {
+            font-size: 9px;
+            font-weight: bold;
+            color: #344054;
+        }
+
+        .signature-subtitle {
+            font-size: 8px;
+            color: #667085;
+            margin-top: 2px;
+        }
+
+        /*
+         * =====================================================
+         * FOOTER
+         * =====================================================
+         */
+
+        .footer-bar {
+            width: 100%;
+            background: #174A7E;
+            color: #FFFFFF;
+            padding: 9px 10px;
+            border-radius: 4px;
+        }
+
+        .footer-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .footer-table td {
+            width: 33.33%;
+            color: #FFFFFF;
+            font-size: 8px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .footer-value {
+            color: #FFFFFF;
+        }
+
+        .footer-message {
+            margin-top: 8px;
+            text-align: center;
+            font-size: 8px;
+            color: #667085;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="page">
+
+    <div class="header">
+
+        <table class="header-table">
+            <tr>
+
+                <td class="header-left">
+
+                    <table class="brand-table">
+                        <tr>
+
+                            <td
+                                    class="brand-logo-cell"
+                                    th:if="${logoEmpresa != null}">
+
+                                <img
+                                        class="brand-logo"
+                                        th:src="${logoEmpresa}"
+                                        alt="Logo de la empresa"/>
+
+                            </td>
+
+                            <td class="brand-info-cell">
+
+                                <div
+                                        class="brand-name"
+                                        th:text="${cotizacion.empresa.nombreComercial}">
+                                    RUNICSOFT
+                                </div>
+
+                                <div
+                                        class="brand-business-name"
+                                        th:text="${cotizacion.empresa.razonSocial}">
+                                    Desarrollo de Soluciones Integrales
+                                </div>
+
+                                <div
+                                        class="brand-subtitle"
+                                        th:if="${cotizacion.empresa.email != null and !cotizacion.empresa.email.isBlank()}"
+                                        th:text="${cotizacion.empresa.email}">
+                                </div>
+
+                            </td>
+
+                        </tr>
+                    </table>
+
+                </td>
+
+                <td class="header-right">
+
+                    <div class="document-title">
+                        COTIZACIÓN
+                    </div>
+
+                    <div
+                            class="document-code"
+                            th:text="${cotizacion.codigo}">
+                        COT-XXXXXXXX
+                    </div>
+
+                    <div class="document-date">
+
+                        Fecha:
+
+                        <span
+                                th:text="${#temporals.format(cotizacion.fechaCreacion, 'dd/MM/yyyy')}">
+                        </span>
+
+                    </div>
+
+                </td>
+
+            </tr>
+        </table>
+
+    </div>
+
+    <div class="party-section">
+
+        <table class="party-table">
+            <tr>
+
+                <td class="party-left">
+
+                    <div class="block-title">
+                        Datos del emisor
+                    </div>
+
+                    <div class="party-card">
+
+                        <div
+                                class="party-name"
+                                th:text="${cotizacion.empresa.nombreComercial}">
+                            RUNICSOFT
+                        </div>
+
+                        <div
+                                class="party-business-name"
+                                th:text="${cotizacion.empresa.razonSocial}">
+                        </div>
+
+                        <div class="party-row">
+
+                            <span class="party-label">
+                                RUC:
+                            </span>
+
+                            <span
+                                    class="party-value"
+                                    th:text="${cotizacion.empresa.ruc}">
+                            </span>
+
+                        </div>
+
+                        <div
+                                class="party-row"
+                                th:if="${cotizacion.empresa.telefono != null and !cotizacion.empresa.telefono.isBlank()}">
+
+                            <span class="party-label">
+                                Teléfono:
+                            </span>
+
+                            <span
+                                    class="party-value"
+                                    th:text="${cotizacion.empresa.telefono}">
+                            </span>
+
+                        </div>
+
+                        <div
+                                class="party-row"
+                                th:if="${cotizacion.empresa.direccion != null and !cotizacion.empresa.direccion.isBlank()}">
+
+                            <span class="party-label">
+                                Dirección:
+                            </span>
+
+                            <span
+                                    class="party-value"
+                                    th:text="${cotizacion.empresa.direccion}">
+                            </span>
+
+                        </div>
+
+                        <div
+                                class="party-row"
+                                th:if="${cotizacion.empresa.email != null and !cotizacion.empresa.email.isBlank()}">
+
+                            <span class="party-label">
+                                Email:
+                            </span>
+
+                            <span
+                                    class="party-value"
+                                    th:text="${cotizacion.empresa.email}">
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </td>
+
+                <td class="party-right">
+
+                    <div class="block-title">
+                        Datos del receptor
+                    </div>
+
+                    <div class="party-card">
+
+                        <div
+                                class="party-name"
+                                th:text="${cotizacion.cliente.nombre}">
+                            Cliente
+                        </div>
+
+                        <div
+                                class="party-row"
+                                th:if="${cotizacion.cliente.direccion != null and !cotizacion.cliente.direccion.isBlank()}">
+
+                            <span class="party-label">
+                                Dirección:
+                            </span>
+
+                            <span
+                                    class="party-value"
+                                    th:text="${cotizacion.cliente.direccion}">
+                            </span>
+
+                        </div>
+
+                        <div
+                                class="contact-divider"
+                                th:if="${(cotizacion.cliente.telefono != null and !cotizacion.cliente.telefono.isBlank()) or (cotizacion.cliente.email != null and !cotizacion.cliente.email.isBlank())}">
+                        </div>
+
+                        <div
+                                class="contact-subtitle"
+                                th:if="${(cotizacion.cliente.telefono != null and !cotizacion.cliente.telefono.isBlank()) or (cotizacion.cliente.email != null and !cotizacion.cliente.email.isBlank())}">
+                            Contacto
+                        </div>
+
+                        <div
+                                class="party-row"
+                                th:if="${cotizacion.cliente.telefono != null and !cotizacion.cliente.telefono.isBlank()}">
+
+                            <span class="party-label">
+                                Teléfono:
+                            </span>
+
+                            <span
+                                    class="party-value"
+                                    th:text="${cotizacion.cliente.telefono}">
+                            </span>
+
+                        </div>
+
+                        <div
+                                class="party-row"
+                                th:if="${cotizacion.cliente.email != null and !cotizacion.cliente.email.isBlank()}">
+
+                            <span class="party-label">
+                                Email:
+                            </span>
+
+                            <span
+                                    class="party-value"
+                                    th:text="${cotizacion.cliente.email}">
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </td>
+
+            </tr>
+        </table>
+
+    </div>
+
+    <div class="items-section">
+
+        <div class="items-heading">
+
+            <div class="block-title">
+                Ítems cotizados
+            </div>
+
+        </div>
+
+        <div class="items-wrapper">
+
+            <table class="items-table">
+
+                <thead>
+
+                <tr>
+
+                    <th class="col-image">
+                        Imagen
+                    </th>
+
+                    <th class="col-description">
+                        Descripción
+                    </th>
+
+                    <th class="col-quantity">
+                        Cantidad
+                    </th>
+
+                    <th class="col-frequency">
+                        Frecuencia
+                    </th>
+
+                    <th class="col-price">
+                        P. Unit.
+                    </th>
+
+                    <th class="col-subtotal">
+                        Importe
+                    </th>
+
+                </tr>
+
+                </thead>
+
+                <tbody>
+
+                <tr th:each="detalle : ${cotizacion.detalles}">
+
+                    <td class="col-image">
+
+                        <div
+                                class="product-image-container"
+                                th:if="${imagenesDetalles.containsKey(detalle.id)}">
+
+                            <img
+                                    class="product-image-real"
+                                    th:src="${imagenesDetalles.get(detalle.id)}"
+                                    alt="Imagen del producto"/>
+
+                        </div>
+
+                        <div
+                                class="product-image-placeholder"
+                                th:unless="${imagenesDetalles.containsKey(detalle.id)}">
+                            SIN IMAGEN
+                        </div>
+
+                    </td>
+
+                    <td class="col-description">
+
+                        <div
+                                class="product-name"
+                                th:text="${detalle.producto.descripcion}">
+                            Producto
+                        </div>
+
+                        <div class="product-content">
+
+                            Contenido:
+
+                            <span
+                                    th:text="${detalle.producto.contenido}">
+                            </span>
+
+                            <span
+                                    th:text="${detalle.producto.unidadMedida}">
+                            </span>
+
+                        </div>
+
+                        <div
+                                class="product-extra"
+                                th:if="${detalle.descripcionAdicional != null and !detalle.descripcionAdicional.isBlank()}"
+                                th:text="${detalle.descripcionAdicional}">
+                        </div>
+
+                    </td>
+
+                    <td class="col-quantity">
+
+                        <span
+                                class="quantity-value"
+                                th:text="${detalle.cantidad}">
+                        </span>
+
+                    </td>
+
+                    <td class="col-frequency">
+
+                        <span
+                                class="frequency-value"
+                                th:text="${detalle.frecuenciaAbastecimiento != null and !detalle.frecuenciaAbastecimiento.isBlank() ? detalle.frecuenciaAbastecimiento : '-'}">
+                        </span>
+
+                    </td>
+
+                    <td class="col-price">
+
+                        <div
+                                class="price-value"
+                                th:text="'S/ ' + ${#numbers.formatDecimal(detalle.precioUnitario, 1, 'COMMA', 2, 'POINT')}">
+                        </div>
+
+                        <div
+                                class="price-tax-info"
+                                th:text="${cotizacion.tipoPrecio.name() == 'CON_IGV' ? 'Incl. IGV' : '+ IGV'}">
+                        </div>
+
+                    </td>
+
+                    <td class="col-subtotal">
+
+                        <span
+                                class="subtotal-value"
+                                th:text="'S/ ' + ${#numbers.formatDecimal(detalle.subtotal, 1, 'COMMA', 2, 'POINT')}">
+                        </span>
+
+                    </td>
+
+                </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <div class="commercial-section">
+
+        <table class="commercial-table">
+            <tr>
+
+                <td class="commercial-left">
+
+                    <div class="block-title">
+                        Condiciones comerciales
+                    </div>
+
+                    <div class="commercial-card">
+
+                        <div
+                                class="condition-row"
+                                th:if="${cotizacion.condicionesPago != null and !cotizacion.condicionesPago.isBlank()}">
+
+                            <span class="condition-label">
+                                Condiciones de pago
+                            </span>
+
+                            <span
+                                    class="condition-value"
+                                    th:text="${cotizacion.condicionesPago}">
+                            </span>
+
+                        </div>
+
+                        <div
+                                class="condition-row"
+                                th:if="${cotizacion.plazoEntrega != null and !cotizacion.plazoEntrega.isBlank()}">
+
+                            <span class="condition-label">
+                                Entrega
+                            </span>
+
+                            <span
+                                    class="condition-value"
+                                    th:text="${cotizacion.plazoEntrega}">
+                            </span>
+
+                        </div>
+
+                        <div
+                                class="condition-row"
+                                th:if="${cotizacion.fechaVencimiento != null}">
+
+                            <span class="condition-label">
+                                Vigencia
+                            </span>
+
+                            <span
+                                    class="condition-value"
+                                    th:text="${#temporals.format(cotizacion.fechaVencimiento, 'dd/MM/yyyy')}">
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </td>
+
+                <td class="commercial-right">
+
+                    <div class="block-title">
+                        Observaciones
+                    </div>
+
+                    <div class="observation-card">
+
+                        <div
+                                class="observation-value"
+                                th:if="${cotizacion.observacion != null and !cotizacion.observacion.isBlank()}"
+                                th:text="${cotizacion.observacion}">
+                        </div>
+
+                        <div
+                                class="observation-value"
+                                th:unless="${cotizacion.observacion != null and !cotizacion.observacion.isBlank()}">
+                            Sin observaciones adicionales.
+                        </div>
+
+                    </div>
+
+                    <div class="totals-card">
+
+                        <table class="totals-table">
+
+                            <tr>
+
+                                <td class="totals-label">
+
+                                    <span
+                                            th:if="${cotizacion.tipoPrecio.name() == 'CON_IGV'}">
+                                        Valor de venta
+                                    </span>
+
+                                    <span
+                                            th:unless="${cotizacion.tipoPrecio.name() == 'CON_IGV'}">
+                                        Subtotal
+                                    </span>
+
+                                </td>
+
+                                <td
+                                        class="totals-value"
+                                        th:text="'S/ ' + ${#numbers.formatDecimal(cotizacion.subtotal, 1, 'COMMA', 2, 'POINT')}">
+                                </td>
+
+                            </tr>
+
+                            <tr>
+
+                                <td class="totals-label">
+
+                                    <span
+                                            th:if="${cotizacion.tipoPrecio.name() == 'CON_IGV'}">
+                                        IGV incluido
+                                    </span>
+
+                                    <span
+                                            th:unless="${cotizacion.tipoPrecio.name() == 'CON_IGV'}">
+                                        IGV
+                                    </span>
+
+                                    <span
+                                            th:text="' (' + ${#numbers.formatDecimal(cotizacion.porcentajeImpuesto, 1, 2)} + '%)'">
+                                    </span>
+
+                                </td>
+
+                                <td
+                                        class="totals-value"
+                                        th:text="'S/ ' + ${#numbers.formatDecimal(cotizacion.montoImpuesto, 1, 'COMMA', 2, 'POINT')}">
+                                </td>
+
+                            </tr>
+
+                            <tr class="total-final">
+
+                                <td class="totals-label">
+                                    TOTAL A PAGAR
+                                </td>
+
+                                <td
+                                        class="totals-value"
+                                        th:text="'S/ ' + ${#numbers.formatDecimal(cotizacion.total, 1, 'COMMA', 2, 'POINT')}">
+                                </td>
+
+                            </tr>
+
+                        </table>
+
+                    </div>
+
+                </td>
+
+            </tr>
+        </table>
+
+    </div>
+
+    <div class="signature-section">
+
+        <div class="signature-space">
+        </div>
+
+        <div class="signature-line">
+
+            <div class="signature-title">
+                Firma autorizada
+            </div>
+
+            <div class="signature-subtitle">
+                Empresa emisora
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="footer-bar">
+
+        <table class="footer-table">
+            <tr>
+
+                <td>
+
+                    <span
+                            class="footer-value"
+                            th:if="${cotizacion.empresa.direccion != null and !cotizacion.empresa.direccion.isBlank()}"
+                            th:text="${cotizacion.empresa.direccion}">
+                    </span>
+
+                </td>
+
+                <td>
+
+                    <span
+                            class="footer-value"
+                            th:if="${cotizacion.empresa.telefono != null and !cotizacion.empresa.telefono.isBlank()}"
+                            th:text="${cotizacion.empresa.telefono}">
+                    </span>
+
+                </td>
+
+                <td>
+
+                    <span
+                            class="footer-value"
+                            th:if="${cotizacion.empresa.email != null and !cotizacion.empresa.email.isBlank()}"
+                            th:text="${cotizacion.empresa.email}">
+                    </span>
+
+                </td>
+
+            </tr>
+        </table>
+
+    </div>
+
+    <div class="footer-message">
+        Gracias por confiar en nosotros.
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -1,5 +1,6 @@
 package com.runicsoft.bencolapp.cotizaciones.dtos.request;
 
+import com.runicsoft.bencolapp.cotizaciones.utils.TipoPrecioCotizacion;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotEmpty;
@@ -37,4 +38,7 @@ public class CotizacionRequest {
     @NotEmpty(message = "La cotización debe contener al menos un producto.")
     @Valid
     private List<DetalleCotizacionRequest> detalles;
+
+    @NotNull(message = "Debe indicar si los precios incluyen IGV.")
+    private TipoPrecioCotizacion tipoPrecio;
 }

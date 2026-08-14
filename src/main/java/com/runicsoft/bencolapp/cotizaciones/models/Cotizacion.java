@@ -2,6 +2,7 @@ package com.runicsoft.bencolapp.cotizaciones.models;
 
 import com.runicsoft.bencolapp.clientes.models.Cliente;
 import com.runicsoft.bencolapp.cotizaciones.utils.EstadoCotizacion;
+import com.runicsoft.bencolapp.cotizaciones.utils.TipoPrecioCotizacion;
 import com.runicsoft.bencolapp.empresa.models.Empresa;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -68,6 +69,10 @@ public class Cotizacion {
     @OneToMany(mappedBy = "cotizacion", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DetalleCotizacion> detalles = new ArrayList<>();
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_precio", nullable = false)
+    private TipoPrecioCotizacion tipoPrecio;
+
     @Column(name = "creado_por", length = 50)
     private String creadoPor;
 
@@ -86,6 +91,10 @@ public class Cotizacion {
 
         if (estado == null) {
             estado = EstadoCotizacion.BORRADOR;
+        }
+
+        if (tipoPrecio == null) {
+            tipoPrecio = TipoPrecioCotizacion.SIN_IGV;
         }
     }
 

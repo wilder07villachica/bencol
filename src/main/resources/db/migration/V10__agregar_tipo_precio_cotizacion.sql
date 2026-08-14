@@ -1,0 +1,2 @@
+ALTER TABLE cotizaciones
+    ADD COLUMN tipo_precio VARCHAR(20) NOT NULL DEFAULT 'SIN_IGV';

@@ -28,4 +28,6 @@ public interface CotizacionService {
     CotizacionResponse subirImagenDetalle(Long cotizacionId, Long detalleId, MultipartFile archivo);
 
     Resource obtenerImagenDetalle(Long cotizacionId, Long detalleId);
+
+    CotizacionResponse eliminarImagenDetalle(Long cotizacionId, Long detalleId);
 }

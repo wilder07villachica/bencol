@@ -1,6 +1,7 @@
 package com.runicsoft.bencolapp.cotizaciones.dtos.response;
 
 import com.runicsoft.bencolapp.cotizaciones.utils.EstadoCotizacion;
+import com.runicsoft.bencolapp.cotizaciones.utils.TipoPrecioCotizacion;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -28,6 +29,7 @@ public class CotizacionResponse {
     private String plazoEntrega;
     private String observacion;
     private List<DetalleCotizacionResponse> detalles;
+    private TipoPrecioCotizacion tipoPrecio;
     private String creadoPor;
     private String actualizadoPor;
     private LocalDateTime fechaCreacion;

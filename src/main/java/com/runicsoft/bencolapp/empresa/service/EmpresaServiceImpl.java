@@ -9,6 +9,7 @@ import com.runicsoft.bencolapp.utils.EstadoGeneral;
 import com.runicsoft.bencolapp.utils.exceptions.BusinessException;
 import com.runicsoft.bencolapp.utils.exceptions.ConflictException;
 import com.runicsoft.bencolapp.utils.exceptions.ResourceNotFoundException;
+import com.runicsoft.bencolapp.utils.storage.StorageProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -31,8 +32,7 @@ import static com.runicsoft.bencolapp.utils.constants.MessageConstants.*;
 @RequiredArgsConstructor
 public class EmpresaServiceImpl implements EmpresaService {
 
-    private static final Path DIRECTORIO_LOGOS = Paths.get("uploads", "empresa", "logos");
-
+    private final StorageProperties storageProperties;
     private final EmpresaRepository empresaRepository;
     private final EmpresaMapper empresaMapper;
 
@@ -107,7 +107,9 @@ public class EmpresaServiceImpl implements EmpresaService {
         validarLogo(archivo);
 
         try {
-            Files.createDirectories(DIRECTORIO_LOGOS);
+            Path directorioLogos = getDirectorioLogos();
+
+            Files.createDirectories(directorioLogos);
 
             eliminarLogoAnterior(empresa);
 
@@ -115,7 +117,9 @@ public class EmpresaServiceImpl implements EmpresaService {
 
             String nombreArchivo = "empresa-" + empresa.getId() + "-" + UUID.randomUUID() + extension;
 
-            Path rutaArchivo = DIRECTORIO_LOGOS.resolve(nombreArchivo).normalize();
+            Path rutaArchivo = directorioLogos
+                    .resolve(nombreArchivo)
+                    .normalize();
 
             Files.copy(
                     archivo.getInputStream(),
@@ -149,7 +153,9 @@ public class EmpresaServiceImpl implements EmpresaService {
         }
 
         try {
-            Path ruta = Paths.get(empresa.getLogoRuta()).normalize();
+            Path ruta = Paths.get(empresa.getLogoRuta())
+                    .toAbsolutePath()
+                    .normalize();
 
             Resource recurso = new UrlResource(ruta.toUri());
 
@@ -162,6 +168,29 @@ public class EmpresaServiceImpl implements EmpresaService {
         } catch (MalformedURLException e) {
             throw new ResourceNotFoundException("El logo de la empresa no fue encontrado.");
         }
+    }
+
+    @Override
+    @Transactional
+    public EmpresaResponse eliminarLogo(Long idEmpresa) {
+        if (idEmpresa == null || idEmpresa <= 0) {
+            throw new IllegalArgumentException(ID_INVALIDO);
+        }
+
+        Empresa empresa = getEmpresa(idEmpresa);
+
+        if (empresa.getLogoRuta() == null || empresa.getLogoRuta().isBlank()) {
+            throw new BusinessException("La empresa no tiene un logo registrado.");
+        }
+
+        eliminarLogoAnterior(empresa);
+
+        empresa.setLogoNombre(null);
+        empresa.setLogoTipo(null);
+        empresa.setLogoRuta(null);
+
+        Empresa empresaActualizada = empresaRepository.save(empresa);
+        return empresaMapper.convertirEmpresaDto(empresaActualizada);
     }
 
     private Empresa getEmpresa(Long id) {
@@ -211,8 +240,20 @@ public class EmpresaServiceImpl implements EmpresaService {
         }
 
         try {
-            Files.deleteIfExists(Paths.get(empresa.getLogoRuta()));
+            Files.deleteIfExists(
+                    Paths.get(empresa.getLogoRuta())
+                            .toAbsolutePath()
+                            .normalize()
+            );
         } catch (IOException ignored) {
         }
+    }
+
+    private Path getDirectorioLogos() {
+        return Paths.get(
+                storageProperties.getRoot(),
+                "empresa",
+                "logos"
+        ).toAbsolutePath().normalize();
     }
 }

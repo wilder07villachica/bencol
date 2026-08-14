@@ -11,6 +11,7 @@ import com.runicsoft.bencolapp.cotizaciones.models.DetalleCotizacion;
 import com.runicsoft.bencolapp.cotizaciones.repository.CotizacionRepository;
 import com.runicsoft.bencolapp.cotizaciones.repository.DetalleCotizacionRepository;
 import com.runicsoft.bencolapp.cotizaciones.utils.EstadoCotizacion;
+import com.runicsoft.bencolapp.cotizaciones.utils.TipoPrecioCotizacion;
 import com.runicsoft.bencolapp.empresa.models.Empresa;
 import com.runicsoft.bencolapp.empresa.repository.EmpresaRepository;
 import com.runicsoft.bencolapp.productos.models.Producto;
@@ -20,6 +21,7 @@ import com.runicsoft.bencolapp.utils.EstadoGeneral;
 import com.runicsoft.bencolapp.utils.exceptions.BusinessException;
 import com.runicsoft.bencolapp.utils.exceptions.ResourceNotFoundException;
 import com.runicsoft.bencolapp.utils.pagination.PaginaResponse;
+import com.runicsoft.bencolapp.utils.storage.StorageProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -55,6 +57,7 @@ public class CotizacionServiceImpl implements CotizacionService {
     private final ProductoRepository productoRepository;
     private final CotizacionMapper cotizacionMapper;
     private final DetalleCotizacionRepository detalleCotizacionRepository;
+    private final StorageProperties storageProperties;
 
     @Override
     @Transactional(readOnly = true)
@@ -133,6 +136,7 @@ public class CotizacionServiceImpl implements CotizacionService {
         cotizacion.setEmpresa(empresa);
         cotizacion.setCliente(cliente);
         cotizacion.setPorcentajeImpuesto(request.getPorcentajeImpuesto());
+        cotizacion.setTipoPrecio(request.getTipoPrecio());
         cotizacion.setFechaVencimiento(request.getFechaVencimiento());
         cotizacion.setCondicionesPago(request.getCondicionesPago());
         cotizacion.setPlazoEntrega(request.getPlazoEntrega());
@@ -168,6 +172,7 @@ public class CotizacionServiceImpl implements CotizacionService {
         cotizacion.setEmpresa(empresa);
         cotizacion.setCliente(cliente);
         cotizacion.setPorcentajeImpuesto(request.getPorcentajeImpuesto());
+        cotizacion.setTipoPrecio(request.getTipoPrecio());
         cotizacion.setFechaVencimiento(request.getFechaVencimiento());
         cotizacion.setCondicionesPago(request.getCondicionesPago());
         cotizacion.setPlazoEntrega(request.getPlazoEntrega());
@@ -239,10 +244,10 @@ public class CotizacionServiceImpl implements CotizacionService {
 
         try {
             Path directorio = Paths.get(
-                    "uploads",
+                    storageProperties.getRoot(),
                     "cotizaciones",
                     cotizacion.getCodigo()
-            );
+            ).toAbsolutePath().normalize();
 
             Files.createDirectories(directorio);
 
@@ -295,7 +300,9 @@ public class CotizacionServiceImpl implements CotizacionService {
         }
 
         try {
-            Path ruta = Paths.get(detalle.getImagenRuta()).normalize();
+            Path ruta = Paths.get(detalle.getImagenRuta())
+                    .toAbsolutePath()
+                    .normalize();
 
             Resource recurso = new UrlResource(ruta.toUri());
 
@@ -308,6 +315,33 @@ public class CotizacionServiceImpl implements CotizacionService {
         } catch (MalformedURLException e) {
             throw new ResourceNotFoundException("La imagen del producto no fue encontrada.");
         }
+    }
+
+    @Override
+    @Transactional
+    public CotizacionResponse eliminarImagenDetalle(Long cotizacionId, Long detalleId) {
+        validarId(cotizacionId);
+        validarId(detalleId);
+
+        Cotizacion cotizacion = getCotizacion(cotizacionId);
+
+        DetalleCotizacion detalle = detalleCotizacionRepository
+                .findByIdAndCotizacionId(detalleId, cotizacionId)
+                .orElseThrow(() -> new ResourceNotFoundException("El detalle de la cotización no fue encontrado."));
+
+        if (detalle.getImagenRuta() == null || detalle.getImagenRuta().isBlank()) {
+            throw new BusinessException("El producto cotizado no tiene una imagen registrada.");
+        }
+
+        eliminarImagenAnterior(detalle);
+
+        detalle.setImagenNombre(null);
+        detalle.setImagenTipo(null);
+        detalle.setImagenRuta(null);
+
+        detalleCotizacionRepository.save(detalle);
+
+        return cotizacionMapper.convertirCotizacionDto(cotizacion);
     }
 
     private void cargarDetalles(Cotizacion cotizacion, List<DetalleCotizacionRequest> requests) {
@@ -401,19 +435,41 @@ public class CotizacionServiceImpl implements CotizacionService {
     }
 
     private void calcularTotales(Cotizacion cotizacion) {
-        BigDecimal subtotal = cotizacion.getDetalles()
+        BigDecimal importeProductos = cotizacion.getDetalles()
                 .stream()
                 .map(DetalleCotizacion::getSubtotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
                 .setScale(2, RoundingMode.HALF_UP);
 
-        BigDecimal montoImpuesto = subtotal
-                .multiply(cotizacion.getPorcentajeImpuesto())
-                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+        BigDecimal porcentaje = cotizacion.getPorcentajeImpuesto()
+                .divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP);
 
-        BigDecimal total = subtotal
-                .add(montoImpuesto)
-                .setScale(2, RoundingMode.HALF_UP);
+        BigDecimal subtotal;
+        BigDecimal montoImpuesto;
+        BigDecimal total;
+
+        if (cotizacion.getTipoPrecio() == TipoPrecioCotizacion.CON_IGV) {
+            BigDecimal divisor = BigDecimal.ONE.add(porcentaje);
+
+            total = importeProductos;
+
+            subtotal = total
+                    .divide(divisor, 2, RoundingMode.HALF_UP);
+
+            montoImpuesto = total
+                    .subtract(subtotal)
+                    .setScale(2, RoundingMode.HALF_UP);
+        } else {
+            subtotal = importeProductos;
+
+            montoImpuesto = subtotal
+                    .multiply(porcentaje)
+                    .setScale(2, RoundingMode.HALF_UP);
+
+            total = subtotal
+                    .add(montoImpuesto)
+                    .setScale(2, RoundingMode.HALF_UP);
+        }
 
         cotizacion.setSubtotal(subtotal);
         cotizacion.setMontoImpuesto(montoImpuesto);
@@ -546,6 +602,8 @@ public class CotizacionServiceImpl implements CotizacionService {
         try {
             Files.deleteIfExists(
                     Paths.get(detalle.getImagenRuta())
+                            .toAbsolutePath()
+                            .normalize()
             );
         } catch (IOException ignored) {
         }
