@@ -24,6 +24,11 @@ public class InventarioController {
 
     private final InventarioService inventarioService;
 
+    @GetMapping
+    public ResponseEntity<PaginaResponse<InventarioResponse>> findAll(@RequestParam(defaultValue = "0") int pagina, @RequestParam(defaultValue = "20") int tamanio) {
+        return ResponseEntity.ok(inventarioService.findAll(pagina, tamanio));
+    }
+
     @GetMapping("/movimientos")
     public ResponseEntity<PaginaResponse<MovimientoInventarioResponse>> findMovimientos(
             @RequestParam(defaultValue = "0") int pagina,

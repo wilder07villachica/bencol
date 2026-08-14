@@ -7,8 +7,16 @@ import java.time.LocalDateTime;
 
 @Data
 public class ClientePrecioResponse {
+
+    private Long id;
+
+    private Long clienteId;
     private String nombreCliente;
+
+    private Long productoId;
     private String descripcionProducto;
+
     private BigDecimal precio;
+
     private LocalDateTime fechaCreacion;
 }

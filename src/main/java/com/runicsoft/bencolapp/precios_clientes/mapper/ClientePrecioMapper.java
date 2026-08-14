@@ -18,7 +18,9 @@ public interface ClientePrecioMapper {
     @Mapping(target = "fechaActualizacion", ignore = true)
     ClientePrecio convertirClientePrecioDto(ClientePrecioRequest request);
 
+    @Mapping(source = "cliente.id", target = "clienteId")
     @Mapping(source = "cliente.nombre", target = "nombreCliente")
+    @Mapping(source = "producto.id", target = "productoId")
     @Mapping(source = "producto.descripcion", target = "descripcionProducto")
     ClientePrecioResponse convertirDtoEntidad(ClientePrecio clientePrecio);
 

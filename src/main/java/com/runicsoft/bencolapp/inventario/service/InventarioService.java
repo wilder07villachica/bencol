@@ -11,6 +11,8 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface InventarioService {
+    PaginaResponse<InventarioResponse> findAll(int pagina, int tamanio);
+
     PaginaResponse<MovimientoInventarioResponse> findMovimientos(int pagina, int tamanio, Long productoId, TipoMovimientoInventario tipoMovimiento, LocalDate desde, LocalDate hasta);
     InventarioResponse findById(Long id);
     InventarioResponse findByProductoId(Long productoId);

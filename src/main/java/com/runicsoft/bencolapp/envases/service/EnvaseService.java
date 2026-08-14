@@ -20,6 +20,10 @@ public interface EnvaseService {
 
     CuentaEnvasesClienteResponse registrarMovimiento(MovimientoEnvaseRequest request);
 
+    CuentaEnvasesClienteResponse registrarSaldoInicial(
+            SaldoInicialEnvaseRequest request
+    );
+
     void revertirMovimientoVenta(
             Long clienteId,
             Long productoId,
@@ -27,6 +31,4 @@ public interface EnvaseService {
             Integer cantidad,
             String referencia
     );
-
-    CuentaEnvasesClienteResponse registrarSaldoInicial(SaldoInicialEnvaseRequest request);
 }

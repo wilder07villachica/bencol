@@ -44,6 +44,31 @@ public class InventarioServiceImpl implements InventarioService {
 
     @Override
     @Transactional(readOnly = true)
+    public PaginaResponse<InventarioResponse> findAll(
+            int pagina,
+            int tamanio
+    ) {
+        validarPaginacion(pagina, tamanio);
+
+        Pageable pageable = PageRequest.of(
+                pagina,
+                tamanio,
+                Sort.by("id").ascending()
+        );
+
+        Page<Inventario> inventarios =
+                inventarioRepository.findAll(pageable);
+
+        Page<InventarioResponse> responses =
+                inventarios.map(
+                        inventarioMapper::convertirInventarioDto
+                );
+
+        return PaginaResponse.from(responses);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public PaginaResponse<MovimientoInventarioResponse> findMovimientos(int pagina, int tamanio, Long productoId, TipoMovimientoInventario tipoMovimiento, LocalDate desde, LocalDate hasta) {
         validarPaginacion(pagina, tamanio);
         validarRangoFechas(desde, hasta);

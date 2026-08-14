@@ -109,7 +109,7 @@ public class SecurityConfig {
                         // PRECIOS ESPECIALES
                         .requestMatchers(
                                 HttpMethod.GET,
-                                "/bencol.agua/clientes-precios/**"
+                                "/bencol.agua/precios-clientes/**"
                         ).hasAnyRole(
                                 "ADMIN",
                                 "VENTAS"
@@ -117,7 +117,7 @@ public class SecurityConfig {
 
                         .requestMatchers(
                                 HttpMethod.POST,
-                                "/bencol.agua/clientes-precios/**"
+                                "/bencol.agua/precios-clientes/**"
                         ).hasAnyRole(
                                 "ADMIN",
                                 "VENTAS"
@@ -125,7 +125,7 @@ public class SecurityConfig {
 
                         .requestMatchers(
                                 HttpMethod.PUT,
-                                "/bencol.agua/clientes-precios/**"
+                                "/bencol.agua/precios-clientes/**"
                         ).hasAnyRole(
                                 "ADMIN",
                                 "VENTAS"
@@ -133,7 +133,7 @@ public class SecurityConfig {
 
                         .requestMatchers(
                                 HttpMethod.DELETE,
-                                "/bencol.agua/clientes-precios/**"
+                                "/bencol.agua/precios-clientes/**"
                         ).hasRole("ADMIN")
 
                         // VENTAS

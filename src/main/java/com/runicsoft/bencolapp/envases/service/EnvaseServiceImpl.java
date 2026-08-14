@@ -33,11 +33,14 @@ public class EnvaseServiceImpl implements EnvaseService {
 
     private final CuentaEnvasesClienteRepository cuentaEnvasesClienteRepository;
     private final MovimientoEnvaseRepository movimientoEnvaseRepository;
+
     private final ClienteRepository clienteRepository;
     private final ProductoRepository productoRepository;
+
     private final CuentaEnvasesClienteMapper cuentaEnvasesClienteMapper;
     private final MovimientoEnvaseMapper movimientoEnvaseMapper;
 
+    // CONSULTAS
     @Override
     @Transactional(readOnly = true)
     public List<CuentaEnvasesClienteResponse> findAll() {
@@ -51,9 +54,17 @@ public class EnvaseServiceImpl implements EnvaseService {
         validarId(clienteId);
         validarId(productoId);
 
-        CuentaEnvasesCliente cuenta = cuentaEnvasesClienteRepository
-                .findByClienteIdAndProductoId(clienteId, productoId)
-                .orElseThrow(() -> new ResourceNotFoundException(MessageConstants.CUENTA_ENVASE_NO_ENCONTRADA));
+        CuentaEnvasesCliente cuenta =
+                cuentaEnvasesClienteRepository
+                        .findByClienteIdAndProductoId(
+                                clienteId,
+                                productoId
+                        )
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        MessageConstants.CUENTA_ENVASE_NO_ENCONTRADA
+                                )
+                        );
 
         return cuentaEnvasesClienteMapper.convertirCuentaDto(cuenta);
     }
@@ -65,7 +76,11 @@ public class EnvaseServiceImpl implements EnvaseService {
 
         getCliente(clienteId);
 
-        List<CuentaEnvasesCliente> cuentas = cuentaEnvasesClienteRepository.findByClienteId(clienteId);
+        List<CuentaEnvasesCliente> cuentas =
+                cuentaEnvasesClienteRepository.findByClienteId(
+                        clienteId
+                );
+
         return cuentaEnvasesClienteMapper.convertirListaCuentaDto(cuentas);
     }
 
@@ -75,25 +90,36 @@ public class EnvaseServiceImpl implements EnvaseService {
         validarId(cuentaId);
 
         if (!cuentaEnvasesClienteRepository.existsById(cuentaId)) {
-            throw new ResourceNotFoundException(MessageConstants.CUENTA_ENVASE_NO_ENCONTRADA);
+            throw new ResourceNotFoundException(
+                    MessageConstants.CUENTA_ENVASE_NO_ENCONTRADA
+            );
         }
 
-        List<MovimientoEnvase> movimientos = movimientoEnvaseRepository
-                .findByCuentaEnvaseIdOrderByFechaMovimientoDesc(cuentaId);
+        List<MovimientoEnvase> movimientos =
+                movimientoEnvaseRepository
+                        .findByCuentaEnvaseIdOrderByFechaMovimientoDesc(
+                                cuentaId
+                        );
 
-        return movimientoEnvaseMapper.convertirListaMovimientoDto(movimientos);
+        return movimientoEnvaseMapper.convertirListaMovimientoDto(
+                movimientos
+        );
     }
 
+    // MOVIMIENTOS MANUALES DESDE EL MÓDULO ENVASES
     @Override
     @Transactional
     public CuentaEnvasesClienteResponse registrarMovimiento(MovimientoEnvaseRequest request) {
         Cliente cliente = getCliente(request.getClienteId());
         Producto producto = getProducto(request.getProductoId());
-
         validarProductoEnvase(producto);
         validarTipoMovimiento(request.getTipoMovimiento());
 
-        CuentaEnvasesCliente cuenta = obtenerOCrearCuenta(cliente, producto);
+        CuentaEnvasesCliente cuenta =
+                obtenerOCrearCuenta(
+                        cliente,
+                        producto
+                );
 
         switch (request.getTipoMovimiento()) {
             case COMPRA -> registrarCompra(cuenta, request.getCantidad());
@@ -104,7 +130,8 @@ public class EnvaseServiceImpl implements EnvaseService {
             case AJUSTE -> throw new BusinessException(MessageConstants.AJUSTE_ENVASE_NO_PERMITIDO);
         }
 
-        CuentaEnvasesCliente cuentaActualizada = cuentaEnvasesClienteRepository.save(cuenta);
+        CuentaEnvasesCliente cuentaActualizada =
+                cuentaEnvasesClienteRepository.save(cuenta);
 
         registrarHistorial(
                 cuentaActualizada,
@@ -113,9 +140,12 @@ public class EnvaseServiceImpl implements EnvaseService {
                 request.getReferencia()
         );
 
-        return cuentaEnvasesClienteMapper.convertirCuentaDto(cuentaActualizada);
+        return cuentaEnvasesClienteMapper.convertirCuentaDto(
+                cuentaActualizada
+        );
     }
 
+    // REVERSIÓN DE VENTA
     @Override
     @Transactional
     public void revertirMovimientoVenta(Long clienteId, Long productoId, TipoMovimientoEnvase tipoMovimiento, Integer cantidad, String referencia) {
@@ -134,16 +164,17 @@ public class EnvaseServiceImpl implements EnvaseService {
             );
         }
 
-        CuentaEnvasesCliente cuenta = cuentaEnvasesClienteRepository
-                .findByClienteIdAndProductoIdForUpdate(
-                        clienteId,
-                        productoId
-                )
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                MessageConstants.CUENTA_ENVASE_NO_ENCONTRADA
+        CuentaEnvasesCliente cuenta =
+                cuentaEnvasesClienteRepository
+                        .findByClienteIdAndProductoIdForUpdate(
+                                clienteId,
+                                productoId
                         )
-                );
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        MessageConstants.CUENTA_ENVASE_NO_ENCONTRADA
+                                )
+                        );
 
         switch (tipoMovimiento) {
 
@@ -151,6 +182,7 @@ public class EnvaseServiceImpl implements EnvaseService {
             }
 
             case PRESTAMO -> {
+
                 if (cantidad > cuenta.getCantidadPrestados()) {
                     throw new BusinessException(
                             "No es posible revertir el préstamo porque " +
@@ -164,6 +196,7 @@ public class EnvaseServiceImpl implements EnvaseService {
             }
 
             case COMPRA -> {
+
                 if (cantidad > cuenta.getCantidadPropios()) {
                     throw new BusinessException(
                             "No es posible revertir la compra porque " +
@@ -181,8 +214,7 @@ public class EnvaseServiceImpl implements EnvaseService {
             );
         }
 
-        CuentaEnvasesCliente cuentaActualizada =
-                cuentaEnvasesClienteRepository.save(cuenta);
+        CuentaEnvasesCliente cuentaActualizada = cuentaEnvasesClienteRepository.save(cuenta);
 
         registrarHistorial(
                 cuentaActualizada,
@@ -192,6 +224,7 @@ public class EnvaseServiceImpl implements EnvaseService {
         );
     }
 
+    // SALDO INICIAL
     @Override
     @Transactional
     public CuentaEnvasesClienteResponse registrarSaldoInicial(SaldoInicialEnvaseRequest request) {
@@ -202,16 +235,18 @@ public class EnvaseServiceImpl implements EnvaseService {
 
         if (request.getCantidadPropios() == 0 &&
                 request.getCantidadPrestados() == 0) {
+
             throw new BusinessException(
                     "El saldo inicial debe contener al menos un envase."
             );
         }
 
         Optional<CuentaEnvasesCliente> cuentaExistente =
-                cuentaEnvasesClienteRepository.findByClienteIdAndProductoIdForUpdate(
-                        cliente.getId(),
-                        producto.getId()
-                );
+                cuentaEnvasesClienteRepository
+                        .findByClienteIdAndProductoIdForUpdate(
+                                cliente.getId(),
+                                producto.getId()
+                        );
 
         if (cuentaExistente.isPresent()) {
             throw new BusinessException(
@@ -220,13 +255,13 @@ public class EnvaseServiceImpl implements EnvaseService {
         }
 
         CuentaEnvasesCliente cuenta = new CuentaEnvasesCliente();
+
         cuenta.setCliente(cliente);
         cuenta.setProducto(producto);
         cuenta.setCantidadPropios(request.getCantidadPropios());
         cuenta.setCantidadPrestados(request.getCantidadPrestados());
 
-        CuentaEnvasesCliente cuentaGuardada =
-                cuentaEnvasesClienteRepository.save(cuenta);
+        CuentaEnvasesCliente cuentaGuardada = cuentaEnvasesClienteRepository.save(cuenta);
 
         Integer cantidadTotal =
                 request.getCantidadPropios()
@@ -247,38 +282,55 @@ public class EnvaseServiceImpl implements EnvaseService {
         );
     }
 
+    // CLIENTE / PRODUCTO / CUENTA
     private Cliente getCliente(Long id) {
-        return clienteRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(MessageConstants.CLIENTE_NO_ENCONTRADO));
+        return clienteRepository
+                .findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                MessageConstants.CLIENTE_NO_ENCONTRADO
+                        )
+                );
     }
 
     private Producto getProducto(Long id) {
-        return productoRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(MessageConstants.PRODUCTO_NO_ENCONTRADO));
+        return productoRepository
+                .findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                MessageConstants.PRODUCTO_NO_ENCONTRADO
+                        )
+                );
     }
 
     private CuentaEnvasesCliente obtenerOCrearCuenta(Cliente cliente, Producto producto) {
         return cuentaEnvasesClienteRepository
                 .findByClienteIdAndProductoIdForUpdate(cliente.getId(), producto.getId())
                 .orElseGet(() -> {
+
                     CuentaEnvasesCliente cuenta = new CuentaEnvasesCliente();
+
                     cuenta.setCliente(cliente);
                     cuenta.setProducto(producto);
                     cuenta.setCantidadPropios(0);
                     cuenta.setCantidadPrestados(0);
+
                     return cuentaEnvasesClienteRepository.save(cuenta);
                 });
     }
 
+    // OPERACIONES SOBRE CUENTA DE ENVASES
     private void registrarCompra(CuentaEnvasesCliente cuenta, Integer cantidad) {
         cuenta.setCantidadPropios(
-                cuenta.getCantidadPropios() + cantidad
+                cuenta.getCantidadPropios()
+                        + cantidad
         );
     }
 
     private void registrarPrestamo(CuentaEnvasesCliente cuenta, Integer cantidad) {
         cuenta.setCantidadPrestados(
-                cuenta.getCantidadPrestados() + cantidad
+                cuenta.getCantidadPrestados()
+                        + cantidad
         );
     }
 
@@ -288,58 +340,67 @@ public class EnvaseServiceImpl implements EnvaseService {
         }
 
         cuenta.setCantidadPrestados(
-                cuenta.getCantidadPrestados() - cantidad
+                cuenta.getCantidadPrestados()
+                        - cantidad
         );
     }
 
     private void registrarIntercambio(CuentaEnvasesCliente cuenta, Integer cantidad) {
-        Integer cantidadDisponible = cuenta.getCantidadPropios()
-                + cuenta.getCantidadPrestados();
+        Integer cantidadDisponible =
+                cuenta.getCantidadPropios()
+                        + cuenta.getCantidadPrestados();
 
         if (cantidad > cantidadDisponible) {
-            throw new BusinessException(MessageConstants.INTERCAMBIO_ENVASE_SUPERA_DISPONIBLES);
+
+            throw new BusinessException(
+                    MessageConstants.INTERCAMBIO_ENVASE_SUPERA_DISPONIBLES
+            );
         }
     }
 
     private void registrarConversionCompra(CuentaEnvasesCliente cuenta, Integer cantidad) {
         if (cantidad > cuenta.getCantidadPrestados()) {
-            throw new BusinessException(MessageConstants.CONVERSION_ENVASE_SUPERA_PRESTADOS);
+            throw new BusinessException(
+                    MessageConstants.CONVERSION_ENVASE_SUPERA_PRESTADOS
+            );
         }
 
         cuenta.setCantidadPrestados(
-                cuenta.getCantidadPrestados() - cantidad
+                cuenta.getCantidadPrestados()
+                        - cantidad
         );
 
         cuenta.setCantidadPropios(
-                cuenta.getCantidadPropios() + cantidad
+                cuenta.getCantidadPropios()
+                        + cantidad
         );
     }
 
-    private void registrarHistorial(
-            CuentaEnvasesCliente cuenta,
-            TipoMovimientoEnvase tipoMovimiento,
-            Integer cantidad,
-            String referencia
-    ) {
+    // HISTORIAL ENVASES
+    private void registrarHistorial(CuentaEnvasesCliente cuenta, TipoMovimientoEnvase tipoMovimiento, Integer cantidad, String referencia) {
         MovimientoEnvase movimiento = new MovimientoEnvase();
-
         movimiento.setCuentaEnvase(cuenta);
         movimiento.setTipoMovimiento(tipoMovimiento);
         movimiento.setCantidad(cantidad);
         movimiento.setReferencia(referencia);
         movimiento.setRegistradoPor(SecurityUtils.getUsuarioActual());
-
         movimientoEnvaseRepository.save(movimiento);
     }
 
+    // VALIDACIONES
     private void validarProductoEnvase(Producto producto) {
-        if (producto.getCategoria() != ProductoCategoria.BIDON) {
-            throw new BusinessException(MessageConstants.PRODUCTO_NO_ES_ENVASE);
+        if (producto.getCategoria() !=
+                ProductoCategoria.BIDON) {
+
+            throw new BusinessException(
+                    MessageConstants.PRODUCTO_NO_ES_ENVASE
+            );
         }
     }
 
     private void validarTipoMovimiento(TipoMovimientoEnvase tipoMovimiento) {
         if (tipoMovimiento == null) {
+
             throw new IllegalArgumentException(
                     "El tipo de movimiento de envase es obligatorio."
             );
@@ -347,8 +408,12 @@ public class EnvaseServiceImpl implements EnvaseService {
     }
 
     private void validarId(Long id) {
+
         if (id == null || id <= 0) {
-            throw new IllegalArgumentException(MessageConstants.ID_INVALIDO);
+
+            throw new IllegalArgumentException(
+                    MessageConstants.ID_INVALIDO
+            );
         }
     }
 }

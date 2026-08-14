@@ -555,10 +555,7 @@ public class VentaServiceImpl implements VentaService {
         }
     }
 
-    private void procesarEnvasesVenta(
-            Venta venta,
-            List<DetalleVentaRequest> detalles
-    ) {
+    private void procesarEnvasesVenta(Venta venta, List<DetalleVentaRequest> detalles) {
         for (DetalleVentaRequest detalle : detalles) {
             Producto producto = getProducto(detalle.getProductoId());
 
