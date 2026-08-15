@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8"/>
 
@@ -11,46 +12,24 @@
             margin: 10mm;
         }
 
-        /*
-         * =====================================================
-         * PALETA DEL DOCUMENTO
-         * =====================================================
-         *
-         * Cuando tengas los colores definitivos de la empresa,
-         * modifica únicamente estos valores repetidos.
-         *
-         * PRINCIPAL:   #174A7E
-         * PRINCIPAL 2: #0F365E
-         * SUAVE:       #F4F7FA
-         * BORDE:       #DCE3EA
-         * TEXTO:       #20242A
-         * MUTED:       #667085
-         */
-
         body {
             margin: 0;
             padding: 0;
             font-family: Arial, Helvetica, sans-serif;
+            font-size: 10px;
             color: #20242A;
             background: #FFFFFF;
-            font-size: 10px;
         }
 
         .page {
             width: 100%;
         }
 
-        /*
-         * =====================================================
-         * CABECERA
-         * =====================================================
-         */
-
         .header {
             width: 100%;
             padding-bottom: 12px;
             margin-bottom: 16px;
-            border-bottom: 3px solid #174A7E;
+            border-bottom: 2px solid #CBD5E1;
         }
 
         .header-table {
@@ -69,90 +48,72 @@
             text-align: right;
         }
 
-        .brand-table {
-            border-collapse: collapse;
+        .bencol-logo {
+            max-width: 190px;
+            max-height: 90px;
         }
 
-        .brand-logo-cell {
-            vertical-align: middle;
-            padding-right: 12px;
-        }
-
-        .brand-info-cell {
-            vertical-align: middle;
-        }
-
-        .brand-logo {
-            max-width: 95px;
-            max-height: 75px;
+        .brand-fallback {
+            padding: 8px 0;
         }
 
         .brand-name {
-            font-size: 23px;
+            font-size: 22px;
             font-weight: bold;
-            color: #174A7E;
-            letter-spacing: 0.8px;
-            margin-bottom: 3px;
-        }
-
-        .brand-business-name {
-            font-size: 11px;
-            color: #20242A;
+            color: #334155;
+            letter-spacing: 0.6px;
             margin-bottom: 4px;
         }
 
-        .brand-subtitle {
+        .brand-business-name {
+            font-size: 10px;
+            color: #475569;
+            margin-bottom: 3px;
+        }
+
+        .brand-email {
             font-size: 9px;
-            color: #667085;
+            color: #64748B;
         }
 
         .document-title {
-            font-size: 25px;
+            font-size: 24px;
             font-weight: bold;
-            color: #0F365E;
-            letter-spacing: 1px;
+            color: #1E293B;
+            letter-spacing: 0.8px;
             margin-bottom: 7px;
         }
 
         .document-code {
             display: inline-block;
             padding: 7px 13px;
-            background: #174A7E;
-            color: #FFFFFF;
-            border-radius: 7px;
-            font-size: 14px;
+            background: #E8F0F8;
+            color: #174A7E;
+            border: 1px solid #D5E1EC;
+            border-radius: 6px;
+            font-size: 13px;
             font-weight: bold;
             margin-bottom: 7px;
         }
 
         .document-date {
             font-size: 10px;
-            color: #475467;
+            color: #64748B;
         }
-
-        /*
-         * =====================================================
-         * TÍTULOS DE BLOQUES
-         * =====================================================
-         */
 
         .block-title {
             display: inline-block;
-            background: #174A7E;
-            color: #FFFFFF;
+            background: #E9EEF3;
+            color: #334155;
             padding: 6px 13px;
+            border: 1px solid #DCE3EA;
+            border-bottom: none;
             border-radius: 7px 7px 0 0;
-            font-size: 10px;
+            font-size: 9px;
             font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 0.4px;
         }
-
-        /*
-         * =====================================================
-         * EMISOR / RECEPTOR
-         * =====================================================
-         */
 
         .party-section {
             width: 100%;
@@ -177,11 +138,11 @@
         }
 
         .party-card {
-            min-height: 150px;
-            border: 1px solid #DCE3EA;
-            background: #F8FAFC;
-            border-radius: 0 8px 8px 8px;
+            min-height: 138px;
             padding: 14px;
+            border: 1px solid #DCE3EA;
+            background: #FAFBFC;
+            border-radius: 0 8px 8px 8px;
         }
 
         .party-name {
@@ -193,7 +154,7 @@
 
         .party-business-name {
             font-size: 10px;
-            color: #475467;
+            color: #64748B;
             margin-bottom: 11px;
         }
 
@@ -204,7 +165,7 @@
 
         .party-label {
             font-weight: bold;
-            color: #174A7E;
+            color: #475569;
         }
 
         .party-value {
@@ -217,18 +178,12 @@
         }
 
         .contact-subtitle {
-            font-size: 10px;
-            font-weight: bold;
-            color: #174A7E;
-            text-transform: uppercase;
             margin-bottom: 8px;
+            font-size: 9px;
+            font-weight: bold;
+            color: #475569;
+            text-transform: uppercase;
         }
-
-        /*
-         * =====================================================
-         * ITEMS
-         * =====================================================
-         */
 
         .items-section {
             margin-bottom: 16px;
@@ -239,9 +194,9 @@
         }
 
         .items-wrapper {
+            overflow: hidden;
             border: 1px solid #DCE3EA;
             border-radius: 7px;
-            overflow: hidden;
         }
 
         .items-table {
@@ -251,21 +206,22 @@
         }
 
         .items-table thead {
-            background: #174A7E;
+            background: #E9EEF3;
         }
 
         .items-table th {
-            color: #FFFFFF;
+            padding: 8px 5px;
+            color: #334155;
             font-size: 8px;
             font-weight: bold;
             text-transform: uppercase;
             text-align: center;
-            padding: 8px 5px;
-            border-right: 1px solid rgba(255,255,255,0.25);
+            border-right: 1px solid #D5DDE5;
+            border-bottom: 1px solid #D5DDE5;
         }
 
         .items-table td {
-            padding: 10px 6px;
+            padding: 9px 6px;
             border-right: 1px solid #E4E7EC;
             border-bottom: 1px solid #E4E7EC;
             vertical-align: middle;
@@ -282,21 +238,21 @@
         }
 
         .col-image {
-            width: 15%;
+            width: 14%;
             text-align: center;
         }
 
         .col-description {
-            width: 31%;
+            width: 32%;
         }
 
         .col-quantity {
-            width: 11%;
+            width: 10%;
             text-align: center;
         }
 
         .col-frequency {
-            width: 14%;
+            width: 15%;
             text-align: center;
         }
 
@@ -311,46 +267,45 @@
         }
 
         .product-image-container {
-            width: 72px;
-            height: 72px;
+            width: 70px;
+            height: 70px;
             margin: 0 auto;
             border: 1px solid #E4E7EC;
-            background: #F8FAFC;
+            background: #FAFBFC;
             border-radius: 6px;
             text-align: center;
+            overflow: hidden;
         }
 
         .product-image-real {
-            width: 70px;
-            height: 70px;
-            object-fit: contain;
-            border-radius: 5px;
+            width: 68px;
+            height: 68px;
         }
 
         .product-image-placeholder {
-            width: 70px;
-            height: 70px;
+            width: 68px;
+            height: 68px;
             margin: 0 auto;
             border: 1px solid #E4E7EC;
-            background: #F8FAFC;
+            background: #FAFBFC;
             border-radius: 6px;
-            line-height: 70px;
+            line-height: 68px;
             color: #98A2B3;
             font-size: 7px;
             text-align: center;
         }
 
         .product-name {
+            margin-bottom: 5px;
             font-size: 11px;
             font-weight: bold;
             color: #20242A;
-            margin-bottom: 5px;
         }
 
         .product-content {
+            margin-bottom: 4px;
             font-size: 9px;
             color: #667085;
-            margin-bottom: 4px;
         }
 
         .product-extra {
@@ -362,7 +317,7 @@
         .quantity-value {
             font-size: 12px;
             font-weight: bold;
-            color: #174A7E;
+            color: #334155;
         }
 
         .frequency-value {
@@ -385,14 +340,8 @@
         .subtotal-value {
             font-size: 10px;
             font-weight: bold;
-            color: #174A7E;
+            color: #334155;
         }
-
-        /*
-         * =====================================================
-         * CONDICIONES / OBSERVACIONES
-         * =====================================================
-         */
 
         .commercial-section {
             width: 100%;
@@ -417,10 +366,10 @@
         }
 
         .commercial-card {
+            padding: 12px 14px;
             border: 1px solid #DCE3EA;
             border-radius: 0 8px 8px 8px;
             background: #FFFFFF;
-            padding: 12px 14px;
         }
 
         .condition-row {
@@ -434,11 +383,11 @@
 
         .condition-label {
             display: block;
-            color: #174A7E;
+            margin-bottom: 3px;
+            color: #475569;
             font-size: 8px;
             font-weight: bold;
             text-transform: uppercase;
-            margin-bottom: 3px;
         }
 
         .condition-value {
@@ -447,12 +396,12 @@
         }
 
         .observation-card {
-            border: 1px solid #DCE3EA;
-            border-radius: 0 8px 8px 8px;
-            background: #F8FAFC;
-            padding: 12px 14px;
             min-height: 62px;
             margin-bottom: 10px;
+            padding: 12px 14px;
+            border: 1px solid #DCE3EA;
+            border-radius: 0 8px 8px 8px;
+            background: #FAFBFC;
         }
 
         .observation-value {
@@ -460,16 +409,10 @@
             line-height: 1.5;
         }
 
-        /*
-         * =====================================================
-         * TOTALES
-         * =====================================================
-         */
-
         .totals-card {
+            overflow: hidden;
             border: 1px solid #DCE3EA;
             border-radius: 8px;
-            overflow: hidden;
             background: #FFFFFF;
         }
 
@@ -479,49 +422,44 @@
         }
 
         .totals-table td {
-            padding: 7px 12px;
+            padding: 8px 12px;
+            border-bottom: 1px solid #EEF1F4;
         }
 
         .totals-label {
-            color: #344054;
             font-size: 10px;
+            color: #475569;
         }
 
         .totals-value {
             text-align: right;
+            font-size: 11px;
+            font-weight: bold;
             color: #20242A;
+        }
+
+        .total-final td {
+            padding-top: 11px;
+            padding-bottom: 11px;
+            background: #E8F0F8;
+            border-bottom: none;
+        }
+
+        .total-final .totals-label {
+            color: #334155;
             font-size: 11px;
             font-weight: bold;
         }
 
-        .total-final td {
-            background: #174A7E;
-            color: #FFFFFF;
-            padding-top: 10px;
-            padding-bottom: 10px;
-        }
-
-        .total-final .totals-label {
-            color: #FFFFFF;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
         .total-final .totals-value {
-            color: #FFFFFF;
-            font-size: 20px;
+            color: #174A7E;
+            font-size: 19px;
             font-weight: bold;
         }
-
-        /*
-         * =====================================================
-         * FIRMA
-         * =====================================================
-         */
 
         .signature-section {
-            margin-top: 22px;
-            margin-bottom: 18px;
+            margin-top: 24px;
+            margin-bottom: 20px;
             text-align: center;
         }
 
@@ -532,7 +470,7 @@
         .signature-line {
             width: 190px;
             margin: 0 auto;
-            border-top: 1px solid #344054;
+            border-top: 1px solid #64748B;
             padding-top: 5px;
         }
 
@@ -543,23 +481,19 @@
         }
 
         .signature-subtitle {
+            margin-top: 2px;
             font-size: 8px;
             color: #667085;
-            margin-top: 2px;
         }
-
-        /*
-         * =====================================================
-         * FOOTER
-         * =====================================================
-         */
 
         .footer-bar {
             width: 100%;
-            background: #174A7E;
-            color: #FFFFFF;
+            box-sizing: border-box;
             padding: 9px 10px;
             border-radius: 4px;
+            border-top: 1px solid #CBD5E1;
+            border-bottom: 1px solid #CBD5E1;
+            background: #F8FAFC;
         }
 
         .footer-table {
@@ -569,23 +503,24 @@
 
         .footer-table td {
             width: 33.33%;
-            color: #FFFFFF;
+            color: #475569;
             font-size: 8px;
             text-align: center;
             vertical-align: middle;
         }
 
         .footer-value {
-            color: #FFFFFF;
+            color: #475569;
         }
 
         .footer-message {
             margin-top: 8px;
             text-align: center;
             font-size: 8px;
-            color: #667085;
+            color: #94A3B8;
         }
     </style>
+
 </head>
 
 <body>
@@ -595,48 +530,40 @@
     <div class="header">
 
         <table class="header-table">
+
             <tr>
 
                 <td class="header-left">
 
-                    <table class="brand-table">
-                        <tr>
+                    <img
+                            th:if="${logoBencol != null}"
+                            class="bencol-logo"
+                            th:src="${logoBencol}"
+                            alt="BENCOL N&amp;L EIRL"/>
 
-                            <td
-                                    class="brand-logo-cell"
-                                    th:if="${logoEmpresa != null}">
+                    <div
+                            class="brand-fallback"
+                            th:unless="${logoBencol != null}">
 
-                                <img
-                                        class="brand-logo"
-                                        th:src="${logoEmpresa}"
-                                        alt="Logo de la empresa"/>
+                        <div
+                                class="brand-name"
+                                th:text="${cotizacion.empresa.nombreComercial}">
+                            BENCOL
+                        </div>
 
-                            </td>
+                        <div
+                                class="brand-business-name"
+                                th:text="${cotizacion.empresa.razonSocial}">
+                            BENCOL N&amp;L EIRL
+                        </div>
 
-                            <td class="brand-info-cell">
+                        <div
+                                class="brand-email"
+                                th:if="${cotizacion.empresa.email != null and !cotizacion.empresa.email.isBlank()}"
+                                th:text="${cotizacion.empresa.email}">
+                        </div>
 
-                                <div
-                                        class="brand-name"
-                                        th:text="${cotizacion.empresa.nombreComercial}">
-                                    RUNICSOFT
-                                </div>
-
-                                <div
-                                        class="brand-business-name"
-                                        th:text="${cotizacion.empresa.razonSocial}">
-                                    Desarrollo de Soluciones Integrales
-                                </div>
-
-                                <div
-                                        class="brand-subtitle"
-                                        th:if="${cotizacion.empresa.email != null and !cotizacion.empresa.email.isBlank()}"
-                                        th:text="${cotizacion.empresa.email}">
-                                </div>
-
-                            </td>
-
-                        </tr>
-                    </table>
+                    </div>
 
                 </td>
 
@@ -653,18 +580,16 @@
                     </div>
 
                     <div class="document-date">
-
                         Fecha:
-
                         <span
                                 th:text="${#temporals.format(cotizacion.fechaCreacion, 'dd/MM/yyyy')}">
                         </span>
-
                     </div>
 
                 </td>
 
             </tr>
+
         </table>
 
     </div>
@@ -672,6 +597,7 @@
     <div class="party-section">
 
         <table class="party-table">
+
             <tr>
 
                 <td class="party-left">
@@ -685,16 +611,16 @@
                         <div
                                 class="party-name"
                                 th:text="${cotizacion.empresa.nombreComercial}">
-                            RUNICSOFT
+                            BENCOL
                         </div>
 
                         <div
                                 class="party-business-name"
                                 th:text="${cotizacion.empresa.razonSocial}">
+                            BENCOL N&amp;L EIRL
                         </div>
 
                         <div class="party-row">
-
                             <span class="party-label">
                                 RUC:
                             </span>
@@ -703,7 +629,6 @@
                                     class="party-value"
                                     th:text="${cotizacion.empresa.ruc}">
                             </span>
-
                         </div>
 
                         <div
@@ -830,6 +755,7 @@
                 </td>
 
             </tr>
+
         </table>
 
     </div>
@@ -989,6 +915,7 @@
     <div class="commercial-section">
 
         <table class="commercial-table">
+
             <tr>
 
                 <td class="commercial-left">
@@ -1040,6 +967,16 @@
                             <span
                                     class="condition-value"
                                     th:text="${#temporals.format(cotizacion.fechaVencimiento, 'dd/MM/yyyy')}">
+                            </span>
+
+                        </div>
+
+                        <div
+                                class="condition-row"
+                                th:unless="${(cotizacion.condicionesPago != null and !cotizacion.condicionesPago.isBlank()) or (cotizacion.plazoEntrega != null and !cotizacion.plazoEntrega.isBlank()) or cotizacion.fechaVencimiento != null}">
+
+                            <span class="condition-value">
+                                Sin condiciones comerciales adicionales.
                             </span>
 
                         </div>
@@ -1144,6 +1081,7 @@
                 </td>
 
             </tr>
+
         </table>
 
     </div>
@@ -1160,7 +1098,7 @@
             </div>
 
             <div class="signature-subtitle">
-                Empresa emisora
+                BENCOL N&amp;L EIRL
             </div>
 
         </div>
@@ -1170,6 +1108,7 @@
     <div class="footer-bar">
 
         <table class="footer-table">
+
             <tr>
 
                 <td>
@@ -1203,15 +1142,17 @@
                 </td>
 
             </tr>
+
         </table>
 
     </div>
 
     <div class="footer-message">
-        Gracias por confiar en nosotros.
+        Gracias por confiar en BENCOL N&amp;L EIRL.
     </div>
 
 </div>
 
 </body>
+
 </html>

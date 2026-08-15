@@ -6,6 +6,7 @@ import com.runicsoft.bencolapp.cotizaciones.models.DetalleCotizacion;
 import com.runicsoft.bencolapp.cotizaciones.repository.CotizacionRepository;
 import com.runicsoft.bencolapp.utils.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.TemplateEngine;
@@ -24,14 +25,20 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class CotizacionPdfServiceImpl implements CotizacionPdfService {
 
+    private static final String LOGO_BENCOL =
+            "static/images/cotizaciones/bencolimg.jpeg";
+
     private final CotizacionRepository cotizacionRepository;
     private final TemplateEngine templateEngine;
 
     @Override
     @Transactional(readOnly = true)
     public byte[] generarPdf(Long cotizacionId) {
+
         if (cotizacionId == null || cotizacionId <= 0) {
-            throw new IllegalArgumentException("La referencia de la cotización no es válida.");
+            throw new IllegalArgumentException(
+                    "La referencia de la cotización no es válida."
+            );
         }
 
         Cotizacion cotizacion = cotizacionRepository.findById(cotizacionId)
@@ -42,21 +49,49 @@ public class CotizacionPdfServiceImpl implements CotizacionPdfService {
         try {
             Context context = new Context();
 
-            context.setVariable("cotizacion", cotizacion);
-            context.setVariable("logoEmpresa", convertirLogoEmpresa(cotizacion));
-            context.setVariable("imagenesDetalles", convertirImagenesDetalles(cotizacion));
+            context.setVariable(
+                    "cotizacion",
+                    cotizacion
+            );
+
+            context.setVariable(
+                    "logoBencol",
+                    convertirRecursoClasspathBase64(
+                            LOGO_BENCOL,
+                            "image/jpeg"
+                    )
+            );
+
+            context.setVariable(
+                    "logoEmpresa",
+                    convertirLogoEmpresa(cotizacion)
+            );
+
+            context.setVariable(
+                    "imagenesDetalles",
+                    convertirImagenesDetalles(cotizacion)
+            );
 
             String html = templateEngine.process(
                     "cotizaciones/cotizacion",
                     context
             );
 
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            ByteArrayOutputStream outputStream =
+                    new ByteArrayOutputStream();
 
-            PdfRendererBuilder builder = new PdfRendererBuilder();
+            PdfRendererBuilder builder =
+                    new PdfRendererBuilder();
+
             builder.useFastMode();
-            builder.withHtmlContent(html, null);
+
+            builder.withHtmlContent(
+                    html,
+                    null
+            );
+
             builder.toStream(outputStream);
+
             builder.run();
 
             return outputStream.toByteArray();
@@ -70,6 +105,11 @@ public class CotizacionPdfServiceImpl implements CotizacionPdfService {
     }
 
     private String convertirLogoEmpresa(Cotizacion cotizacion) {
+
+        if (cotizacion.getEmpresa() == null) {
+            return null;
+        }
+
         if (cotizacion.getEmpresa().getLogoRuta() == null ||
                 cotizacion.getEmpresa().getLogoRuta().isBlank()) {
             return null;
@@ -81,10 +121,18 @@ public class CotizacionPdfServiceImpl implements CotizacionPdfService {
         );
     }
 
-    private Map<Long, String> convertirImagenesDetalles(Cotizacion cotizacion) {
+    private Map<Long, String> convertirImagenesDetalles(
+            Cotizacion cotizacion
+    ) {
+
         Map<Long, String> imagenes = new HashMap<>();
 
+        if (cotizacion.getDetalles() == null) {
+            return imagenes;
+        }
+
         for (DetalleCotizacion detalle : cotizacion.getDetalles()) {
+
             if (detalle.getImagenRuta() == null ||
                     detalle.getImagenRuta().isBlank()) {
                 continue;
@@ -96,29 +144,80 @@ public class CotizacionPdfServiceImpl implements CotizacionPdfService {
             );
 
             if (imagen != null) {
-                imagenes.put(detalle.getId(), imagen);
+                imagenes.put(
+                        detalle.getId(),
+                        imagen
+                );
             }
         }
 
         return imagenes;
     }
 
-    private String convertirArchivoBase64(String rutaArchivo, String tipoContenido) {
-        try {
-            Path ruta = Paths.get(rutaArchivo).normalize();
+    private String convertirArchivoBase64(
+            String rutaArchivo,
+            String tipoContenido
+    ) {
 
-            if (!Files.exists(ruta) || !Files.isReadable(ruta)) {
+        try {
+            Path ruta = Paths.get(rutaArchivo)
+                    .toAbsolutePath()
+                    .normalize();
+
+            if (!Files.exists(ruta) ||
+                    !Files.isReadable(ruta)) {
                 return null;
             }
 
             byte[] bytes = Files.readAllBytes(ruta);
-            String base64 = Base64.getEncoder().encodeToString(bytes);
 
-            String tipo = tipoContenido != null && !tipoContenido.isBlank()
-                    ? tipoContenido
-                    : "image/png";
+            String base64 = Base64
+                    .getEncoder()
+                    .encodeToString(bytes);
 
-            return "data:" + tipo + ";base64," + base64;
+            String tipo =
+                    tipoContenido != null &&
+                            !tipoContenido.isBlank()
+                            ? tipoContenido
+                            : "image/png";
+
+            return "data:"
+                    + tipo
+                    + ";base64,"
+                    + base64;
+
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    private String convertirRecursoClasspathBase64(
+            String rutaRecurso,
+            String tipoContenido
+    ) {
+
+        try {
+            ClassPathResource resource =
+                    new ClassPathResource(rutaRecurso);
+
+            if (!resource.exists()) {
+                return null;
+            }
+
+            byte[] bytes;
+
+            try (var inputStream = resource.getInputStream()) {
+                bytes = inputStream.readAllBytes();
+            }
+
+            String base64 = Base64
+                    .getEncoder()
+                    .encodeToString(bytes);
+
+            return "data:"
+                    + tipoContenido
+                    + ";base64,"
+                    + base64;
 
         } catch (IOException e) {
             return null;
