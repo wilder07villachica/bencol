@@ -10,4 +10,5 @@ public interface EmpresaRepository extends JpaRepository<Empresa, Long> {
     Boolean existsByRuc(String ruc);
     Boolean existsByRucAndIdNot(String ruc, Long id);
     Optional<Empresa> findFirstByEstadoOrderByIdAsc(EstadoGeneral estado);
+    Boolean existsByEstado(EstadoGeneral estado);
 }

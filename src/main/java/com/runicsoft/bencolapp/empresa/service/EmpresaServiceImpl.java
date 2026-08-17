@@ -67,6 +67,13 @@ public class EmpresaServiceImpl implements EmpresaService {
     @Override
     @Transactional
     public EmpresaResponse create(EmpresaRequest request) {
+
+        if (empresaRepository.existsByEstado(EstadoGeneral.ACTIVO)) {
+            throw new ConflictException(
+                    "Ya existe una empresa configurada en el sistema."
+            );
+        }
+
         if (empresaRepository.existsByRuc(request.getRuc())) {
             throw new ConflictException(EMPRESA_EXISTENTE);
         }
