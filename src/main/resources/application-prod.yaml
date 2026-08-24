@@ -3,7 +3,7 @@ spring:
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    driver-class-name: org.mariadb.jdbc.Driver
 
   jpa:
     hibernate:
@@ -27,6 +27,7 @@ logging:
     com.runicsoft.bencolapp: INFO
     org.hibernate.SQL: WARN
     org.hibernate.orm.jdbc.bind: WARN
+    org.hibernate.orm.connections.pooling: WARN
     org.springframework.web: WARN
 
 security:
