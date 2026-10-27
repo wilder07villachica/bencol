@@ -6,5 +6,6 @@ public enum RolUsuario {
     CAJA,
     ALMACEN,
     COBRANZAS,
-    COMPRAS
+    COMPRAS,
+    REPARTIDOR
 }

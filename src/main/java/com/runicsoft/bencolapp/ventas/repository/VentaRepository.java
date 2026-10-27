@@ -70,4 +70,7 @@ public interface VentaRepository extends JpaRepository<Venta, Long> {
             @Param("hasta") LocalDateTime hasta,
             Pageable pageable
     );
+
+    @Query("SELECT v FROM Venta v WHERE v.id = :id")
+    Optional<Venta> findByIdForUpdate(@Param("id") Long id);
 }

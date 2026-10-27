@@ -36,7 +36,6 @@ public class SecurityConfig {
                                 .accessDeniedHandler(accessDeniedHandler)
                 )
                 .authorizeHttpRequests(auth -> auth
-
                         // AUTH
                         .requestMatchers(
                                 HttpMethod.POST,
@@ -392,7 +391,50 @@ public class SecurityConfig {
                                 "COMPRAS"
                         )
 
-                        // CUALQUIER OTRO ENDPOINT
+                        // ENTREGAS
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/bencol.agua/entregas/responsables"
+                        ).hasAnyRole(
+                                "ADMIN",
+                                "VENTAS"
+                        )
+
+                        .requestMatchers(
+                                HttpMethod.PATCH,
+                                "/bencol.agua/entregas/*/asignacion"
+                        ).hasAnyRole(
+                                "ADMIN",
+                                "VENTAS"
+                        )
+
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/bencol.agua/entregas",
+                                "/bencol.agua/entregas/**"
+                        ).hasAnyRole(
+                                "ADMIN",
+                                "VENTAS",
+                                "REPARTIDOR"
+                        )
+
+                        .requestMatchers(
+                                HttpMethod.PATCH,
+                                "/bencol.agua/entregas/*/estado"
+                        ).hasAnyRole(
+                                "ADMIN",
+                                "VENTAS",
+                                "REPARTIDOR"
+                        )
+
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/bencol.agua/entregas/*/observaciones"
+                        ).hasAnyRole(
+                                "ADMIN",
+                                "VENTAS",
+                                "REPARTIDOR"
+                        )
                         .anyRequest()
                         .denyAll()
                 )

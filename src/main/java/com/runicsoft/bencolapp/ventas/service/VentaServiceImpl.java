@@ -2,6 +2,7 @@ package com.runicsoft.bencolapp.ventas.service;
 
 import com.runicsoft.bencolapp.clientes.models.Cliente;
 import com.runicsoft.bencolapp.clientes.repository.ClienteRepository;
+import com.runicsoft.bencolapp.entregas.service.EntregaService;
 import com.runicsoft.bencolapp.envases.dtos.request.MovimientoEnvaseRequest;
 import com.runicsoft.bencolapp.envases.service.EnvaseService;
 import com.runicsoft.bencolapp.envases.utils.TipoMovimientoEnvase;
@@ -60,6 +61,7 @@ public class VentaServiceImpl implements VentaService {
     private final InventarioRepository inventarioRepository;
     private final MovimientoInventarioRepository movimientoInventarioRepository;
     private final CuentaCobrarRepository cuentaCobrarRepository;
+    private final EntregaService entregaService;
 
     private final EnvaseService envaseService;
 
@@ -172,6 +174,7 @@ public class VentaServiceImpl implements VentaService {
         descontarInventarioVenta(ventaGuardada, request.getDetalles());
         procesarEnvasesVenta(ventaGuardada, request.getDetalles());
         crearCuentaCobrar(ventaGuardada);
+        entregaService.crearParaVenta(ventaGuardada);
 
         log.info(
                 "Venta creada. id={}, codigo={}, clienteId={}, total={}, usuario={}",
@@ -192,7 +195,12 @@ public class VentaServiceImpl implements VentaService {
             throw new IllegalArgumentException(ID_INVALIDO);
         }
 
-        Venta venta = getVenta(id);
+        Venta venta = ventaRepository.findByIdForUpdate(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                VENTA_NO_ENCONTRADA
+                        )
+                );
 
         if (venta.getEstado() == EstadoVenta.ANULADA) {
             throw new BusinessException(VENTA_YA_ANULADA);
@@ -207,6 +215,7 @@ public class VentaServiceImpl implements VentaService {
         venta.setActualizadoPor(SecurityUtils.getUsuarioActual());
 
         Venta ventaActualizada = ventaRepository.save(venta);
+        entregaService.alAnularVenta(ventaActualizada);
 
         log.info(
                 "Venta anulada. id={}, codigo={}, usuario={}",
