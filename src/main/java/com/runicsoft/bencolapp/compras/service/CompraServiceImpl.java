@@ -193,13 +193,22 @@ public class CompraServiceImpl implements CompraService {
             throw new IllegalArgumentException(ID_INVALIDO);
         }
 
-        Compra compra = getCompra(id);
+        // Evita que dos solicitudes anulen la misma compra a la vez.
+        Compra compra = compraRepository
+                .findByIdForUpdate(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                COMPRA_NO_ENCONTRADA
+                        )
+                );
 
         if (compra.getEstado() == EstadoCompra.ANULADA) {
             throw new BusinessException(COMPRA_YA_ANULADA);
         }
 
+        // Bloquea la cuenta antes de comprobar pagos y tocar inventario.
         validarCuentaParaAnulacion(compra);
+
         revertirInventarioCompra(compra);
         anularCuentaPagar(compra);
 
@@ -318,8 +327,11 @@ public class CompraServiceImpl implements CompraService {
     }
 
     private void validarCuentaParaAnulacion(Compra compra) {
-        CuentaPagar cuenta = cuentaPagarRepository.findByCompraId(compra.getId())
-                .orElseThrow(() -> new ResourceNotFoundException(CUENTA_PAGAR_NO_ENCONTRADA));
+        CuentaPagar cuenta = cuentaPagarRepository
+                .findByCompraIdForUpdate(compra.getId())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(CUENTA_PAGAR_NO_ENCONTRADA)
+                );
 
         if (cuenta.getMontoPagado().compareTo(BigDecimal.ZERO) > 0) {
             throw new BusinessException(COMPRA_CON_PAGOS);
@@ -366,8 +378,15 @@ public class CompraServiceImpl implements CompraService {
     }
 
     private void anularCuentaPagar(Compra compra) {
-        CuentaPagar cuenta = cuentaPagarRepository.findByCompraId(compra.getId())
-                .orElseThrow(() -> new ResourceNotFoundException(CUENTA_PAGAR_NO_ENCONTRADA));
+        CuentaPagar cuenta = cuentaPagarRepository
+                .findByCompraIdForUpdate(compra.getId())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(CUENTA_PAGAR_NO_ENCONTRADA)
+                );
+
+        if (cuenta.getMontoPagado().compareTo(BigDecimal.ZERO) > 0) {
+            throw new BusinessException(COMPRA_CON_PAGOS);
+        }
 
         cuenta.setEstado(EstadoCuentaPagar.ANULADA);
         cuentaPagarRepository.save(cuenta);

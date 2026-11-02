@@ -162,13 +162,35 @@ public class CuentaCobrarServiceImpl implements CuentaCobrarService {
     @Override
     @Transactional
     public CuentaCobrarResponse registrarPago(PagoRequest request) {
-        CuentaCobrar cuenta = getCuentaCobrar(request.getCuentaCobrarId());
+        if (request.getCuentaCobrarId() == null || request.getCuentaCobrarId() <= 0) {
+            throw new IllegalArgumentException(ID_INVALIDO);
+        }
+
+        BigDecimal monto = request.getMonto();
+
+        if (monto == null || monto.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BusinessException("El monto del pago debe ser mayor que cero.");
+        }
+
+        if (monto.stripTrailingZeros().scale() > 2) {
+            throw new BusinessException("El monto del pago no puede tener más de dos decimales.");
+        }
+
+        if (request.getMetodoPago() == null) {
+            throw new BusinessException("El método de pago es obligatorio.");
+        }
+
+        CuentaCobrar cuenta = cuentaCobrarRepository.findByIdForUpdate(request.getCuentaCobrarId())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(CUENTA_COBRAR_NO_ENCONTRADA)
+                );
+
         validarCuentaParaPago(cuenta);
-        validarMontoPago(cuenta, request.getMonto());
+        validarMontoPago(cuenta, monto);
 
         Pago pago = new Pago();
         pago.setCuentaCobrar(cuenta);
-        pago.setMonto(request.getMonto());
+        pago.setMonto(monto);
         pago.setMetodoPago(request.getMetodoPago());
         pago.setReferencia(request.getReferencia());
         pago.setRegistradoPor(SecurityUtils.getUsuarioActual());
@@ -176,10 +198,9 @@ public class CuentaCobrarServiceImpl implements CuentaCobrarService {
         Pago pagoGuardado = pagoRepository.save(pago);
         cuenta.getPagos().add(pagoGuardado);
 
-        CuentaCobrar cuentaActualizada = actualizarCuentaDespuesPago(cuenta, request.getMonto());
+        CuentaCobrar cuentaActualizada = actualizarCuentaDespuesPago(cuenta, monto);
 
-        cajaService.registrarIngreso(
-                pagoGuardado.getMonto(),
+        cajaService.registrarIngreso(pagoGuardado.getMonto(),
                 "Pago de venta " + cuenta.getVenta().getCodigo(),
                 pagoGuardado.getReferencia()
         );

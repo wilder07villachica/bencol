@@ -309,8 +309,11 @@ public class VentaServiceImpl implements VentaService {
     }
 
     private void validarCuentaParaAnulacion(Venta venta) {
-        CuentaCobrar cuenta = cuentaCobrarRepository.findByVentaId(venta.getId())
-                .orElseThrow(() -> new ResourceNotFoundException(CUENTA_COBRAR_NO_ENCONTRADA));
+        CuentaCobrar cuenta = cuentaCobrarRepository
+                .findByVentaIdForUpdate(venta.getId())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(CUENTA_COBRAR_NO_ENCONTRADA)
+                );
 
         if (cuenta.getMontoPagado().compareTo(BigDecimal.ZERO) > 0) {
             throw new BusinessException(VENTA_CON_PAGOS);
@@ -318,8 +321,15 @@ public class VentaServiceImpl implements VentaService {
     }
 
     private void anularCuentaCobrar(Venta venta) {
-        CuentaCobrar cuenta = cuentaCobrarRepository.findByVentaId(venta.getId())
-                .orElseThrow(() -> new ResourceNotFoundException(CUENTA_COBRAR_NO_ENCONTRADA));
+        CuentaCobrar cuenta = cuentaCobrarRepository
+                .findByVentaIdForUpdate(venta.getId())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(CUENTA_COBRAR_NO_ENCONTRADA)
+                );
+
+        if (cuenta.getMontoPagado().compareTo(BigDecimal.ZERO) > 0) {
+            throw new BusinessException(VENTA_CON_PAGOS);
+        }
 
         cuenta.setEstado(EstadoCuenta.ANULADA);
         cuentaCobrarRepository.save(cuenta);

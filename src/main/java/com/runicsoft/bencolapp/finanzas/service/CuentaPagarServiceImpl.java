@@ -152,13 +152,45 @@ public class CuentaPagarServiceImpl implements CuentaPagarService {
     @Override
     @Transactional
     public CuentaPagarResponse registrarPago(PagoProveedorRequest request) {
-        CuentaPagar cuenta = getCuentaPagar(request.getCuentaPagarId());
+        if (request.getCuentaPagarId() == null || request.getCuentaPagarId() <= 0) {
+            throw new IllegalArgumentException(ID_INVALIDO);
+        }
+
+        BigDecimal monto = request.getMonto();
+
+        if (monto == null || monto.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BusinessException(
+                    "El monto del pago debe ser mayor que cero."
+            );
+        }
+
+        if (monto.stripTrailingZeros().scale() > 2) {
+            throw new BusinessException(
+                    "El monto del pago no puede tener más de dos decimales."
+            );
+        }
+
+        if (request.getMetodoPago() == null) {
+            throw new BusinessException(
+                    "El método de pago es obligatorio."
+            );
+        }
+
+        // El bloqueo se conserva hasta terminar la transacción.
+        CuentaPagar cuenta = cuentaPagarRepository.findByIdForUpdate(request.getCuentaPagarId())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                CUENTA_PAGAR_NO_ENCONTRADA
+                        )
+                );
+
+        // Se valida después de obtener el bloqueo.
         validarCuentaParaPago(cuenta);
-        validarMontoPago(cuenta, request.getMonto());
+        validarMontoPago(cuenta, monto);
 
         PagoProveedor pago = new PagoProveedor();
         pago.setCuentaPagar(cuenta);
-        pago.setMonto(request.getMonto());
+        pago.setMonto(monto);
         pago.setMetodoPago(request.getMetodoPago());
         pago.setReferencia(request.getReferencia());
         pago.setRegistradoPor(SecurityUtils.getUsuarioActual());
@@ -166,11 +198,14 @@ public class CuentaPagarServiceImpl implements CuentaPagarService {
         PagoProveedor pagoGuardado = pagoProveedorRepository.save(pago);
         cuenta.getPagos().add(pagoGuardado);
 
-        CuentaPagar cuentaActualizada = actualizarCuentaDespuesPago(cuenta, request.getMonto());
+        CuentaPagar cuentaActualizada = actualizarCuentaDespuesPago(cuenta, monto);
 
+        // Participa en la misma transacción.
+        // Si Caja rechaza el egreso, se revierte también el pago.
         cajaService.registrarEgreso(
                 pagoGuardado.getMonto(),
-                "Pago a proveedor " + cuenta.getCompra().getProveedor().getRazonSocial(),
+                "Pago a proveedor "
+                        + cuenta.getCompra().getProveedor().getRazonSocial(),
                 pagoGuardado.getReferencia()
         );
 
